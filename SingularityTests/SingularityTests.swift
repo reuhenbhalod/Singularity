@@ -20,5 +20,11 @@ struct SingularityAppTests {
         )
 
         #expect(NSApp.activationPolicy() == .accessory)
+
+        // Clean up the global hotkey side effect AppDelegate installs at
+        // launch, so it does not leak across to HotkeyMonitorTests.
+        delegate.applicationWillTerminate(
+            Notification(name: NSApplication.willTerminateNotification)
+        )
     }
 }

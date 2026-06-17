@@ -258,14 +258,14 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Acceptance check:* `xcodebuild -scheme Singularity build` succeeds on a clean checkout; `xcodebuild test -scheme Singularity -destination 'platform=macOS'` runs the empty test target green.
   *Notes:* Single app target named `Singularity`, Swift 6, macOS 14 deployment, Apple Silicon. `LSUIElement = YES` in `Info.plist` (accessory app, no Dock icon). No SPM dependencies. Add `.swiftlint.yml` and `.swift-format` configs with defaults; CI step is `swiftlint && swift-format lint -r Singularity SingularityTests`.
 
-- [x] **T-P0-02: SwiftUI App entry point with accessory activation policy**
+- [x] **T-P0-02: SwiftUI App entry point with accessory activation policy** *(follow-up T-P0-13 covers the LSUIElement Info.plist setting that requires the Xcode GUI)*
   *Advances: US-S-1 (infra)*
   *Per brief: §2 (`ActivationPolicy.accessory`)*
   *Depends on: T-P0-01*
   *Acceptance check:* App launches with no Dock icon and no menu bar; `NSApp.activationPolicy() == .accessory` verified in a unit test.
   *Notes:* `@main struct SingularityApp: App` with an empty `Settings { … }` placeholder (real tabs land in Phase 7). `AppDelegate` set via `@NSApplicationDelegateAdaptor`.
 
-- [ ] **T-P0-03: Hotkey wrapper using Carbon `RegisterEventHotKey`**
+- [x] **T-P0-03: Hotkey wrapper using Carbon `RegisterEventHotKey`**
   *Advances: US-S-1*
   *Per brief: §3*
   *Depends on: T-P0-02*
@@ -327,6 +327,13 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Per brief: §2, §3*
   *Depends on: T-P0-08, T-P0-09, T-P0-10, T-P0-11*
   *Acceptance check:* XCUITest or scripted manual checklist: launch the app, hotkey, type `hello`, Return (placeholder logs "command not yet handled"), Esc, hotkey again, log is empty.
+
+- [ ] **T-P0-13 [USER]: Set `LSUIElement = YES` in the Singularity target's Info build settings**
+  *Advances: US-S-1 (cosmetic completion)*
+  *Per brief: §2*
+  *Depends on: T-P0-02*
+  *Acceptance check:* Launch the built `.app`; no Dock icon flashes at any point. Confirm with `defaults read .../Info.plist LSUIElement` returns `1` in the built bundle.
+  *Notes:* Deferred from T-P0-02. `.accessory` set in `AppDelegate.applicationDidFinishLaunching` already hides the Dock icon after launch, but a brief flash occurs at launch. Modern SwiftUI Xcode projects auto-generate Info.plist from build settings; setting `LSUIElement` cleanly requires the Xcode GUI (Target → Info tab → add row "Application is agent (UIElement)" = YES). User-action task because editing `project.pbxproj` by hand is off-limits per CLAUDE.md.
 
 ### Phase 1 — Hero command, hardcoded
 
