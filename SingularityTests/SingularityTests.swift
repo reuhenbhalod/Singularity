@@ -2,17 +2,23 @@
 //  SingularityTests.swift
 //  SingularityTests
 //
-//  Created by Reuhen Bhalod on 6/16/26.
-//
 
+import AppKit
 import Testing
 
-struct SingularityTests {
+@testable import Singularity
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
-        // Swift Testing Documentation
-        // https://developer.apple.com/documentation/testing
+@MainActor
+struct SingularityAppTests {
+    /// T-P0-02 acceptance: AppDelegate sets `.accessory` activation policy
+    /// at launch. Verified by invoking the lifecycle hook directly and
+    /// reading NSApp's policy back.
+    @Test func activationPolicyIsAccessoryAfterLaunch() async throws {
+        let delegate = AppDelegate()
+        delegate.applicationDidFinishLaunching(
+            Notification(name: NSApplication.didFinishLaunchingNotification)
+        )
+
+        #expect(NSApp.activationPolicy() == .accessory)
     }
-
 }

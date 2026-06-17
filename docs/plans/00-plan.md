@@ -258,7 +258,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Acceptance check:* `xcodebuild -scheme Singularity build` succeeds on a clean checkout; `xcodebuild test -scheme Singularity -destination 'platform=macOS'` runs the empty test target green.
   *Notes:* Single app target named `Singularity`, Swift 6, macOS 14 deployment, Apple Silicon. `LSUIElement = YES` in `Info.plist` (accessory app, no Dock icon). No SPM dependencies. Add `.swiftlint.yml` and `.swift-format` configs with defaults; CI step is `swiftlint && swift-format lint -r Singularity SingularityTests`.
 
-- [ ] **T-P0-02: SwiftUI App entry point with accessory activation policy**
+- [x] **T-P0-02: SwiftUI App entry point with accessory activation policy**
   *Advances: US-S-1 (infra)*
   *Per brief: §2 (`ActivationPolicy.accessory`)*
   *Depends on: T-P0-01*
