@@ -251,7 +251,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
 
 ### Phase 0 — Shell skeleton
 
-- [ ] **T-P0-01: Bootstrap Xcode project**
+- [x] **T-P0-01: Bootstrap Xcode project**
   *Advances: (infra)*
   *Per brief: §10 (prior art for project structure)*
   *Depends on: —*
