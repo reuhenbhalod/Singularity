@@ -1,0 +1,35 @@
+# SwiftLint configuration for Singularity
+# Docs: https://github.com/realm/SwiftLint
+# Run from this directory: `swiftlint`
+
+included:
+  - Singularity
+  - SingularityTests
+  - SingularityUITests
+
+excluded:
+  - Singularity.xcodeproj
+  - build
+  - DerivedData
+
+disabled_rules:
+  - todo               # in-progress build; TODOs are allowed during development
+  - trailing_whitespace # swift-format owns whitespace formatting
+
+opt_in_rules:
+  - empty_count
+  - explicit_init
+  - first_where
+  - sorted_imports
+
+line_length:
+  warning: 120
+  error: 200
+  ignores_comments: true
+  ignores_urls: true
+
+identifier_name:
+  excluded:
+    - id
+    - to
+    - up
