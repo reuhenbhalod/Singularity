@@ -272,7 +272,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Acceptance check:* Unit test verifies `HotkeyMonitor.install(keyCode:modifiers:)` returns a non-nil token and `uninstall` returns no error. Manual: press `⌥Space` from any foreground app and a logged callback fires (verified by an `os.Logger` print at this stage).
   *Notes:* No SPM dep for hotkey work — implement the Carbon wrapper inline as outlined in brief §3 (DivineDominion/Magnet shape, no vendored code). No Input Monitoring permission required.
 
-- [ ] **T-P0-04: `KeyCombo` `Codable` value type**
+- [x] **T-P0-04: `KeyCombo` `Codable` value type**
   *Advances: US-S-1, US-SET-1 (foundation for rebind)*
   *Per brief: §12.4*
   *Depends on: T-P0-03*
