@@ -278,7 +278,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P0-03*
   *Acceptance check:* Round-trip JSON encode/decode test of `KeyCombo(keyCode: 49, modifiers: [.option])` passes; matches the default `⌥Space`.
 
-- [ ] **T-P0-05: `ShellPanel` NSPanel subclass**
+- [x] **T-P0-05: `ShellPanel` NSPanel subclass**
   *Advances: US-S-1*
   *Per brief: §2*
   *Depends on: T-P0-02*
