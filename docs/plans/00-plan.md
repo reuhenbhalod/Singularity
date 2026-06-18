@@ -291,7 +291,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Acceptance check:* Manual: hotkey shows the panel covering the screen that contains the cursor; works under Stage Manager on and off; pressing the hotkey again hides the panel and returns focus to the previous app (verified by `NSApp.hide(nil)` after `orderOut`).
   *Notes:* Sets `NSApp.presentationOptions = [.hideMenuBar, .hideDock]` while visible, restores on hide. Activates with `NSApp.activate(ignoringOtherApps: true)` then `window.makeKeyAndOrderFront(nil)`.
 
-- [ ] **T-P0-07: `ShellRootView` SwiftUI scaffolding**
+- [x] **T-P0-07: `ShellRootView` SwiftUI scaffolding**
   *Advances: US-S-1*
   *Per brief: §2*
   *Depends on: T-P0-06*

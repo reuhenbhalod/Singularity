@@ -5,6 +5,7 @@
 
 import AppKit
 import os
+import SwiftUI
 
 /// Owns the `ShellPanel` lifecycle: show/hide on hotkey, screen-of-
 /// cursor sizing for multi-monitor, presentation-option swapping
@@ -46,10 +47,11 @@ final class ShellWindowController {
         let screen = currentCursorScreen()
         let panel = ShellPanel(contentRect: screen.frame)
         panel.setFrame(screen.frame, display: true)
-        // T-P0-07 sets the panel's contentView to ShellRootView.
-        // Until then, the panel is given a temporary translucent tint
-        // so it is visible during manual verification of T-P0-06.
-        panel.backgroundColor = NSColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.35)
+        // T-P0-07: SwiftUI scaffolding provides the visual surface
+        // (.ultraThinMaterial background, three region placeholders).
+        // ShellPanel's backgroundColor stays clear so the SwiftUI
+        // material isn't tinted underneath.
+        panel.contentView = NSHostingView(rootView: ShellRootView())
         self.panel = panel
 
         // Activate first so presentationOptions take effect; Apple's
