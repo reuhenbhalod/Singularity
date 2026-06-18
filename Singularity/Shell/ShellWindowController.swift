@@ -4,8 +4,8 @@
 //
 
 import AppKit
-import os
 import SwiftUI
+import os
 
 /// Owns the `ShellPanel` lifecycle: show/hide on hotkey, screen-of-
 /// cursor sizing for multi-monitor, presentation-option swapping
@@ -31,6 +31,7 @@ final class ShellWindowController {
     private var panel: ShellPanel?
     private var savedPresentationOptions: NSApplication.PresentationOptions = []
     private(set) var isShowing = false
+    private var commandInput: CommandInputViewModel?
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "shell")
 
     func toggle() {
@@ -47,11 +48,24 @@ final class ShellWindowController {
         let screen = currentCursorScreen()
         let panel = ShellPanel(contentRect: screen.frame)
         panel.setFrame(screen.frame, display: true)
-        // T-P0-07: SwiftUI scaffolding provides the visual surface
-        // (.ultraThinMaterial background, three region placeholders).
-        // ShellPanel's backgroundColor stays clear so the SwiftUI
-        // material isn't tinted underneath.
-        panel.contentView = NSHostingView(rootView: ShellRootView())
+        // T-P0-07 / T-P0-08: SwiftUI scaffolding provides the visual
+        // surface (.ultraThinMaterial). The command input is wired to
+        // a per-show CommandInputViewModel; submitting logs to os and
+        // Esc-on-empty dismisses the shell.
+        let inputViewModel = CommandInputViewModel()
+        inputViewModel.onSubmit = { [logger] text in
+            logger.info("submit: \(text, privacy: .public)")
+        }
+        inputViewModel.onDismiss = { [weak self] in
+            self?.hide()
+        }
+        inputViewModel.onLog = { [logger] line in
+            logger.info("input log: \(line, privacy: .public)")
+        }
+        commandInput = inputViewModel
+        panel.contentView = NSHostingView(
+            rootView: ShellRootView(commandInputViewModel: inputViewModel)
+        )
         self.panel = panel
 
         // Activate first so presentationOptions take effect; Apple's

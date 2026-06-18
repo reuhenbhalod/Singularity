@@ -20,7 +20,10 @@ opt_in_rules:
   - empty_count
   - explicit_init
   - first_where
-  - sorted_imports
+  # NB: `sorted_imports` removed — import ordering is owned by
+  # `swift-format` (case-sensitive ASCII sort). swiftlint's
+  # `sorted_imports` is case-insensitive and disagrees on the
+  # placement of lowercase modules like `os`.
 
 line_length:
   warning: 120

@@ -297,7 +297,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P0-06*
   *Acceptance check:* Snapshot or layout test: log strip on top (empty), compositor in middle (empty), command input at bottom (auto-focused). No real behavior yet.
 
-- [ ] **T-P0-08: `CommandInput` view with auto-focus, Return, Esc, 4 KB cap**
+- [x] **T-P0-08: `CommandInput` view with auto-focus, Return, Esc, 4 KB cap**
   *Advances: US-S-2*
   *Per brief: §11.1 (4 KB cap)*
   *Depends on: T-P0-07*
