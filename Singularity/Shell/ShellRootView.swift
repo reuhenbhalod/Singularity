@@ -6,16 +6,15 @@
 import SwiftUI
 
 /// Three-region SwiftUI scaffolding for the shell pane:
-/// session log strip on top, pane compositor in the middle, command
-/// input on the bottom. Command input is wired via T-P0-08; the log
-/// strip and compositor are still placeholders until T-P0-09 and
-/// T-P0-10.
+/// session log strip on top (T-P0-09), pane compositor in the middle
+/// (T-P0-10), command input on the bottom (T-P0-08).
 struct ShellRootView: View {
     @Bindable var commandInputViewModel: CommandInputViewModel
+    @Bindable var sessionLog: SessionLogStore
 
     var body: some View {
         VStack(spacing: 0) {
-            SessionLogPlaceholder()
+            SessionLogView(store: sessionLog)
                 .frame(height: 80)
 
             CompositorPlaceholder()
@@ -27,18 +26,6 @@ struct ShellRootView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.ultraThinMaterial)
         .preferredColorScheme(.dark)
-    }
-}
-
-private struct SessionLogPlaceholder: View {
-    var body: some View {
-        Rectangle()
-            .fill(Color.white.opacity(0.04))
-            .overlay(
-                Text("session log — T-P0-09")
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.35))
-            )
     }
 }
 

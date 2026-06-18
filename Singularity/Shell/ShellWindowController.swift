@@ -32,6 +32,7 @@ final class ShellWindowController {
     private var savedPresentationOptions: NSApplication.PresentationOptions = []
     private(set) var isShowing = false
     private var commandInput: CommandInputViewModel?
+    private var sessionLog: SessionLogStore?
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "shell")
 
     func toggle() {
@@ -48,23 +49,30 @@ final class ShellWindowController {
         let screen = currentCursorScreen()
         let panel = ShellPanel(contentRect: screen.frame)
         panel.setFrame(screen.frame, display: true)
-        // T-P0-07 / T-P0-08: SwiftUI scaffolding provides the visual
-        // surface (.ultraThinMaterial). The command input is wired to
-        // a per-show CommandInputViewModel; submitting logs to os and
-        // Esc-on-empty dismisses the shell.
+        // T-P0-07 / T-P0-08 / T-P0-09: per-show CommandInputViewModel
+        // and SessionLogStore. Submitted commands and truncation
+        // warnings push to both os.Logger and the session log strip
+        // so the user has an in-shell trail.
+        let log = SessionLogStore()
         let inputViewModel = CommandInputViewModel()
-        inputViewModel.onSubmit = { [logger] text in
+        inputViewModel.onSubmit = { [weak log, logger] text in
+            log?.append(kind: .command, text)
             logger.info("submit: \(text, privacy: .public)")
+        }
+        inputViewModel.onLog = { [weak log, logger] line in
+            log?.append(kind: .system, line)
+            logger.info("input log: \(line, privacy: .public)")
         }
         inputViewModel.onDismiss = { [weak self] in
             self?.hide()
         }
-        inputViewModel.onLog = { [logger] line in
-            logger.info("input log: \(line, privacy: .public)")
-        }
         commandInput = inputViewModel
+        sessionLog = log
         panel.contentView = NSHostingView(
-            rootView: ShellRootView(commandInputViewModel: inputViewModel)
+            rootView: ShellRootView(
+                commandInputViewModel: inputViewModel,
+                sessionLog: log
+            )
         )
         self.panel = panel
 
@@ -82,8 +90,16 @@ final class ShellWindowController {
     func hide() {
         guard isShowing, let panel else { return }
 
+        // Explicit clear per T-P0-09 acceptance ("clearing on
+        // ShellWindowController.hide"). The store is also dropped
+        // below; clear() ensures nothing leaks if a reference is
+        // held by a view that outlives the hide.
+        sessionLog?.clear()
+
         panel.orderOut(nil)
         self.panel = nil
+        sessionLog = nil
+        commandInput = nil
 
         NSApp.presentationOptions = savedPresentationOptions
 

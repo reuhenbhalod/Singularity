@@ -18,7 +18,10 @@ struct ShellRootViewTests {
     /// SPM dep (off-limits per CLAUDE.md without explicit
     /// justification).
     @Test func viewInstantiatesAndHostsCleanly() {
-        let view = ShellRootView(commandInputViewModel: CommandInputViewModel())
+        let view = ShellRootView(
+            commandInputViewModel: CommandInputViewModel(),
+            sessionLog: SessionLogStore()
+        )
         let hosting = NSHostingView(rootView: view)
         #expect(hosting.rootView is ShellRootView)
     }

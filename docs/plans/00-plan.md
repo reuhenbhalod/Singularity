@@ -304,7 +304,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Acceptance check:* Test: typing 4097 characters truncates to 4096 and emits one "input truncated to 4 KB" line into the session log; Return submits and clears; Esc with empty input dismisses, Esc with non-empty clears.
   *Notes:* Credential scanner and panic phrase wiring land in Phase 2 / Phase 5 respectively. This task only enforces the cap and the basic key handling.
 
-- [ ] **T-P0-09: `SessionLog` model and view**
+- [x] **T-P0-09: `SessionLog` model and view**
   *Advances: US-S-3*
   *Per brief: §11.7 (logging discipline up front)*
   *Depends on: T-P0-07*
