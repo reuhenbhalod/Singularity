@@ -284,7 +284,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P0-02*
   *Acceptance check:* Unit test that constructs a `ShellPanel`, asserts `level == NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))` or `NSWindow.Level.mainMenu.rawValue + 1`, `collectionBehavior` contains `[.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]`, and `styleMask.contains(.nonactivatingPanel)`.
 
-- [ ] **T-P0-06: `ShellWindowController` with screen-of-cursor selection**
+- [x] **T-P0-06: `ShellWindowController` with screen-of-cursor selection**
   *Advances: US-S-1*
   *Per brief: §2*
   *Depends on: T-P0-05*
@@ -328,7 +328,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P0-08, T-P0-09, T-P0-10, T-P0-11*
   *Acceptance check:* XCUITest or scripted manual checklist: launch the app, hotkey, type `hello`, Return (placeholder logs "command not yet handled"), Esc, hotkey again, log is empty.
 
-- [ ] **T-P0-13 [USER]: Set `LSUIElement = YES` in the Singularity target's Info build settings**
+- [x] **T-P0-13 [USER]: Set `LSUIElement = YES` in the Singularity target's Info build settings**
   *Advances: US-S-1 (cosmetic completion)*
   *Per brief: §2*
   *Depends on: T-P0-02*

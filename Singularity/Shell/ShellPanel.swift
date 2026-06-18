@@ -27,7 +27,12 @@ final class ShellPanel: NSPanel {
             defer: false
         )
 
-        level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 1)
+        // CGShieldingWindowLevel (used for screen-saver / lock screen) is
+        // above the system menu bar's render level (25). mainMenu + 1 (also
+        // 25) collides with the menu bar's own level, so the menu bar wins
+        // visually on macOS 14+. Both values are accepted by the T-P0-05
+        // acceptance test per the architect's plan.
+        level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
 
         // Chromeless, immovable kiosk overlay.
