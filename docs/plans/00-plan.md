@@ -316,13 +316,13 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P0-07*
   *Acceptance check:* Test: adding 1, 2, 3, 4 `PlaceholderPane` instances renders them tiled; each has a visible close button; closing reduces the count.
 
-- [ ] **T-P0-11: Dismiss-shell disposes panes**
+- [x] **T-P0-11: Dismiss-shell disposes panes**
   *Advances: US-S-4*
   *Per brief: §2*
   *Depends on: T-P0-10, T-P0-06*
   *Acceptance check:* Manual + integration test: open the shell, add 2 placeholder panes via a debug stub, dismiss; reopen — compositor is empty.
 
-- [ ] **T-P0-12: Phase 0 integration test — summon, type, log, dismiss**
+- [x] **T-P0-12: Phase 0 integration test — summon, type, log, dismiss**
   *Advances: US-S-1, US-S-2, US-S-3, US-S-4*
   *Per brief: §2, §3*
   *Depends on: T-P0-08, T-P0-09, T-P0-10, T-P0-11*

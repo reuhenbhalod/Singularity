@@ -58,6 +58,9 @@ final class ShellWindowController {
         let inputViewModel = CommandInputViewModel()
         inputViewModel.onSubmit = { [weak log, logger] text in
             log?.append(kind: .command, text)
+            // Phase 0 has no planner yet (T-P1+); echo back so the
+            // user sees the command was received.
+            log?.append(kind: .system, "command not yet handled")
             logger.info("submit: \(text, privacy: .public)")
         }
         inputViewModel.onLog = { [weak log, logger] line in
