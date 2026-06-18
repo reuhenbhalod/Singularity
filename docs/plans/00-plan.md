@@ -337,7 +337,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
 
 ### Phase 1 — Hero command, hardcoded
 
-- [ ] **T-P1-01: `Action` enum + `PlanStep` + `RawPlan` types**
+- [x] **T-P1-01: `Action` enum + `PlanStep` + `RawPlan` types**
   *Advances: US-P-1 (foundation)*
   *Per brief: §1*
   *Depends on: T-P0-12*

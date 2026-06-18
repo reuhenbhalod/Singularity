@@ -13,8 +13,9 @@ excluded:
   - DerivedData
 
 disabled_rules:
-  - todo               # in-progress build; TODOs are allowed during development
+  - todo                # in-progress build; TODOs are allowed during development
   - trailing_whitespace # swift-format owns whitespace formatting
+  - trailing_comma      # swift-format wants trailing commas in multiline collection literals
 
 opt_in_rules:
   - empty_count
