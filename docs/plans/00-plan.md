@@ -310,7 +310,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P0-07*
   *Acceptance check:* Test: appending entries appends to the in-memory list; calling `clear()` empties it; the view renders entries in order; reopening the shell shows an empty log (verified by clearing on `ShellWindowController.hide`).
 
-- [ ] **T-P0-10: `Compositor` model and `CompositorView` (1/2/3/4-pane layouts)**
+- [x] **T-P0-10: `Compositor` model and `CompositorView` (1/2/3/4-pane layouts)**
   *Advances: US-S-4*
   *Per brief: §2 (multi-pane handling)*
   *Depends on: T-P0-07*

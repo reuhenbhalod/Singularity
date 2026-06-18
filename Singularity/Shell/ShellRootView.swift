@@ -11,13 +11,14 @@ import SwiftUI
 struct ShellRootView: View {
     @Bindable var commandInputViewModel: CommandInputViewModel
     @Bindable var sessionLog: SessionLogStore
+    @Bindable var compositor: CompositorStore
 
     var body: some View {
         VStack(spacing: 0) {
             SessionLogView(store: sessionLog)
                 .frame(height: 80)
 
-            CompositorPlaceholder()
+            CompositorView(store: compositor)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             CommandInputView(viewModel: commandInputViewModel)
@@ -26,17 +27,5 @@ struct ShellRootView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.ultraThinMaterial)
         .preferredColorScheme(.dark)
-    }
-}
-
-private struct CompositorPlaceholder: View {
-    var body: some View {
-        Rectangle()
-            .fill(Color.clear)
-            .overlay(
-                Text("pane compositor — T-P0-10")
-                    .font(.title3)
-                    .foregroundStyle(.white.opacity(0.25))
-            )
     }
 }

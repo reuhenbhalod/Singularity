@@ -20,7 +20,8 @@ struct ShellRootViewTests {
     @Test func viewInstantiatesAndHostsCleanly() {
         let view = ShellRootView(
             commandInputViewModel: CommandInputViewModel(),
-            sessionLog: SessionLogStore()
+            sessionLog: SessionLogStore(),
+            compositor: CompositorStore()
         )
         let hosting = NSHostingView(rootView: view)
         #expect(hosting.rootView is ShellRootView)

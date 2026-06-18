@@ -33,6 +33,7 @@ final class ShellWindowController {
     private(set) var isShowing = false
     private var commandInput: CommandInputViewModel?
     private var sessionLog: SessionLogStore?
+    private var compositor: CompositorStore?
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "shell")
 
     func toggle() {
@@ -49,11 +50,11 @@ final class ShellWindowController {
         let screen = currentCursorScreen()
         let panel = ShellPanel(contentRect: screen.frame)
         panel.setFrame(screen.frame, display: true)
-        // T-P0-07 / T-P0-08 / T-P0-09: per-show CommandInputViewModel
-        // and SessionLogStore. Submitted commands and truncation
-        // warnings push to both os.Logger and the session log strip
-        // so the user has an in-shell trail.
+        // Per-show stores. Principle 4 (no cross-session memory) is
+        // preserved because hide() drops these references and clears
+        // them explicitly.
         let log = SessionLogStore()
+        let comp = CompositorStore()
         let inputViewModel = CommandInputViewModel()
         inputViewModel.onSubmit = { [weak log, logger] text in
             log?.append(kind: .command, text)
@@ -68,10 +69,12 @@ final class ShellWindowController {
         }
         commandInput = inputViewModel
         sessionLog = log
+        compositor = comp
         panel.contentView = NSHostingView(
             rootView: ShellRootView(
                 commandInputViewModel: inputViewModel,
-                sessionLog: log
+                sessionLog: log,
+                compositor: comp
             )
         )
         self.panel = panel
@@ -90,16 +93,17 @@ final class ShellWindowController {
     func hide() {
         guard isShowing, let panel else { return }
 
-        // Explicit clear per T-P0-09 acceptance ("clearing on
-        // ShellWindowController.hide"). The store is also dropped
-        // below; clear() ensures nothing leaks if a reference is
-        // held by a view that outlives the hide.
+        // Explicit clear per T-P0-09 / T-P0-11 acceptance. Stores
+        // are also dropped below; clear() ensures nothing leaks if
+        // a reference is held by a view that outlives the hide.
         sessionLog?.clear()
+        compositor?.clear()
 
         panel.orderOut(nil)
         self.panel = nil
         sessionLog = nil
         commandInput = nil
+        compositor = nil
 
         NSApp.presentationOptions = savedPresentationOptions
 
