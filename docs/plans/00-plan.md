@@ -343,7 +343,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P0-12*
   *Acceptance check:* `Codable` round-trip test for a minimal `RawPlan` with one `open_url`-shape step. Type lives under `Executor/Actions.swift` and is shared by Planner.
 
-- [ ] **T-P1-02: Stub `ValidatedPlan` with Phase-1 factory + `SafetyVerdict.allow` stub**
+- [x] **T-P1-02: Stub `ValidatedPlan` with Phase-1 factory + `SafetyVerdict.allow` stub**
   *Advances: US-SAFE-2 (placeholder)*
   *Per brief: §11.3*
   *Depends on: T-P1-01*
