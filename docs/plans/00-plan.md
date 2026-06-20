@@ -349,7 +349,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P1-01*
   *Acceptance check:* Test asserts `ValidatedPlan` cannot be constructed from `RawPlan` directly; only the Phase-1 factory `ValidatedPlan.phase1Allow(_:)` (clearly marked TODO-remove-in-Phase-5) returns one. This is the architectural seed for the type-level gate.
 
-- [ ] **T-P1-03: `PlannerProtocol` and `StringMatcherPlanner`**
+- [x] **T-P1-03: `PlannerProtocol` and `StringMatcherPlanner`**
   *Advances: US-P-1 (Phase 1 stand-in)*
   *Per brief: §1*
   *Depends on: T-P1-01*

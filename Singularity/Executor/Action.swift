@@ -20,11 +20,18 @@ enum Action: Equatable {
     /// URL handler (`https`, `spotify:`, `vscode:`, etc.) launches it.
     case openURL(URL)
 
-    /// Lane 2: navigate an existing `WKWebView` pane to the URL.
+    /// Lane 2: navigate the active `WKWebView` pane to the URL.
+    /// Router creates a new pane if none exists.
     case webNavigate(URL)
 
     /// Lane 2: evaluate JavaScript in the active `WKWebView` pane.
     case webEvaluate(script: String)
+
+    /// Lane 2: run a named hook from a named `WebAdapter` against
+    /// the active pane (e.g. `adapter: "youtube"`, `hook:
+    /// "play_newest"`). The adapter owns the resilient selectors;
+    /// the planner only names what to run.
+    case runScript(adapter: String, hook: String)
 }
 
 extension Action: Codable {
@@ -32,12 +39,15 @@ extension Action: Codable {
         case kind
         case url
         case script
+        case adapter
+        case hook
     }
 
     private enum Kind: String, Codable {
         case openURL = "open_url"
         case webNavigate = "web_navigate"
         case webEvaluate = "web_evaluate"
+        case runScript = "run_script"
     }
 
     init(from decoder: any Decoder) throws {
@@ -50,6 +60,11 @@ extension Action: Codable {
             self = .webNavigate(try container.decode(URL.self, forKey: .url))
         case .webEvaluate:
             self = .webEvaluate(script: try container.decode(String.self, forKey: .script))
+        case .runScript:
+            self = .runScript(
+                adapter: try container.decode(String.self, forKey: .adapter),
+                hook: try container.decode(String.self, forKey: .hook)
+            )
         }
     }
 
@@ -65,6 +80,10 @@ extension Action: Codable {
         case .webEvaluate(let script):
             try container.encode(Kind.webEvaluate, forKey: .kind)
             try container.encode(script, forKey: .script)
+        case .runScript(let adapter, let hook):
+            try container.encode(Kind.runScript, forKey: .kind)
+            try container.encode(adapter, forKey: .adapter)
+            try container.encode(hook, forKey: .hook)
         }
     }
 }
