@@ -1,0 +1,30 @@
+//
+//  WebAdapter.swift
+//  Singularity
+//
+
+import Foundation
+
+/// A per-app driver for the WKWebView (lane 2) executor.
+///
+/// Each adapter owns the resilient selectors and JavaScript hooks for
+/// one web app (YouTube, Gmail, …). The planner only *names* an adapter
+/// and a hook (`runScript(adapter:hook:)`); the adapter is what knows
+/// how to actually drive the page. Keeping the selectors here — not in
+/// the planner — means a site redesign is a one-file fix.
+///
+/// Phase 1 keeps this protocol intentionally thin: just the navigation
+/// allowlist, which `URLPolicy` will union across all adapters in
+/// Phase 3 (T-P3-05) to form the global host allowlist. Phase 3 grows
+/// this protocol with `dataStoreIdentifier`, `allowsDownloads`, and a
+/// protocol-level `contentWorldName` once there is more than one
+/// adapter to share them.
+///
+/// `Sendable` so an adapter can be handed to the executor across actor
+/// boundaries; adapters are value types holding only constants.
+protocol WebAdapter: Sendable {
+    /// Hosts this adapter is permitted to drive. The web lane refuses
+    /// to navigate anywhere outside the union of every adapter's
+    /// `allowedHosts`. Compared case-insensitively (see `URLPolicy`).
+    var allowedHosts: [String] { get }
+}

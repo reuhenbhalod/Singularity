@@ -355,7 +355,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P1-01*
   *Acceptance check:* Test: `play mrbeast newest video` resolves to a `RawPlan` with one step `open_url` for `https://www.youtube.com/@MrBeast/videos` plus a follow-up `run_script` step naming the YouTube adapter hook. Unrecognized inputs return `nil` (Phase 1 has no other phrases).
 
-- [ ] **T-P1-04: `WebAdapter` protocol + `YouTubeAdapter` Phase 1 hook**
+- [x] **T-P1-04: `WebAdapter` protocol + `YouTubeAdapter` Phase 1 hook**
   *Advances: US-E-2*
   *Per brief: §4*
   *Depends on: T-P1-01*
