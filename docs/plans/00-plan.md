@@ -361,7 +361,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P1-01*
   *Acceptance check:* Adapter exposes `allowedHosts = ["youtube.com", "www.youtube.com", "m.youtube.com", "googlevideo.com"]`, `contentWorldName = "singularity"`, and `playNewestForChannel(_:)` JS string that uses a `MutationObserver`-based `waitForSelector` and clicks the first video link.
 
-- [ ] **T-P1-05: `AllowlistNavigationDelegate` (Phase 1 hardcoded for YouTube)**
+- [x] **T-P1-05: `AllowlistNavigationDelegate` (Phase 1 hardcoded for YouTube)**
   *Advances: US-SAFE-3 (partial), US-E-2*
   *Per brief: §11.4*
   *Depends on: T-P1-04*
