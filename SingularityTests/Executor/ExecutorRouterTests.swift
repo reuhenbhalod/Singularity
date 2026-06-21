@@ -47,7 +47,8 @@ struct ExecutorRouterTests {
         let driver = FakeWebPaneDriver()
         let router = ExecutorRouter(compositor: compositor, driver: driver)
 
-        try await router.dispatch(heroPlan())
+        let summary = try await router.dispatch(heroPlan())
+        #expect(summary == "playing newest MrBeast video")
 
         // Opens a web pane.
         #expect(compositor.panes.count == 1)

@@ -34,9 +34,13 @@ final class ExecutorRouter {
         self.driver = driver ?? LiveWebPaneDriver()
     }
 
-    func dispatch(_ plan: ValidatedPlan) async throws {
+    /// Executes the plan and returns a short, user-facing summary of the
+    /// last meaningful action (the pipeline logs it).
+    @discardableResult
+    func dispatch(_ plan: ValidatedPlan) async throws -> String {
         var currentPane: WebPaneController?
         var currentChannel: String?
+        var summary = "done"
 
         for step in plan.steps {
             switch step.action {
@@ -46,6 +50,7 @@ final class ExecutorRouter {
                 currentChannel = Self.youTubeChannelHandle(from: url)
                 try await driver.navigate(controller, to: url)
                 currentPane = controller
+                summary = "opened \(url.host ?? "page")"
 
             case .runScript(let adapterName, let hook):
                 guard adapterName == "youtube", hook == "play_newest" else {
@@ -54,14 +59,18 @@ final class ExecutorRouter {
                 guard let controller = currentPane else {
                     throw ExecutorError.missingPane
                 }
-                let javaScript = adapter.playNewestForChannel(currentChannel ?? "")
+                let channel = currentChannel ?? "the channel"
+                let javaScript = adapter.playNewestForChannel(channel)
                 try await driver.runHook(controller, javaScript: javaScript)
+                summary = "playing newest \(channel) video"
 
             case .openURL, .webEvaluate:
                 // Not part of the Phase-1 hero flow; Phase 3 adds lanes.
                 throw ExecutorError.unsupportedStep
             }
         }
+
+        return summary
     }
 
     /// Pulls the channel handle from a YouTube `/@Handle/...` URL —

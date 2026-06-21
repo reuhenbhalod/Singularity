@@ -34,6 +34,7 @@ final class ShellWindowController {
     private var commandInput: CommandInputViewModel?
     private var sessionLog: SessionLogStore?
     private var compositor: CompositorStore?
+    private var pipeline: CommandPipeline?
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "shell")
 
     func toggle() {
@@ -56,12 +57,17 @@ final class ShellWindowController {
         let log = SessionLogStore()
         let comp = CompositorStore()
         let inputViewModel = CommandInputViewModel()
-        inputViewModel.onSubmit = { [weak log, logger] text in
-            log?.append(kind: .command, text)
-            // Phase 0 has no planner yet (T-P1+); echo back so the
-            // user sees the command was received.
-            log?.append(kind: .system, "command not yet handled")
+        // Phase-1 command pipeline: string-matcher planner -> stub
+        // validator -> executor router (live WebKit driver). The router
+        // and pipeline log into this show's SessionLogStore.
+        let pipeline = CommandPipeline(
+            planner: StringMatcherPlanner(),
+            router: ExecutorRouter(compositor: comp),
+            log: log
+        )
+        inputViewModel.onSubmit = { [logger] text in
             logger.info("submit: \(text, privacy: .public)")
+            Task { await pipeline.run(text) }
         }
         inputViewModel.onLog = { [weak log, logger] line in
             log?.append(kind: .system, line)
@@ -73,6 +79,7 @@ final class ShellWindowController {
         commandInput = inputViewModel
         sessionLog = log
         compositor = comp
+        self.pipeline = pipeline
         panel.contentView = NSHostingView(
             rootView: ShellRootView(
                 commandInputViewModel: inputViewModel,
@@ -107,6 +114,7 @@ final class ShellWindowController {
         sessionLog = nil
         commandInput = nil
         compositor = nil
+        pipeline = nil
 
         NSApp.presentationOptions = savedPresentationOptions
 

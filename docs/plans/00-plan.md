@@ -389,7 +389,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P1-02, T-P1-08*
   *Acceptance check:* Test: given a `ValidatedPlan` containing the hero step list, the router opens a `WebPaneController` for YouTube and triggers the adapter's `playNewestForChannel("MrBeast")` after `didFinish`.
 
-- [ ] **T-P1-10: `CommandPipeline` wires input → string-matcher → stub-validator → router**
+- [x] **T-P1-10: `CommandPipeline` wires input → string-matcher → stub-validator → router**
   *Advances: US-P-1 (Phase 1 path)*
   *Depends on: T-P1-03, T-P1-09*
   *Acceptance check:* Integration test: typing `play mrbeast newest video` and pressing Return ends with a YouTube pane in the compositor and the log showing the command + "playing newest MrBeast video".
