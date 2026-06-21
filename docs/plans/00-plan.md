@@ -367,7 +367,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P1-04*
   *Acceptance check:* Test: navigation to a host not in the YouTube adapter's `allowedHosts` returns `.cancel`; navigation to `https://www.youtube.com/...` returns `.allow`. The full `URLPolicy` generalization happens in Phase 3.
 
-- [ ] **T-P1-06: `WebView+Helpers.waitForSelector` JS helper**
+- [x] **T-P1-06: `WebView+Helpers.waitForSelector` JS helper**
   *Advances: US-E-2*
   *Per brief: §4*
   *Depends on: T-P1-04*
