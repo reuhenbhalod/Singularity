@@ -373,7 +373,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P1-04*
   *Acceptance check:* Test (with `WKWebView` in a hidden window) loads a local HTML fixture, waits for a selector that appears after a 200ms timer, and resolves; a non-existing selector with 1s timeout throws.
 
-- [ ] **T-P1-07: `WebPaneController` builds a `WKWebView` with per-adapter data store and content world**
+- [x] **T-P1-07: `WebPaneController` builds a `WKWebView` with per-adapter data store and content world**
   *Advances: US-E-2*
   *Per brief: §11.5 (per-adapter `WKWebsiteDataStore`)*
   *Depends on: T-P1-06*

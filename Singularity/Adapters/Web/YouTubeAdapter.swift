@@ -28,6 +28,12 @@ struct YouTubeAdapter: WebAdapter {
     /// Phase 3 promotes this to a `WebAdapter` protocol requirement.
     let contentWorldName = "singularity"
 
+    /// Fixed identifier for YouTube's isolated, persistent data store —
+    /// a hardcoded constant so the logged-in session survives cold
+    /// launches (the hero command requires persistent login).
+    let dataStoreIdentifier =
+        UUID(uuidString: "B6F2D3E1-7A4C-4E9B-9F12-3C5D6E7A8B90") ?? UUID()
+
     /// JavaScript that waits for the channel's video grid to render,
     /// then clicks the first (newest) video link.
     ///

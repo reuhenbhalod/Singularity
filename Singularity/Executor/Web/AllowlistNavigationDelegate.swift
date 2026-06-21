@@ -18,13 +18,19 @@ import WebKit
 /// The actual allow/deny decision lives in `decision(for:)` — a pure
 /// function of the URL and the allowlist — so it can be unit-tested
 /// without a live `WKWebView` navigation.
-final class AllowlistNavigationDelegate: NSObject, WKNavigationDelegate {
+final class AllowlistNavigationDelegate: NSObject, WKNavigationDelegate, WKDownloadDelegate {
     /// Lowercased hosts this delegate permits. Stored lowercased so the
     /// comparison in `decision(for:)` is a plain set lookup.
     private let allowedHosts: Set<String>
 
-    init(allowedHosts: [String]) {
+    /// Whether downloads are permitted on this pane. Phase 1 is always
+    /// `false` (deny everything); T-P3-08 makes it a per-adapter
+    /// capability flag with a full `WKDownloadDelegate`.
+    let allowsDownloads: Bool
+
+    init(allowedHosts: [String], allowsDownloads: Bool = false) {
         self.allowedHosts = Set(allowedHosts.map { $0.lowercased() })
+        self.allowsDownloads = allowsDownloads
         super.init()
     }
 
@@ -59,5 +65,39 @@ final class AllowlistNavigationDelegate: NSObject, WKNavigationDelegate {
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
         decisionHandler(decision(for: navigationAction.request.url))
+    }
+
+    // MARK: - Downloads (deny by default)
+
+    /// A navigation that turns into a download (e.g. a click on a file
+    /// link) routes here; take over as its delegate so we can refuse it.
+    func webView(
+        _ webView: WKWebView,
+        navigationAction: WKNavigationAction,
+        didBecome download: WKDownload
+    ) {
+        download.delegate = self
+    }
+
+    /// A response that turns into a download (e.g. `Content-Disposition:
+    /// attachment`) routes here.
+    func webView(
+        _ webView: WKWebView,
+        navigationResponse: WKNavigationResponse,
+        didBecome download: WKDownload
+    ) {
+        download.delegate = self
+    }
+
+    /// Returning `nil` as the destination cancels the download. Phase 1
+    /// denies every download regardless of adapter; T-P3-08 will honor
+    /// `allowsDownloads` and pick a real destination when permitted.
+    func download(
+        _ download: WKDownload,
+        decideDestinationUsing response: URLResponse,
+        suggestedFilename: String,
+        completionHandler: @escaping (URL?) -> Void
+    ) {
+        completionHandler(nil)
     }
 }

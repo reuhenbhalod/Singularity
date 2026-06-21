@@ -1,0 +1,45 @@
+//
+//  WebPaneController.swift
+//  Singularity
+//
+
+import Foundation
+import WebKit
+
+/// Owns the `WKWebView` for one web pane and wires it to an adapter.
+///
+/// Each pane gets the adapter's own **persistent** `WKWebsiteDataStore`
+/// (keyed by the adapter's `dataStoreIdentifier`) so a logged-in
+/// session — YouTube, Gmail — survives cold launches and stays isolated
+/// from other adapters (brief §11.5). The single
+/// `AllowlistNavigationDelegate` enforces the host allowlist and denies
+/// downloads (brief §4); it is retained here because `WKWebView` holds
+/// its `navigationDelegate` weakly.
+///
+/// `@MainActor` because `WKWebView` and its configuration are
+/// main-actor-bound.
+@MainActor
+final class WebPaneController {
+    let webView: WKWebView
+
+    /// Retained so the web view's weak `navigationDelegate` stays alive.
+    let navigationDelegate: AllowlistNavigationDelegate
+
+    private let adapter: any WebAdapter
+
+    init(adapter: any WebAdapter) {
+        self.adapter = adapter
+
+        let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = WKWebsiteDataStore(
+            forIdentifier: adapter.dataStoreIdentifier
+        )
+
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        let navigationDelegate = AllowlistNavigationDelegate(allowedHosts: adapter.allowedHosts)
+        webView.navigationDelegate = navigationDelegate
+
+        self.webView = webView
+        self.navigationDelegate = navigationDelegate
+    }
+}

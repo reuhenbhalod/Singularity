@@ -27,4 +27,13 @@ protocol WebAdapter: Sendable {
     /// to navigate anywhere outside the union of every adapter's
     /// `allowedHosts`. Compared case-insensitively (see `URLPolicy`).
     var allowedHosts: [String] { get }
+
+    /// Stable identifier for this adapter's persistent
+    /// `WKWebsiteDataStore` (cookies, localStorage). Each adapter gets
+    /// its own isolated store so logins persist across launches and one
+    /// app's session can't read another's. Must be a fixed constant —
+    /// a fresh UUID per launch would orphan the previous session's
+    /// login. (Pulled forward from Phase 3 because `WebPaneController`
+    /// needs it now, per T-P1-07.)
+    var dataStoreIdentifier: UUID { get }
 }
