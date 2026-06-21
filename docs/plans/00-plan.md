@@ -384,7 +384,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P1-07, T-P0-10*
   *Acceptance check:* Test: adding a `Pane` of type `.web(WebPaneController)` tiles it; closing the pane releases the `WKWebView`; dismissing the shell disposes the pane.
 
-- [ ] **T-P1-09: `ExecutorRouter` Phase-1 wiring (dispatches the hero `ValidatedPlan` only)**
+- [x] **T-P1-09: `ExecutorRouter` Phase-1 wiring (dispatches the hero `ValidatedPlan` only)**
   *Advances: US-E-2 (constrained)*
   *Depends on: T-P1-02, T-P1-08*
   *Acceptance check:* Test: given a `ValidatedPlan` containing the hero step list, the router opens a `WebPaneController` for YouTube and triggers the adapter's `playNewestForChannel("MrBeast")` after `didFinish`.

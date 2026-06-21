@@ -28,6 +28,13 @@ final class AllowlistNavigationDelegate: NSObject, WKNavigationDelegate, WKDownl
     /// capability flag with a full `WKDownloadDelegate`.
     let allowsDownloads: Bool
 
+    /// Called when a navigation finishes. `WebPaneController.load(_:)`
+    /// uses this to bridge `didFinish` into an `async` continuation.
+    var onDidFinish: (() -> Void)?
+
+    /// Called when a navigation fails (provisional or committed).
+    var onDidFail: ((any Error) -> Void)?
+
     init(allowedHosts: [String], allowsDownloads: Bool = false) {
         self.allowedHosts = Set(allowedHosts.map { $0.lowercased() })
         self.allowsDownloads = allowsDownloads
@@ -65,6 +72,28 @@ final class AllowlistNavigationDelegate: NSObject, WKNavigationDelegate, WKDownl
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
         decisionHandler(decision(for: navigationAction.request.url))
+    }
+
+    // MARK: - Load completion
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        onDidFinish?()
+    }
+
+    func webView(
+        _ webView: WKWebView,
+        didFail navigation: WKNavigation!,
+        withError error: any Error
+    ) {
+        onDidFail?(error)
+    }
+
+    func webView(
+        _ webView: WKWebView,
+        didFailProvisionalNavigation navigation: WKNavigation!,
+        withError error: any Error
+    ) {
+        onDidFail?(error)
     }
 
     // MARK: - Downloads (deny by default)

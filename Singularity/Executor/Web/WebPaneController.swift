@@ -42,4 +42,40 @@ final class WebPaneController {
         self.webView = webView
         self.navigationDelegate = navigationDelegate
     }
+
+    /// Navigates the pane to `url` and returns once the load finishes,
+    /// throwing if it fails. Bridges the navigation delegate's
+    /// `didFinish`/`didFail` callbacks into an `async` continuation;
+    /// whichever fires first resumes it exactly once.
+    func load(_ url: URL) async throws {
+        let resumed = Resumed()
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, any Error>) in
+            navigationDelegate.onDidFinish = {
+                guard !resumed.value else { return }
+                resumed.value = true
+                cont.resume()
+            }
+            navigationDelegate.onDidFail = { error in
+                guard !resumed.value else { return }
+                resumed.value = true
+                cont.resume(throwing: error)
+            }
+            webView.load(URLRequest(url: url))
+        }
+    }
+
+    /// Runs an adapter hook's `javaScript` in the adapter's content
+    /// world (so it can't collide with the page or be blocked by CSP).
+    func evaluate(_ javaScript: String) async throws {
+        _ = try await webView.callAsyncJavaScript(
+            javaScript,
+            arguments: [:],
+            contentWorld: .singularity
+        )
+    }
+
+    /// Single-resume guard for the load continuation.
+    private final class Resumed {
+        var value = false
+    }
 }
