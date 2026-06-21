@@ -379,7 +379,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P1-06*
   *Acceptance check:* Test: creating a `WebPaneController(adapter: youtube)` produces a `WKWebView` whose configuration's `websiteDataStore.identifier` equals the YouTube adapter's UUID; the nav delegate is the `AllowlistNavigationDelegate`; downloads are denied.
 
-- [ ] **T-P1-08: Wire `WebPaneController` into a compositor `Pane`**
+- [x] **T-P1-08: Wire `WebPaneController` into a compositor `Pane`**
   *Advances: US-S-4, US-E-2*
   *Depends on: T-P1-07, T-P0-10*
   *Acceptance check:* Test: adding a `Pane` of type `.web(WebPaneController)` tiles it; closing the pane releases the `WKWebView`; dismissing the shell disposes the pane.

@@ -5,9 +5,9 @@
 
 import SwiftUI
 
-/// Tiles the open panes for layouts of 1, 2, 3, or 4. Phase 0
-/// renders every pane via `PlaceholderPaneView`. Future phases can
-/// switch on pane kind to render real content.
+/// Tiles the open panes for layouts of 1, 2, 3, or 4. Each pane is
+/// rendered by `PaneView`, which dispatches on the pane's kind
+/// (placeholder vs. live web pane).
 ///
 /// Layouts:
 /// - 1 pane: full bleed.
@@ -24,29 +24,29 @@ struct CompositorView: View {
             case 0:
                 EmptyState()
             case 1:
-                PlaceholderPaneView(pane: store.panes[0]) { store.remove(id: $0) }
+                PaneView(pane: store.panes[0]) { store.remove(id: $0) }
             case 2:
                 HStack(spacing: 0) {
-                    PlaceholderPaneView(pane: store.panes[0]) { store.remove(id: $0) }
-                    PlaceholderPaneView(pane: store.panes[1]) { store.remove(id: $0) }
+                    PaneView(pane: store.panes[0]) { store.remove(id: $0) }
+                    PaneView(pane: store.panes[1]) { store.remove(id: $0) }
                 }
             case 3:
                 HStack(spacing: 0) {
-                    PlaceholderPaneView(pane: store.panes[0]) { store.remove(id: $0) }
+                    PaneView(pane: store.panes[0]) { store.remove(id: $0) }
                     VStack(spacing: 0) {
-                        PlaceholderPaneView(pane: store.panes[1]) { store.remove(id: $0) }
-                        PlaceholderPaneView(pane: store.panes[2]) { store.remove(id: $0) }
+                        PaneView(pane: store.panes[1]) { store.remove(id: $0) }
+                        PaneView(pane: store.panes[2]) { store.remove(id: $0) }
                     }
                 }
             default:  // 4 or more (capped at 4 by store)
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
-                        PlaceholderPaneView(pane: store.panes[0]) { store.remove(id: $0) }
-                        PlaceholderPaneView(pane: store.panes[1]) { store.remove(id: $0) }
+                        PaneView(pane: store.panes[0]) { store.remove(id: $0) }
+                        PaneView(pane: store.panes[1]) { store.remove(id: $0) }
                     }
                     HStack(spacing: 0) {
-                        PlaceholderPaneView(pane: store.panes[2]) { store.remove(id: $0) }
-                        PlaceholderPaneView(pane: store.panes[3]) { store.remove(id: $0) }
+                        PaneView(pane: store.panes[2]) { store.remove(id: $0) }
+                        PaneView(pane: store.panes[3]) { store.remove(id: $0) }
                     }
                 }
             }
