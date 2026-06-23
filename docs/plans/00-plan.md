@@ -415,7 +415,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P2-01*
   *Acceptance check:* Async test (hits real localhost Ollama): `await client.tags()` returns a non-empty array; `await client.chat(model:, messages:, format: schema, temperature: 0)` returns a `Codable`-decodable response payload. Timeout default 30s, configurable.
 
-- [ ] **T-P2-03: `PlanSchema` + `SystemPrompt` resources**
+- [x] **T-P2-03: `PlanSchema` + `SystemPrompt` resources**
   *Advances: US-P-1*
   *Per brief: §1, §11.6 (envelope directive in prompt)*
   *Depends on: T-P2-02*
