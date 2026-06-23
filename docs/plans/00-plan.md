@@ -531,7 +531,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-10*
   *Acceptance check:* Adapter has its own `WKWebsiteDataStore` UUID; `allowedHosts` includes `mail.google.com` and the relevant Google auth hosts; an integration test "open gmail" opens a Gmail pane; login persists across two cold launches.
 
-- [ ] **T-P3-12: `SafetyLog` scaffold (`os.Logger`)**
+- [x] **T-P3-12: `SafetyLog` scaffold (`os.Logger`)**
   *Advances: US-SAFE-8*
   *Per brief: §11.7*
   *Depends on: T-P3-06*
