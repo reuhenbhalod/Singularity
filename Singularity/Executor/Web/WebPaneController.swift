@@ -34,6 +34,10 @@ final class WebPaneController {
         configuration.websiteDataStore = WKWebsiteDataStore(
             forIdentifier: adapter.dataStoreIdentifier
         )
+        // Let the page autoplay video without a real click gesture —
+        // the user explicitly asked to play, so a programmatic click on
+        // the newest video should start playback.
+        configuration.mediaTypesRequiringUserActionForPlayback = []
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
         let navigationDelegate = AllowlistNavigationDelegate(allowedHosts: adapter.allowedHosts)

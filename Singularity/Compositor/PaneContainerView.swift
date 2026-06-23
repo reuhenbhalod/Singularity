@@ -36,7 +36,10 @@ struct PaneContainerView<Content: View>: View {
             .padding(.vertical, 6)
             .background(Color.white.opacity(0.12))
 
+            // Fill the tile so the content (e.g. a WKWebView, which has
+            // no intrinsic size) doesn't collapse to its header.
             content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .padding(4)
