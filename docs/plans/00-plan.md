@@ -439,7 +439,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P2-01*
   *Acceptance check:* Table-driven tests cover at least one positive per category (AWS, GitHub PAT, OpenAI `sk-`, Slack `xox`, Stripe `sk_live_`, Google `AIza`, Luhn-valid PAN, US SSN) and three near-misses per category (ensure no false positives on innocuous strings).
 
-- [ ] **T-P2-07: `RateLimiter` token bucket (20/min, 200/hr)**
+- [x] **T-P2-07: `RateLimiter` token bucket (20/min, 200/hr)**
   *Advances: US-SAFE-1*
   *Per brief: §11.1*
   *Depends on: T-P2-01*
