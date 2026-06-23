@@ -477,7 +477,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-01*
   *Acceptance check:* Test: router with two registered fake lanes dispatches each step to the first lane whose `canHandle(_:)` returns true; if none match, returns `.unhandled` and the pipeline surfaces "I couldn't handle that step."
 
-- [ ] **T-P3-03: `URLSchemeLane` (lane 1)**
+- [x] **T-P3-03: `URLSchemeLane` (lane 1)**
   *Advances: US-E-1*
   *Per brief: §4*
   *Depends on: T-P3-02*

@@ -62,7 +62,7 @@ final class ShellWindowController {
         // router and pipeline log into this show's SessionLogStore.
         let pipeline = CommandPipeline(
             planner: OllamaPlanner(client: OllamaClient()),
-            router: ExecutorRouter(lanes: [WebLane(compositor: comp)]),
+            router: ExecutorRouter(lanes: [URLSchemeLane(), WebLane(compositor: comp)]),
             log: log
         )
         inputViewModel.onSubmit = { [logger] text in
