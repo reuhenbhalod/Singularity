@@ -489,7 +489,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-02*
   *Acceptance check:* Registry collects all `WebAdapter` instances declared in `Adapters/Web/`; `lookup(host:)` returns the right adapter for a host in its `allowedHosts`.
 
-- [ ] **T-P3-05: `AllowedDomains` central registry (union of all adapter `allowedHosts`)**
+- [x] **T-P3-05: `AllowedDomains` central registry (union of all adapter `allowedHosts`)**
   *Advances: US-SAFE-3*
   *Per brief: §11.4*
   *Depends on: T-P3-04*
