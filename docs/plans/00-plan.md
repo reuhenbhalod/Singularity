@@ -483,7 +483,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-02*
   *Acceptance check:* Test (mocking `NSWorkspace.open`): a plan step `open_url("spotify:track:xxx")` dispatches via `NSWorkspace.shared.open(_:)`; an HTTPS URL is rejected here (handled by the Web lane instead, unless an adapter explicitly declares lane-1 handling); an unregistered custom scheme is rejected by the validator (verified later in Phase 5).
 
-- [ ] **T-P3-04: `WebAdapter` registry**
+- [x] **T-P3-04: `WebAdapter` registry**
   *Advances: US-E-2*
   *Per brief: §4*
   *Depends on: T-P3-02*
