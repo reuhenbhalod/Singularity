@@ -76,8 +76,17 @@ struct YouTubeAdapter: WebAdapter {
             }
 
             const __sgl_link = await __sgl_waitForSelector(__sgl_selector, 10000);
+            const __sgl_href = __sgl_link.href;
+            if (__sgl_href) {
+                // Navigate straight to the watch page — more reliable
+                // than a synthetic click, which YouTube's SPA router
+                // often ignores. Deferred so callAsyncJavaScript can
+                // resolve before this context is torn down.
+                setTimeout(() => { window.location.assign(__sgl_href); }, 0);
+                return __sgl_href;
+            }
             __sgl_link.click();
-            return __sgl_link.href || true;
+            return "clicked";
             """
     }
 

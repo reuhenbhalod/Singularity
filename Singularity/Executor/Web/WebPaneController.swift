@@ -47,10 +47,18 @@ final class WebPaneController {
         self.navigationDelegate = navigationDelegate
     }
 
+    /// How long to wait for `didFinish` before proceeding anyway. A
+    /// page like YouTube can keep network activity alive; the adapter
+    /// hook's own `waitForSelector` handles "is the content ready",
+    /// so a slow `didFinish` must not block the hook from running.
+    private static let loadTimeout: TimeInterval = 12
+
     /// Navigates the pane to `url` and returns once the load finishes,
-    /// throwing if it fails. Bridges the navigation delegate's
-    /// `didFinish`/`didFail` callbacks into an `async` continuation;
-    /// whichever fires first resumes it exactly once.
+    /// throwing only if it fails outright. Bridges the navigation
+    /// delegate's `didFinish`/`didFail` callbacks into an `async`
+    /// continuation; whichever of {finish, fail, timeout} fires first
+    /// resumes it exactly once. A timeout resolves successfully so the
+    /// following hook still gets to run against the (rendering) page.
     func load(_ url: URL) async throws {
         let resumed = Resumed()
         try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, any Error>) in
@@ -63,6 +71,12 @@ final class WebPaneController {
                 guard !resumed.value else { return }
                 resumed.value = true
                 cont.resume(throwing: error)
+            }
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: UInt64(Self.loadTimeout * 1_000_000_000))
+                guard !resumed.value else { return }
+                resumed.value = true
+                cont.resume()
             }
             webView.load(URLRequest(url: url))
         }
