@@ -445,7 +445,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P2-01*
   *Acceptance check:* Test: 20 calls within a minute succeed; the 21st returns `.rateLimited`; after the minute window slides, calls succeed again. Same for the hourly bucket.
 
-- [ ] **T-P2-08: `InputValidator` end-to-end (normalize → scan → cap → submit)**
+- [x] **T-P2-08: `InputValidator` end-to-end (normalize → scan → cap → submit)**
   *Advances: US-SAFE-1, US-S-2 (cap)*
   *Per brief: §11.1*
   *Depends on: T-P2-06, T-P2-07*
