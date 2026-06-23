@@ -42,7 +42,8 @@ final class WebPaneController {
         let webView = WKWebView(frame: .zero, configuration: configuration)
         // The nav delegate consults the central URLPolicy (the union of
         // all adapters' allowed hosts), not just this adapter's.
-        let navigationDelegate = AllowlistNavigationDelegate()
+        // Downloads follow the adapter's own opt-in.
+        let navigationDelegate = AllowlistNavigationDelegate(allowsDownloads: adapter.allowsDownloads)
         webView.navigationDelegate = navigationDelegate
 
         self.webView = webView

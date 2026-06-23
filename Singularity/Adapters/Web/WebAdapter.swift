@@ -36,4 +36,13 @@ protocol WebAdapter: Sendable {
     /// login. (Pulled forward from Phase 3 because `WebPaneController`
     /// needs it now, per T-P1-07.)
     var dataStoreIdentifier: UUID { get }
+
+    /// Whether this adapter's panes may download files. Defaults to
+    /// `false` (deny) — an adapter opts in only when a hook genuinely
+    /// needs it (e.g. "save attachment").
+    var allowsDownloads: Bool { get }
+}
+
+extension WebAdapter {
+    var allowsDownloads: Bool { false }
 }

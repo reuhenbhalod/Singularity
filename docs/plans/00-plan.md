@@ -507,7 +507,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-06*
   *Acceptance check:* The Phase 1 hardcoded YouTube delegate is replaced by a generic delegate that consults `URLPolicy.evaluate`. Hero command still works (regression).
 
-- [ ] **T-P3-08: `AllowlistDownloadDelegate` (default deny)**
+- [x] **T-P3-08: `AllowlistDownloadDelegate` (default deny)**
   *Advances: US-E-2*
   *Per brief: §11.4*
   *Depends on: T-P3-07*

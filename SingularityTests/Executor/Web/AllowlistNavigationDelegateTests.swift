@@ -57,4 +57,18 @@ struct AllowlistNavigationDelegateTests {
     @Test func cancelsNilURL() {
         #expect(AllowlistNavigationDelegate().decision(for: nil) == .cancel)
     }
+
+    /// T-P3-08: downloads are denied by default (nil destination).
+    @Test func deniesDownloadByDefault() {
+        let delegate = AllowlistNavigationDelegate(allowsDownloads: false)
+        #expect(delegate.downloadDestination(suggestedFilename: "report.pdf") == nil)
+    }
+
+    /// T-P3-08: an adapter that opts in allows downloads to the
+    /// Downloads folder.
+    @Test func allowsDownloadWhenEnabled() {
+        let delegate = AllowlistNavigationDelegate(allowsDownloads: true)
+        let destination = delegate.downloadDestination(suggestedFilename: "report.pdf")
+        #expect(destination?.lastPathComponent == "report.pdf")
+    }
 }

@@ -29,4 +29,9 @@ enum SafetyLog {
         logger.warning(
             "url denied host=\(host, privacy: .public) url=\(url.absoluteString, privacy: .private)")
     }
+
+    /// A download was refused (the filename is logged privately).
+    static func downloadDenied(filename: String) {
+        logger.warning("download denied file=\(filename, privacy: .private)")
+    }
 }

@@ -98,15 +98,27 @@ final class AllowlistNavigationDelegate: NSObject, WKNavigationDelegate, WKDownl
         download.delegate = self
     }
 
-    /// Returning `nil` as the destination cancels the download. Phase 1
-    /// denies every download regardless of adapter; T-P3-08 will honor
-    /// `allowsDownloads` and pick a real destination when permitted.
     func download(
         _ download: WKDownload,
         decideDestinationUsing response: URLResponse,
         suggestedFilename: String,
         completionHandler: @escaping (URL?) -> Void
     ) {
-        completionHandler(nil)
+        completionHandler(downloadDestination(suggestedFilename: suggestedFilename))
+    }
+
+    /// Destination for a download, or `nil` to cancel it. Denies (and
+    /// logs) unless `allowsDownloads`; when permitted, targets the
+    /// user's Downloads folder. Pure, so it's unit-testable without a
+    /// real `WKDownload`.
+    func downloadDestination(suggestedFilename: String) -> URL? {
+        guard allowsDownloads else {
+            SafetyLog.downloadDenied(filename: suggestedFilename)
+            return nil
+        }
+        return FileManager.default
+            .urls(for: .downloadsDirectory, in: .userDomainMask)
+            .first?
+            .appendingPathComponent(suggestedFilename)
     }
 }
