@@ -19,12 +19,17 @@ private final class FakeWebPaneDriver: WebPaneDriving {
 
     private(set) var events: [Event] = []
 
+    /// Canned watch URL the hook "finds", so the router proceeds to
+    /// navigate to it.
+    var hookResult: Any? = "https://www.youtube.com/watch?v=TEST123"
+
     func navigate(_ controller: WebPaneController, to url: URL) async throws {
         events.append(.navigate(url))
     }
 
-    func runHook(_ controller: WebPaneController, javaScript: String) async throws {
+    func runHook(_ controller: WebPaneController, javaScript: String) async throws -> Any? {
         events.append(.runHook(javaScript))
+        return hookResult
     }
 }
 
@@ -57,24 +62,45 @@ struct ExecutorRouterTests {
             return
         }
 
-        // Navigates first, then runs the hook (the ordering the router
-        // enforces by awaiting navigation before the hook — i.e. only
-        // after didFinish in production).
-        #expect(driver.events.count == 2)
-        guard case .navigate(let url) = driver.events.first else {
-            Issue.record("expected navigate first, got \(driver.events)")
+        // Channel nav -> run play_newest hook -> navigate to the watch
+        // URL the hook returned (the router awaits each in order, so in
+        // production the hook runs only after the channel page loads).
+        #expect(driver.events.count == 3)
+
+        guard case .navigate(let channelURL) = driver.events[0] else {
+            Issue.record("expected channel navigate first, got \(driver.events)")
             return
         }
-        #expect(url.absoluteString == "https://www.youtube.com/@MrBeast/videos")
+        #expect(channelURL.absoluteString == "https://www.youtube.com/@MrBeast/videos")
 
-        guard case .runHook(let javaScript) = driver.events.last else {
+        guard case .runHook(let javaScript) = driver.events[1] else {
             Issue.record("expected runHook second, got \(driver.events)")
             return
         }
         // The hook is YouTube's play_newest JS for channel "MrBeast".
         #expect(javaScript.contains("\"MrBeast\""))
         #expect(javaScript.contains("MutationObserver"))
-        #expect(javaScript.contains(".click()"))
+
+        guard case .navigate(let watchURL) = driver.events[2] else {
+            Issue.record("expected navigate to the watch URL third, got \(driver.events)")
+            return
+        }
+        #expect(watchURL.absoluteString == "https://www.youtube.com/watch?v=TEST123")
+    }
+
+    /// When the hook finds no video (empty href), the router reports it
+    /// and does not navigate again.
+    @Test func reportsWhenNoVideoFound() async throws {
+        let compositor = CompositorStore()
+        let driver = FakeWebPaneDriver()
+        driver.hookResult = ""
+        let router = ExecutorRouter(compositor: compositor, driver: driver)
+
+        let summary = try await router.dispatch(heroPlan())
+
+        #expect(summary == "couldn't find a video on MrBeast's page")
+        // Only the initial channel navigation happened.
+        #expect(driver.events.filter { if case .navigate = $0 { return true } else { return false } }.count == 1)
     }
 
     /// Channel handle is pulled from the `/@Handle/...` path.

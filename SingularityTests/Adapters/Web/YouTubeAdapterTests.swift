@@ -31,14 +31,13 @@ struct YouTubeAdapterTests {
 
     /// T-P1-04 acceptance: `playNewestForChannel` emits JS that uses a
     /// MutationObserver-based waitForSelector to find the newest video
-    /// and open it (navigate to its watch page, with a click fallback).
-    @Test func playNewestUsesMutationObserverAndOpensVideo() {
+    /// and returns its href (the caller navigates).
+    @Test func playNewestUsesMutationObserverAndReturnsHref() {
         let script = YouTubeAdapter().playNewestForChannel("MrBeast")
 
         #expect(script.contains("MutationObserver"))
-        // Opens the video: navigate to its href, falling back to click.
-        #expect(script.contains("location.assign"))
-        #expect(script.contains(".click()"))
+        // Returns the matched link's URL for the caller to navigate to.
+        #expect(script.contains(".href"))
         // Targets the channel grid's video title links.
         #expect(script.contains("a#video-title-link"))
     }

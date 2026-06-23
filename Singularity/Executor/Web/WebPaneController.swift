@@ -83,9 +83,11 @@ final class WebPaneController {
     }
 
     /// Runs an adapter hook's `javaScript` in the adapter's content
-    /// world (so it can't collide with the page or be blocked by CSP).
-    func evaluate(_ javaScript: String) async throws {
-        _ = try await webView.callAsyncJavaScript(
+    /// world (so it can't collide with the page or be blocked by CSP)
+    /// and returns whatever the script resolves to.
+    @discardableResult
+    func evaluate(_ javaScript: String) async throws -> Any? {
+        try await webView.callAsyncJavaScript(
             javaScript,
             arguments: [:],
             contentWorld: .singularity

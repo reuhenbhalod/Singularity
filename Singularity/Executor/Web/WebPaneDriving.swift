@@ -17,6 +17,7 @@ protocol WebPaneDriving: AnyObject {
     /// Navigates the pane to `url` and returns once the load finishes.
     func navigate(_ controller: WebPaneController, to url: URL) async throws
 
-    /// Runs `javaScript` (an adapter hook) in the pane's content world.
-    func runHook(_ controller: WebPaneController, javaScript: String) async throws
+    /// Runs `javaScript` (an adapter hook) in the pane's content world
+    /// and returns whatever the script resolves to (e.g. a URL string).
+    func runHook(_ controller: WebPaneController, javaScript: String) async throws -> Any?
 }

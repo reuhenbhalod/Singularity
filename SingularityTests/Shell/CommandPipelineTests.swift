@@ -14,7 +14,11 @@ import Testing
 @MainActor
 private final class StubWebPaneDriver: WebPaneDriving {
     func navigate(_ controller: WebPaneController, to url: URL) async throws {}
-    func runHook(_ controller: WebPaneController, javaScript: String) async throws {}
+    func runHook(_ controller: WebPaneController, javaScript: String) async throws -> Any? {
+        // Pretend the hook found a video so dispatch reaches the
+        // "playing newest …" result.
+        "https://www.youtube.com/watch?v=TEST"
+    }
 }
 
 /// The wired-up pipeline plus the stores to assert against.

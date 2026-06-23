@@ -61,8 +61,16 @@ final class ExecutorRouter {
                 }
                 let channel = currentChannel ?? "the channel"
                 let javaScript = adapter.playNewestForChannel(channel)
-                try await driver.runHook(controller, javaScript: javaScript)
-                summary = "playing newest \(channel) video"
+                // The hook returns the newest video's watch URL; we
+                // navigate to it from Swift (reliable, unlike driving
+                // location from the page's isolated content world).
+                let result = try await driver.runHook(controller, javaScript: javaScript)
+                if let href = result as? String, !href.isEmpty, let videoURL = URL(string: href) {
+                    try await driver.navigate(controller, to: videoURL)
+                    summary = "playing newest \(channel) video"
+                } else {
+                    summary = "couldn't find a video on \(channel)'s page"
+                }
 
             case .openURL, .webEvaluate:
                 // Not part of the Phase-1 hero flow; Phase 3 adds lanes.

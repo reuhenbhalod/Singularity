@@ -34,20 +34,22 @@ struct YouTubeAdapter: WebAdapter {
     let dataStoreIdentifier =
         UUID(uuidString: "B6F2D3E1-7A4C-4E9B-9F12-3C5D6E7A8B90") ?? UUID()
 
-    /// JavaScript that waits for the channel's video grid to render,
-    /// then clicks the first (newest) video link.
+    /// JavaScript that waits for the channel's video grid to render and
+    /// returns the newest video's absolute watch URL (or `""` if none).
     ///
     /// Returns a body suitable for `WKWebView.callAsyncJavaScript`,
     /// which wraps it in an `async` function — so it may `await` and
     /// `return`. It defines a `MutationObserver`-based `waitForSelector`
-    /// inline (the reusable Swift-side bridge arrives in T-P1-06) so the
-    /// click survives YouTube's lazy SPA render: the grid tiles appear
-    /// well after `didFinish`.
+    /// inline (the reusable Swift-side bridge arrives in T-P1-06) so it
+    /// survives YouTube's lazy SPA render: the grid tiles appear well
+    /// after `didFinish`. The caller navigates to the returned URL —
+    /// driving `location` from an isolated content world does not
+    /// reliably navigate the page.
     ///
     /// - Parameter channel: the channel handle (e.g. `"MrBeast"`),
     ///   embedded only as a diagnostic marker — navigation to the
     ///   channel page is the web lane's job (the preceding
-    ///   `webNavigate` step), so this hook just clicks what's there.
+    ///   `webNavigate` step).
     func playNewestForChannel(_ channel: String) -> String {
         let channelLiteral = Self.jsStringLiteral(channel)
         // Title links in the grid: `a#video-title-link` is the modern
@@ -76,17 +78,10 @@ struct YouTubeAdapter: WebAdapter {
             }
 
             const __sgl_link = await __sgl_waitForSelector(__sgl_selector, 10000);
-            const __sgl_href = __sgl_link.href;
-            if (__sgl_href) {
-                // Navigate straight to the watch page — more reliable
-                // than a synthetic click, which YouTube's SPA router
-                // often ignores. Deferred so callAsyncJavaScript can
-                // resolve before this context is torn down.
-                setTimeout(() => { window.location.assign(__sgl_href); }, 0);
-                return __sgl_href;
-            }
-            __sgl_link.click();
-            return "clicked";
+            // Return the newest video's absolute watch URL. The caller
+            // (Swift) performs the navigation — driving location from an
+            // isolated content world doesn't reliably navigate the page.
+            return __sgl_link.href || "";
             """
     }
 

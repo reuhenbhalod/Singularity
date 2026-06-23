@@ -14,7 +14,7 @@ final class LiveWebPaneDriver: WebPaneDriving {
         try await controller.load(url)
     }
 
-    func runHook(_ controller: WebPaneController, javaScript: String) async throws {
+    func runHook(_ controller: WebPaneController, javaScript: String) async throws -> Any? {
         try await controller.evaluate(javaScript)
     }
 }
