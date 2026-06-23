@@ -427,7 +427,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P2-03*
   *Acceptance check:* Unit tests (Ollama mocked via injected `OllamaClientProtocol`): (a) valid response → `RawPlan` returned; (b) first response fails decode → second request includes the failing output and the decode error; (c) second response also fails → throws `PlannerError.unparseable`. Hash of malformed output is logged at `.private` (verified via a test logger).
 
-- [ ] **T-P2-05: Golden tests for varied-phrasing equivalence**
+- [x] **T-P2-05: Golden tests for varied-phrasing equivalence**
   *Advances: US-P-1*
   *Per brief: §1*
   *Depends on: T-P2-04*

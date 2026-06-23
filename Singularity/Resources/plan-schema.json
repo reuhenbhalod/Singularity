@@ -7,18 +7,33 @@
         "type": "object",
         "properties": {
           "action": {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "enum": ["open_url", "web_navigate", "web_evaluate", "run_script"]
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": { "const": "open_url" },
+                  "url": { "type": "string" }
+                },
+                "required": ["kind", "url"]
               },
-              "url": { "type": "string" },
-              "script": { "type": "string" },
-              "adapter": { "type": "string" },
-              "hook": { "type": "string" }
-            },
-            "required": ["kind"]
+              {
+                "type": "object",
+                "properties": {
+                  "kind": { "const": "web_navigate" },
+                  "url": { "type": "string" }
+                },
+                "required": ["kind", "url"]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": { "const": "run_script" },
+                  "adapter": { "type": "string" },
+                  "hook": { "type": "string" }
+                },
+                "required": ["kind", "adapter", "hook"]
+              }
+            ]
           }
         },
         "required": ["action"]

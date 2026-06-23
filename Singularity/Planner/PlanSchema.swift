@@ -22,27 +22,7 @@ enum PlanSchema {
                 "type": .string("array"),
                 "items": .object([
                     "type": .string("object"),
-                    "properties": .object([
-                        "action": .object([
-                            "type": .string("object"),
-                            "properties": .object([
-                                "kind": .object([
-                                    "type": .string("string"),
-                                    "enum": .array([
-                                        .string("open_url"),
-                                        .string("web_navigate"),
-                                        .string("web_evaluate"),
-                                        .string("run_script"),
-                                    ]),
-                                ]),
-                                "url": .object(["type": .string("string")]),
-                                "script": .object(["type": .string("string")]),
-                                "adapter": .object(["type": .string("string")]),
-                                "hook": .object(["type": .string("string")]),
-                            ]),
-                            "required": .array([.string("kind")]),
-                        ])
-                    ]),
+                    "properties": .object(["action": action]),
                     "required": .array([.string("action")]),
                 ]),
             ])
@@ -52,4 +32,38 @@ enum PlanSchema {
 
     /// The schema wrapped for Ollama's `format` parameter.
     static var ollamaFormat: OllamaFormat { .schema(json) }
+
+    /// A discriminated union: one variant per action kind, each
+    /// *requiring* exactly the fields that kind needs. This is what
+    /// forces the grammar-constrained model to emit `hook` for
+    /// `run_script` (etc.) — a flat schema marking only `kind` required
+    /// lets the model drop per-kind fields, which then fail to decode.
+    ///
+    /// `web_evaluate` is deliberately omitted: grammar-constrained
+    /// decoding means the model literally cannot emit it, so it can't
+    /// improvise raw DOM-scraping JavaScript (unreliable and a security
+    /// hole). The planner must drive pages through named adapter hooks
+    /// (`run_script`). `Action.webEvaluate` still exists for the
+    /// executor; it just isn't part of the planner's output vocabulary.
+    private static let action: JSONValue = .object([
+        "oneOf": .array([
+            variant(kind: "open_url", fields: ["url"]),
+            variant(kind: "web_navigate", fields: ["url"]),
+            variant(kind: "run_script", fields: ["adapter", "hook"]),
+        ])
+    ])
+
+    private static func variant(kind: String, fields: [String]) -> JSONValue {
+        var properties: [String: JSONValue] = ["kind": .object(["const": .string(kind)])]
+        var required: [JSONValue] = [.string("kind")]
+        for field in fields {
+            properties[field] = .object(["type": .string("string")])
+            required.append(.string(field))
+        }
+        return .object([
+            "type": .string("object"),
+            "properties": .object(properties),
+            "required": .array(required),
+        ])
+    }
 }
