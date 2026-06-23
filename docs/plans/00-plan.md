@@ -451,7 +451,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P2-06, T-P2-07*
   *Acceptance check:* Tests: zero-width chars are stripped; bidi controls are stripped; control chars except `\n`/`\t` are stripped; an AWS-key-shaped input is dropped, the raw string is *not* in any log entry, and the session log shows "I dropped that — it contained what looked like an AWS key. Retype without the key."; password-shaped strings produce a warn-only log line; over-cap input truncates with a "truncated to 4 KB" line.
 
-- [ ] **T-P2-09: Wire `OllamaPlanner` into `CommandPipeline` behind `PlannerProtocol`**
+- [x] **T-P2-09: Wire `OllamaPlanner` into `CommandPipeline` behind `PlannerProtocol`**
   *Advances: US-P-1*
   *Per brief: §1*
   *Depends on: T-P2-04, T-P2-08*

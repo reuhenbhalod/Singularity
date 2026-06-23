@@ -69,6 +69,21 @@ struct CommandPipelineTests {
         #expect(harness.log.entries.contains { $0.kind == .result })
     }
 
+    /// A command containing a secret is blocked at the input boundary:
+    /// no pane, no planner "don't know" line, and the raw secret is
+    /// never echoed into the log.
+    @Test func secretInputIsBlockedBeforePlanning() async {
+        let harness = Harness()
+
+        await harness.pipeline.run("here is AKIAIOSFODNN7EXAMPLE for you")
+
+        let texts = harness.log.entries.map(\.text)
+        #expect(texts.contains { $0.contains("AWS key") })
+        #expect(harness.compositor.panes.isEmpty)
+        #expect(!texts.contains("I don't know how to do that yet."))
+        #expect(!texts.contains { $0.contains("AKIAIOSFODNN7EXAMPLE") })
+    }
+
     /// An unrecognized command opens no pane and logs a "don't know
     /// yet" system line.
     @Test func unrecognizedCommandLogsAndOpensNoPane() async {

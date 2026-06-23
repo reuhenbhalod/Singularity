@@ -57,11 +57,11 @@ final class ShellWindowController {
         let log = SessionLogStore()
         let comp = CompositorStore()
         let inputViewModel = CommandInputViewModel()
-        // Phase-1 command pipeline: string-matcher planner -> stub
-        // validator -> executor router (live WebKit driver). The router
-        // and pipeline log into this show's SessionLogStore.
+        // Phase-2 command pipeline: input validator -> Ollama planner
+        // -> stub validator -> executor router (live WebKit driver). The
+        // router and pipeline log into this show's SessionLogStore.
         let pipeline = CommandPipeline(
-            planner: StringMatcherPlanner(),
+            planner: OllamaPlanner(client: OllamaClient()),
             router: ExecutorRouter(compositor: comp),
             log: log
         )
