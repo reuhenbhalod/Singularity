@@ -37,15 +37,37 @@ struct WebLaneTests {
         try #require(URL(string: "https://www.youtube.com/@MrBeast/videos"))
     }
 
-    /// Handles web_navigate and the youtube/play_newest hook only.
-    @Test func handlesWebNavigateAndYouTubePlayNewest() throws {
+    /// Handles website navigations for known hosts and the
+    /// youtube/play_newest hook; declines unknown hosts and unknown
+    /// hooks.
+    @Test func handlesKnownHostsAndPlayNewest() throws {
         let lane = WebLane(compositor: CompositorStore(), driver: FakeWebPaneDriver())
-        let url = try #require(URL(string: "https://example.com"))
+        let known = try #require(URL(string: "https://www.youtube.com/feed"))
+        let unknown = try #require(URL(string: "https://example.com"))
 
-        #expect(lane.canHandle(PlanStep(action: .webNavigate(url))))
+        #expect(lane.canHandle(PlanStep(action: .webNavigate(known))))
         #expect(lane.canHandle(PlanStep(action: .runScript(adapter: "youtube", hook: "play_newest"))))
+        // Unknown host -> no adapter -> not handled.
+        #expect(!lane.canHandle(PlanStep(action: .webNavigate(unknown))))
         #expect(!lane.canHandle(PlanStep(action: .runScript(adapter: "youtube", hook: "subscribe"))))
-        #expect(!lane.canHandle(PlanStep(action: .openURL(url))))
+    }
+
+    /// T-P3-10: an https open_url for a known host is handled — the lane
+    /// picks the adapter (YouTube), builds a pane, and tiles it.
+    @Test func handlesHTTPSOpenURLViaRegistry() async throws {
+        let compositor = CompositorStore()
+        let lane = WebLane(compositor: compositor, driver: FakeWebPaneDriver())
+        let url = try #require(URL(string: "https://www.youtube.com/@MrBeast/videos"))
+        let step = PlanStep(action: .openURL(url))
+
+        #expect(lane.canHandle(step))
+        let result = try await lane.execute(step)
+        #expect(result == .handled(summary: "opened www.youtube.com"))
+        #expect(compositor.panes.count == 1)
+        guard case .web = compositor.panes[0].kind else {
+            Issue.record("expected a web pane")
+            return
+        }
     }
 
     /// T-P3-02 regression: navigate opens a pane, then play_newest

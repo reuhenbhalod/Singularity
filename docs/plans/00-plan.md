@@ -519,7 +519,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-07*
   *Acceptance check:* Test: a JS `window.open("https://allowed-host")` reuses the current pane (no new unparented window); `window.open("https://disallowed")` is denied. Verified with a local HTML fixture.
 
-- [ ] **T-P3-10: `WebLane` dispatcher**
+- [x] **T-P3-10: `WebLane` dispatcher**
   *Advances: US-E-2*
   *Per brief: §4*
   *Depends on: T-P3-07, T-P3-04*
