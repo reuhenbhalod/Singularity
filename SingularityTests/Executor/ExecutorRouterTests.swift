@@ -29,6 +29,8 @@ private final class FakeWebPaneDriver: WebPaneDriving {
 
     func runHook(_ controller: WebPaneController, javaScript: String) async throws -> Any? {
         events.append(.runHook(javaScript))
+        // The play hook reports playback state; the find hook returns a URL.
+        if javaScript.contains(".play()") { return "playing" }
         return hookResult
     }
 }

@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import os
 
 /// Phase-1 executor: dispatches a `ValidatedPlan`'s steps. It only
 /// understands the hero flow — open a YouTube web pane, then play the
@@ -21,6 +22,7 @@ final class ExecutorRouter {
     private let compositor: CompositorStore
     private let adapter: YouTubeAdapter
     private let driver: any WebPaneDriving
+    private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "executor")
 
     init(
         compositor: CompositorStore,
@@ -59,20 +61,7 @@ final class ExecutorRouter {
                 guard let controller = currentPane else {
                     throw ExecutorError.missingPane
                 }
-                let channel = currentChannel ?? "the channel"
-                let javaScript = adapter.playNewestForChannel(channel)
-                // The hook returns the newest video's watch URL; we
-                // navigate to it from Swift (reliable, unlike driving
-                // location from the page's isolated content world).
-                let result = try await driver.runHook(controller, javaScript: javaScript)
-                if let href = result as? String, !href.isEmpty, let videoURL = URL(string: href) {
-                    try await driver.navigate(controller, to: videoURL)
-                    // The watch page loads paused; nudge it into playback.
-                    _ = try await driver.runHook(controller, javaScript: adapter.playCurrentVideo())
-                    summary = "playing newest \(channel) video"
-                } else {
-                    summary = "couldn't find a video on \(channel)'s page"
-                }
+                summary = await playNewest(channel: currentChannel, in: controller)
 
             case .openURL, .webEvaluate:
                 // Not part of the Phase-1 hero flow; Phase 3 adds lanes.
@@ -81,6 +70,41 @@ final class ExecutorRouter {
         }
 
         return summary
+    }
+
+    /// Finds the newest video on the channel page (whose result the hook
+    /// returns as a watch URL), navigates the pane to it, and nudges
+    /// playback. Each stage degrades into a precise status string rather
+    /// than throwing, so the log pinpoints where the hero flow stalls.
+    private func playNewest(channel: String?, in controller: WebPaneController) async -> String {
+        let channel = channel ?? "the channel"
+
+        // Find the newest video's watch URL. Best-effort: a miss yields a
+        // status line, not a crash.
+        let found =
+            (try? await driver.runHook(
+                controller, javaScript: adapter.playNewestForChannel(channel))) as? String
+        guard let href = found, !href.isEmpty, let videoURL = URL(string: href) else {
+            return "couldn't find a video on \(channel)'s page"
+        }
+
+        // Open the video. A failure here is the actionable one (the watch
+        // page didn't load), so it gets its own status.
+        do {
+            try await driver.navigate(controller, to: videoURL)
+        } catch {
+            logger.error("opening video failed: \(String(describing: error), privacy: .public)")
+            return "found the newest video but couldn't open it"
+        }
+
+        // Watch pages load paused; nudge playback. Best-effort — the
+        // video is already up regardless.
+        let played =
+            (try? await driver.runHook(
+                controller, javaScript: adapter.playCurrentVideo())) as? String
+        return played == "playing"
+            ? "playing newest \(channel) video"
+            : "opened newest \(channel) video"
     }
 
     /// Pulls the channel handle from a YouTube `/@Handle/...` URL —
