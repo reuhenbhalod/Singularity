@@ -525,7 +525,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-07, T-P3-04*
   *Acceptance check:* Test: a `RawPlan` step `open_url("https://www.youtube.com/...")` is dispatched to the WebLane, which picks `YouTubeAdapter`, builds a `WebPaneController`, tiles the pane.
 
-- [ ] **T-P3-11: `GmailAdapter` (read-only ops in Phase 3)**
+- [x] **T-P3-11: `GmailAdapter` (read-only ops in Phase 3)**
   *Advances: US-E-2*
   *Per brief: §4*
   *Depends on: T-P3-10*

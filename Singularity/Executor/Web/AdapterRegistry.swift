@@ -14,7 +14,7 @@ import Foundation
 struct AdapterRegistry {
     let adapters: [any WebAdapter]
 
-    static let defaultAdapters: [any WebAdapter] = [YouTubeAdapter()]
+    static let defaultAdapters: [any WebAdapter] = [YouTubeAdapter(), GmailAdapter()]
 
     init(adapters: [any WebAdapter] = AdapterRegistry.defaultAdapters) {
         self.adapters = adapters
