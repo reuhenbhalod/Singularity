@@ -465,7 +465,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
 
 ### Phase 3 — Router and easy lanes
 
-- [ ] **T-P3-01: `ExecutorLane` protocol + `LaneResult`**
+- [x] **T-P3-01: `ExecutorLane` protocol + `LaneResult`**
   *Advances: US-E-1, US-E-2 (generalization)*
   *Per brief: §10 (waterfall shape)*
   *Depends on: T-P2-09*
