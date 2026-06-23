@@ -433,7 +433,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P2-04*
   *Acceptance check:* Test runs against a recorded fixture set (or live Ollama with a marker) covering `play mrbeast newest video`, `open youtube and play the newest mrbeast`, `play the latest mrbeast video`. All resolve to functionally equivalent plans (same action types, same URL host, same adapter call).
 
-- [ ] **T-P2-06: `SecretPatterns` regex bank**
+- [x] **T-P2-06: `SecretPatterns` regex bank**
   *Advances: US-SAFE-1*
   *Per brief: §11.1*
   *Depends on: T-P2-01*
