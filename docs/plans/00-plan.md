@@ -457,7 +457,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P2-04, T-P2-08*
   *Acceptance check:* Integration test: with Ollama running, typing the hero command still works end-to-end (regression check); typing `open google` does not work because no adapter handles it (acceptable — Phase 3 adds breadth) but the planner returns a valid `RawPlan` with one `open_url` step.
 
-- [ ] **T-P2-10: `SettingsStore` skeleton for planner settings**
+- [x] **T-P2-10: `SettingsStore` skeleton for planner settings**
   *Advances: US-P-3, US-SET-2 (foundation)*
   *Per brief: §12.4*
   *Depends on: T-P2-04*
