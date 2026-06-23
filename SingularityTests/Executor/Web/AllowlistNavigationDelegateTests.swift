@@ -71,4 +71,29 @@ struct AllowlistNavigationDelegateTests {
         let destination = delegate.downloadDestination(suggestedFilename: "report.pdf")
         #expect(destination?.lastPathComponent == "report.pdf")
     }
+
+    /// T-P3-09: window.open to an allowed host loads into the current
+    /// pane (the loader is invoked) instead of spawning a new window.
+    @Test func windowOpenAllowedReusesPane() throws {
+        let delegate = AllowlistNavigationDelegate()
+        let url = try #require(URL(string: "https://www.youtube.com/watch?v=x"))
+        var loaded: [URL] = []
+
+        let handled = delegate.routeWindowOpen(url: url) { loaded.append($0) }
+
+        #expect(handled)
+        #expect(loaded == [url])
+    }
+
+    /// T-P3-09: window.open to a disallowed host is denied (not loaded).
+    @Test func windowOpenDisallowedIsDenied() throws {
+        let delegate = AllowlistNavigationDelegate()
+        let url = try #require(URL(string: "https://evil.example/"))
+        var loaded: [URL] = []
+
+        let handled = delegate.routeWindowOpen(url: url) { loaded.append($0) }
+
+        #expect(!handled)
+        #expect(loaded.isEmpty)
+    }
 }

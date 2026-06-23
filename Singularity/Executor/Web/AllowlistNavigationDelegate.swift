@@ -13,7 +13,7 @@ import WebKit
 ///
 /// The decision lives in `decision(for:)` — a pure function of the URL
 /// and the policy — so it can be unit-tested without a live navigation.
-final class AllowlistNavigationDelegate: NSObject, WKNavigationDelegate, WKDownloadDelegate {
+final class AllowlistNavigationDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
     private let policy: URLPolicy
 
     /// Whether downloads are permitted on this pane. Defaults to `false`
@@ -52,6 +52,40 @@ final class AllowlistNavigationDelegate: NSObject, WKNavigationDelegate, WKDownl
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
         decisionHandler(decision(for: navigationAction.request.url))
+    }
+
+    // MARK: - window.open / target=_blank
+
+    /// A `window.open` / `target="_blank"` navigation. Re-routes an
+    /// allowed URL into the current pane and returns `nil` so WebKit
+    /// never spawns a new, unparented web view (brief §11.4).
+    func webView(
+        _ webView: WKWebView,
+        createWebViewWith configuration: WKWebViewConfiguration,
+        for navigationAction: WKNavigationAction,
+        windowFeatures: WKWindowFeatures
+    ) -> WKWebView? {
+        routeWindowOpen(url: navigationAction.request.url) { url in
+            webView.load(URLRequest(url: url))
+        }
+        return nil
+    }
+
+    /// Routes a pop-up navigation: an allowed URL is loaded into the
+    /// current pane (via `loader`); a disallowed one is denied and
+    /// logged. Returns whether it was loaded. Pure, so it's testable
+    /// without a live `WKWebView`.
+    @discardableResult
+    func routeWindowOpen(url: URL?, loader: (URL) -> Void) -> Bool {
+        guard let url else { return false }
+        switch policy.evaluate(url: url) {
+        case .allow:
+            loader(url)
+            return true
+        case .deny:
+            SafetyLog.urlDenied(host: url.host ?? "(none)", url: url)
+            return false
+        }
     }
 
     // MARK: - Load completion

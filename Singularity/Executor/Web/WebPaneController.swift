@@ -45,6 +45,9 @@ final class WebPaneController {
         // Downloads follow the adapter's own opt-in.
         let navigationDelegate = AllowlistNavigationDelegate(allowsDownloads: adapter.allowsDownloads)
         webView.navigationDelegate = navigationDelegate
+        // Same object handles window.open / target=_blank so pop-ups go
+        // through the allowlist instead of spawning new windows.
+        webView.uiDelegate = navigationDelegate
 
         self.webView = webView
         self.navigationDelegate = navigationDelegate

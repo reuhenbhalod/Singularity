@@ -513,7 +513,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-07*
   *Acceptance check:* Test: any download attempt on a pane whose adapter has `allowsDownloads = false` is denied and logged; flipping a test-only adapter to `allowsDownloads = true` allows the download.
 
-- [ ] **T-P3-09: Route `window.open`/`_blank` through the nav delegate**
+- [x] **T-P3-09: Route `window.open`/`_blank` through the nav delegate**
   *Advances: US-E-2*
   *Per brief: §11.4*
   *Depends on: T-P3-07*
