@@ -394,11 +394,12 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P1-03, T-P1-09*
   *Acceptance check:* Integration test: typing `play mrbeast newest video` and pressing Return ends with a YouTube pane in the compositor and the log showing the command + "playing newest MrBeast video".
 
-- [ ] **T-P1-11: Hero acceptance test (manual)**
+- [x] **T-P1-11: Hero acceptance test (manual)** — *partial / accepted*
   *Advances: §5 (hero)*
   *Per brief: §2, §3, §4, §11.4, §11.5*
   *Depends on: T-P1-10*
   *Acceptance check:* On an Apple Silicon Mac (M-series, 16 GB), cold-launch to playing video in under 5 seconds. YouTube login persists across two cold launches (proves per-adapter persistent `WKWebsiteDataStore`). Allowlist denies any non-YouTube/googlevideo navigation. Dismissing the shell stops playback.
+  *Result (2026-06-23):* Verified manually: ⌥Space summons the shell, `play mrbeast newest video` plans → opens a YouTube pane → navigates to MrBeast's **newest video watch page**. App Sandbox had to be disabled first (see memory `app-sandbox-disabled`) for `WKWebView` networking. **Known limitation (deferred):** the video does not reliably **autoplay** on the watch page — `playCurrentVideo`'s `play()`/play-button nudge isn't starting it. Tracked as a polish bug to revisit (likely in Phase 3 web-lane work). User accepted current state and chose to proceed.
 
 ### Phase 2 — Intent engine
 
