@@ -501,7 +501,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-05*
   *Acceptance check:* Tests: HTTPS off-list → deny; HTTP → deny; `https://user:pass@…` → deny; `data:` / `file://` / `javascript:` → deny; on-list HTTPS → allow. (NSFW check is layered in Phase 5.)
 
-- [ ] **T-P3-07: Refactor `AllowlistNavigationDelegate` to delegate to `URLPolicy.evaluate`**
+- [x] **T-P3-07: Refactor `AllowlistNavigationDelegate` to delegate to `URLPolicy.evaluate`**
   *Advances: US-SAFE-3, US-E-2*
   *Per brief: §11.4*
   *Depends on: T-P3-06*

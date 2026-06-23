@@ -40,7 +40,9 @@ final class WebPaneController {
         configuration.mediaTypesRequiringUserActionForPlayback = []
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
-        let navigationDelegate = AllowlistNavigationDelegate(allowedHosts: adapter.allowedHosts)
+        // The nav delegate consults the central URLPolicy (the union of
+        // all adapters' allowed hosts), not just this adapter's.
+        let navigationDelegate = AllowlistNavigationDelegate()
         webView.navigationDelegate = navigationDelegate
 
         self.webView = webView
