@@ -42,6 +42,17 @@ struct YouTubeAdapterTests {
         #expect(script.contains("a#video-title-link"))
     }
 
+    /// `playCurrentVideo` waits for the video element and starts it.
+    @Test func playCurrentVideoCallsPlay() {
+        let script = YouTubeAdapter().playCurrentVideo()
+
+        #expect(script.contains("MutationObserver"))
+        #expect(script.contains("video.html5-main-video"))
+        #expect(script.contains(".play()"))
+        // Falls back to clicking the player's play button.
+        #expect(script.contains("ytp-large-play-button"))
+    }
+
     /// The channel argument is embedded safely as a JS string literal
     /// (no breakout) and appears in the emitted script.
     @Test func channelIsEmbeddedSafely() {

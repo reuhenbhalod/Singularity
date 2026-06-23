@@ -67,6 +67,8 @@ final class ExecutorRouter {
                 let result = try await driver.runHook(controller, javaScript: javaScript)
                 if let href = result as? String, !href.isEmpty, let videoURL = URL(string: href) {
                     try await driver.navigate(controller, to: videoURL)
+                    // The watch page loads paused; nudge it into playback.
+                    _ = try await driver.runHook(controller, javaScript: adapter.playCurrentVideo())
                     summary = "playing newest \(channel) video"
                 } else {
                     summary = "couldn't find a video on \(channel)'s page"

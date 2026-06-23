@@ -62,10 +62,10 @@ struct ExecutorRouterTests {
             return
         }
 
-        // Channel nav -> run play_newest hook -> navigate to the watch
-        // URL the hook returned (the router awaits each in order, so in
-        // production the hook runs only after the channel page loads).
-        #expect(driver.events.count == 3)
+        // Channel nav -> play_newest hook -> navigate to the watch URL
+        // the hook returned -> play hook (the router awaits each in
+        // order, so in production a step runs only after the prior one).
+        #expect(driver.events.count == 4)
 
         guard case .navigate(let channelURL) = driver.events[0] else {
             Issue.record("expected channel navigate first, got \(driver.events)")
@@ -73,19 +73,25 @@ struct ExecutorRouterTests {
         }
         #expect(channelURL.absoluteString == "https://www.youtube.com/@MrBeast/videos")
 
-        guard case .runHook(let javaScript) = driver.events[1] else {
-            Issue.record("expected runHook second, got \(driver.events)")
+        guard case .runHook(let findJS) = driver.events[1] else {
+            Issue.record("expected play_newest hook second, got \(driver.events)")
             return
         }
         // The hook is YouTube's play_newest JS for channel "MrBeast".
-        #expect(javaScript.contains("\"MrBeast\""))
-        #expect(javaScript.contains("MutationObserver"))
+        #expect(findJS.contains("\"MrBeast\""))
+        #expect(findJS.contains("MutationObserver"))
 
         guard case .navigate(let watchURL) = driver.events[2] else {
             Issue.record("expected navigate to the watch URL third, got \(driver.events)")
             return
         }
         #expect(watchURL.absoluteString == "https://www.youtube.com/watch?v=TEST123")
+
+        guard case .runHook(let playJS) = driver.events[3] else {
+            Issue.record("expected play hook fourth, got \(driver.events)")
+            return
+        }
+        #expect(playJS.contains(".play()"))
     }
 
     /// When the hook finds no video (empty href), the router reports it
