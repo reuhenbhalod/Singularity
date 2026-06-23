@@ -495,7 +495,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-04*
   *Acceptance check:* Test: at app start, `AllowedDomains.all` equals the lower-cased union of every adapter's `allowedHosts`; `contains("WWW.YOUTUBE.COM")` returns true (case-insensitive); IDN host `xn--…` round-trips correctly.
 
-- [ ] **T-P3-06: `URLPolicy.evaluate(url:)` (Phase 3 version: HTTPS + allowlist + userinfo)**
+- [x] **T-P3-06: `URLPolicy.evaluate(url:)` (Phase 3 version: HTTPS + allowlist + userinfo)**
   *Advances: US-SAFE-3*
   *Per brief: §11.4*
   *Depends on: T-P3-05*
