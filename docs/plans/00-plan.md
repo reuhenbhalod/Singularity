@@ -403,13 +403,13 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
 
 ### Phase 2 — Intent engine
 
-- [ ] **T-P2-01 [USER]: Install Ollama and pull the default model**
+- [x] **T-P2-01 [USER]: Install Ollama and pull the default model**
   *Advances: US-P-1, US-P-3*
   *Per brief: §1*
   *Depends on: T-P1-11*
   *Acceptance check:* `curl http://localhost:11434/api/tags` returns at least one model. The user has run `ollama pull qwen2.5-coder:7b-instruct-q4_K_M` (per spec §6 #10). Stop here and wait for the user to confirm.
 
-- [ ] **T-P2-02: `OllamaClient` HTTP wrapper**
+- [x] **T-P2-02: `OllamaClient` HTTP wrapper**
   *Advances: US-P-1, US-P-3*
   *Per brief: §1*
   *Depends on: T-P2-01*
