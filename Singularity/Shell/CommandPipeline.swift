@@ -49,8 +49,12 @@ final class CommandPipeline {
             // Phase-2 stub validator; T-P5-05 swaps in the real
             // PlanValidator as the only producer of ValidatedPlan.
             let validated = ValidatedPlan.phase1Allow(raw)
-            let summary = try await router.dispatch(validated)
-            log.append(kind: .result, summary)
+            switch try await router.dispatch(validated) {
+            case .handled(let summary):
+                log.append(kind: .result, summary)
+            case .unhandled:
+                log.append(kind: .system, "I couldn't handle that step.")
+            }
         } catch let error as PlannerError {
             log.append(kind: .system, Self.message(for: error))
         } catch {

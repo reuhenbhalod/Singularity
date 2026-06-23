@@ -8,139 +8,89 @@ import Testing
 
 @testable import Singularity
 
-/// Records the web side effects in order, without touching WebKit, so
-/// the router's orchestration can be asserted deterministically.
+/// Records which steps it ran and returns a per-call summary.
 @MainActor
-private final class FakeWebPaneDriver: WebPaneDriving {
-    enum Event: Equatable {
-        case navigate(URL)
-        case runHook(String)
+private final class RecordingLane: ExecutorLane {
+    private let handles: (PlanStep) -> Bool
+    private(set) var executed: [PlanStep] = []
+
+    init(handles: @escaping (PlanStep) -> Bool) {
+        self.handles = handles
     }
 
-    private(set) var events: [Event] = []
+    func canHandle(_ step: PlanStep) -> Bool { handles(step) }
 
-    /// Canned watch URL the hook "finds", so the router proceeds to
-    /// navigate to it.
-    var hookResult: Any? = "https://www.youtube.com/watch?v=TEST123"
-
-    func navigate(_ controller: WebPaneController, to url: URL) async throws {
-        events.append(.navigate(url))
-    }
-
-    func runHook(_ controller: WebPaneController, javaScript: String) async throws -> Any? {
-        events.append(.runHook(javaScript))
-        // The play hook reports playback state; the find hook returns a URL.
-        if javaScript.contains(".play()") { return "playing" }
-        return hookResult
+    func execute(_ step: PlanStep) async throws -> LaneResult {
+        executed.append(step)
+        return .handled(summary: "call \(executed.count)")
     }
 }
 
 @MainActor
 struct ExecutorRouterTests {
-    private func heroPlan() throws -> ValidatedPlan {
-        let channelURL = try #require(URL(string: "https://www.youtube.com/@MrBeast/videos"))
-        return .phase1Allow(
-            RawPlan(steps: [
-                PlanStep(action: .webNavigate(channelURL)),
-                PlanStep(action: .runScript(adapter: "youtube", hook: "play_newest")),
-            ])
-        )
+    private func plan(_ actions: [Action]) -> ValidatedPlan {
+        .phase1Allow(RawPlan(steps: actions.map { PlanStep(action: $0) }))
     }
 
-    /// T-P1-09 acceptance: the hero plan opens a YouTube web pane and
-    /// triggers `playNewestForChannel("MrBeast")` after the navigation.
-    @Test func dispatchesHeroPlanOpeningYouTubePaneAndPlayingNewest() async throws {
-        let compositor = CompositorStore()
-        let driver = FakeWebPaneDriver()
-        let router = ExecutorRouter(compositor: compositor, driver: driver)
+    /// T-P3-02: each step goes to the first lane whose canHandle is true.
+    @Test func dispatchesToFirstCapableLane() async throws {
+        let url = try #require(URL(string: "https://example.com"))
+        let urlLane = RecordingLane { if case .openURL = $0.action { return true } else { return false } }
+        let webLane = RecordingLane { if case .webNavigate = $0.action { return true } else { return false } }
+        let router = ExecutorRouter(lanes: [urlLane, webLane])
 
-        let summary = try await router.dispatch(heroPlan())
-        #expect(summary == "playing newest MrBeast video")
+        let result = try await router.dispatch(plan([.webNavigate(url)]))
 
-        // Opens a web pane.
-        #expect(compositor.panes.count == 1)
-        guard case .web = compositor.panes[0].kind else {
-            Issue.record("expected a web pane, got \(compositor.panes[0].kind)")
-            return
-        }
-
-        // Channel nav -> play_newest hook -> navigate to the watch URL
-        // the hook returned -> play hook (the router awaits each in
-        // order, so in production a step runs only after the prior one).
-        #expect(driver.events.count == 4)
-
-        guard case .navigate(let channelURL) = driver.events[0] else {
-            Issue.record("expected channel navigate first, got \(driver.events)")
-            return
-        }
-        #expect(channelURL.absoluteString == "https://www.youtube.com/@MrBeast/videos")
-
-        guard case .runHook(let findJS) = driver.events[1] else {
-            Issue.record("expected play_newest hook second, got \(driver.events)")
-            return
-        }
-        // The hook is YouTube's play_newest JS for channel "MrBeast".
-        #expect(findJS.contains("\"MrBeast\""))
-        #expect(findJS.contains("MutationObserver"))
-
-        guard case .navigate(let watchURL) = driver.events[2] else {
-            Issue.record("expected navigate to the watch URL third, got \(driver.events)")
-            return
-        }
-        #expect(watchURL.absoluteString == "https://www.youtube.com/watch?v=TEST123")
-
-        guard case .runHook(let playJS) = driver.events[3] else {
-            Issue.record("expected play hook fourth, got \(driver.events)")
-            return
-        }
-        #expect(playJS.contains(".play()"))
+        #expect(result == .handled(summary: "call 1"))
+        #expect(webLane.executed.count == 1)
+        #expect(urlLane.executed.isEmpty)
     }
 
-    /// When the hook finds no video (empty href), the router reports it
-    /// and does not navigate again.
-    @Test func reportsWhenNoVideoFound() async throws {
-        let compositor = CompositorStore()
-        let driver = FakeWebPaneDriver()
-        driver.hookResult = ""
-        let router = ExecutorRouter(compositor: compositor, driver: driver)
+    /// First-match-wins: an earlier lane that also matches is preferred.
+    @Test func earlierLaneWinsWhenBothMatch() async throws {
+        let url = try #require(URL(string: "https://example.com"))
+        let first = RecordingLane { _ in true }
+        let second = RecordingLane { _ in true }
+        let router = ExecutorRouter(lanes: [first, second])
 
-        let summary = try await router.dispatch(heroPlan())
+        _ = try await router.dispatch(plan([.webNavigate(url)]))
 
-        #expect(summary == "couldn't find a video on MrBeast's page")
-        // Only the initial channel navigation happened.
-        #expect(driver.events.filter { if case .navigate = $0 { return true } else { return false } }.count == 1)
+        #expect(first.executed.count == 1)
+        #expect(second.executed.isEmpty)
     }
 
-    /// Channel handle is pulled from the `/@Handle/...` path.
-    @Test func extractsChannelHandleFromVideosURL() throws {
-        let videosURL = try #require(URL(string: "https://www.youtube.com/@MrBeast/videos"))
-        #expect(ExecutorRouter.youTubeChannelHandle(from: videosURL) == "MrBeast")
+    /// T-P3-02: no matching lane -> `.unhandled`.
+    @Test func unhandledWhenNoLaneMatches() async throws {
+        let url = try #require(URL(string: "https://example.com"))
+        let lane = RecordingLane { _ in false }
+        let router = ExecutorRouter(lanes: [lane])
 
-        let feedURL = try #require(URL(string: "https://www.youtube.com/feed"))
-        #expect(ExecutorRouter.youTubeChannelHandle(from: feedURL) == nil)
+        let result = try await router.dispatch(plan([.webNavigate(url)]))
+
+        #expect(result == .unhandled)
     }
 
-    /// A `play_newest` step with no preceding navigation has no pane to
-    /// run against.
-    @Test func runScriptBeforeNavigateThrowsMissingPane() async throws {
-        let router = ExecutorRouter(compositor: CompositorStore(), driver: FakeWebPaneDriver())
-        let plan = ValidatedPlan.phase1Allow(
-            RawPlan(steps: [PlanStep(action: .runScript(adapter: "youtube", hook: "play_newest"))])
-        )
+    /// Multi-step: returns the last handled step's result.
+    @Test func returnsLastStepResult() async throws {
+        let url = try #require(URL(string: "https://example.com"))
+        let lane = RecordingLane { _ in true }
+        let router = ExecutorRouter(lanes: [lane])
 
-        await #expect(throws: ExecutorError.missingPane) {
-            try await router.dispatch(plan)
-        }
+        let result = try await router.dispatch(plan([.webNavigate(url), .webNavigate(url)]))
+
+        #expect(result == .handled(summary: "call 2"))
+        #expect(lane.executed.count == 2)
     }
 
-    /// Phase 1 only routes the hero flow; an `open_url` step is rejected.
-    @Test func openURLStepIsUnsupportedInPhase1() async throws {
-        let router = ExecutorRouter(compositor: CompositorStore(), driver: FakeWebPaneDriver())
-        let url = try #require(URL(string: "https://www.youtube.com/"))
-        let plan = ValidatedPlan.phase1Allow(RawPlan(steps: [PlanStep(action: .openURL(url))]))
+    /// An unhandled step short-circuits the rest of the plan.
+    @Test func unhandledStepStopsDispatch() async throws {
+        let url = try #require(URL(string: "https://example.com"))
+        let lane = RecordingLane { _ in false }
+        let router = ExecutorRouter(lanes: [lane])
 
-        await #expect(throws: ExecutorError.unsupportedStep) {
-            try await router.dispatch(plan)
-        }
+        let result = try await router.dispatch(plan([.webNavigate(url), .webNavigate(url)]))
+
+        #expect(result == .unhandled)
+        #expect(lane.executed.isEmpty)
     }
 }

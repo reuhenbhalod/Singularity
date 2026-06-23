@@ -471,7 +471,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P2-09*
   *Acceptance check:* Protocol compiles; test double conforms and is callable from the router.
 
-- [ ] **T-P3-02: Generalize `ExecutorRouter` to lane waterfall**
+- [x] **T-P3-02: Generalize `ExecutorRouter` to lane waterfall**
   *Advances: US-E-1, US-E-2*
   *Per brief: §10*
   *Depends on: T-P3-01*

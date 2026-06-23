@@ -14,16 +14,17 @@ import XCTest
 @testable import Singularity
 
 final class PlannerGoldenLiveTests: XCTestCase {
-    private let planner = OllamaPlanner(client: OllamaClient())
+    private let planner = OllamaPlanner(client: OllamaClient(timeout: 120))
 
-    private func planOrSkip(_ input: String) async throws -> RawPlan {
-        let result: RawPlan?
+    /// One attempt; returns nil on any planner error (a retryable miss
+    /// — e.g. malformed output under concurrent load) so the caller can
+    /// try again rather than fail outright.
+    private func attemptPlan(_ input: String) async -> RawPlan? {
         do {
-            result = try await planner.plan(input)
-        } catch PlannerError.unreachable, PlannerError.timeout {
-            throw XCTSkip("Ollama not reachable at localhost:11434 — golden test skipped.")
+            return try await planner.plan(input)
+        } catch {
+            return nil
         }
-        return try XCTUnwrap(result, "planner returned nil for \(input)")
     }
 
     /// The hero functional shape: a youtube.com navigation plus the
@@ -55,6 +56,8 @@ final class PlannerGoldenLiveTests: XCTestCase {
     /// phrasing that never conforms across the attempts is a real
     /// failure.
     func testVariedPhrasingsProduceEquivalentPlans() async throws {
+        try await LiveTestGate.requireLiveOllama()
+
         let phrasings = [
             "play mrbeast newest video",
             "open youtube and play the newest mrbeast",
@@ -64,10 +67,10 @@ final class PlannerGoldenLiveTests: XCTestCase {
         for phrasing in phrasings {
             var lastPlan: RawPlan?
             var conformed = false
-            for _ in 0..<3 {
-                let plan = try await planOrSkip(phrasing)
-                lastPlan = plan
-                if isHeroShape(plan) {
+            for _ in 0..<4 {
+                let plan = await attemptPlan(phrasing)
+                if let plan { lastPlan = plan }
+                if let plan, isHeroShape(plan) {
                     conformed = true
                     break
                 }

@@ -32,7 +32,7 @@ private struct Harness {
     init() {
         compositor = CompositorStore()
         log = SessionLogStore()
-        let router = ExecutorRouter(compositor: compositor, driver: StubWebPaneDriver())
+        let router = ExecutorRouter(lanes: [WebLane(compositor: compositor, driver: StubWebPaneDriver())])
         pipeline = CommandPipeline(planner: StringMatcherPlanner(), router: router, log: log)
     }
 }

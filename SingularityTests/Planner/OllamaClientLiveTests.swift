@@ -12,16 +12,12 @@ import XCTest
 @testable import Singularity
 
 final class OllamaClientLiveTests: XCTestCase {
-    private let client = OllamaClient()
+    private let client = OllamaClient(timeout: 120)
 
-    /// Skips the test (rather than failing) when the server isn't
-    /// reachable, returning the installed model names when it is.
+    /// Gated live access; returns the installed model names.
     private func reachableModelsOrSkip() async throws -> [String] {
-        do {
-            return try await client.tags()
-        } catch {
-            throw XCTSkip("Ollama not reachable at localhost:11434 — live test skipped.")
-        }
+        try await LiveTestGate.requireLiveOllama()
+        return try await client.tags()
     }
 
     /// T-P2-02 acceptance: `tags()` returns a non-empty model list.
