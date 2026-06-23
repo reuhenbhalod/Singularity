@@ -421,7 +421,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P2-02*
   *Acceptance check:* `plan-schema.json` validates with a standalone JSON Schema validator (manual one-off check); `system-prompt.md` includes the untrusted-content-envelope directive verbatim from spec §6 (US-SAFE-6).
 
-- [ ] **T-P2-04: `OllamaPlanner` with validate→repair-once→fail-loud loop**
+- [x] **T-P2-04: `OllamaPlanner` with validate→repair-once→fail-loud loop**
   *Advances: US-P-1, US-P-2*
   *Per brief: §1*
   *Depends on: T-P2-03*
