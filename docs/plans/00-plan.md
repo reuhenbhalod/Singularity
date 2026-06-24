@@ -545,7 +545,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P3-12*
   *Acceptance check:* `AXIsProcessTrusted()` returns true in a debug build of the app. Stop here and wait for the user to drag the app into System Settings → Privacy & Security → Accessibility.
 
-- [ ] **T-P4-02: `AXElement`, `AXApplication`, `AXErrors` thin wrappers**
+- [x] **T-P4-02: `AXElement`, `AXApplication`, `AXErrors` thin wrappers**
   *Advances: US-E-3*
   *Per brief: §5*
   *Depends on: T-P4-01*
