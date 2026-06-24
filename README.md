@@ -11,8 +11,10 @@ actions and performs them.
 > **Status:** early development. Phases 0–3 are complete: the shell,
 > the local-LLM planner, the input-safety boundary, and the executor's
 > URL-scheme + web lanes. Today the reliable end-to-end flow is
-> *"play the newest video from a YouTube channel"*; broader app control
-> arrives in later phases. See `docs/plans/00-plan.md` for the roadmap.
+> *"play the newest video from a YouTube channel"* — by the creator's
+> name, not their exact handle; broader app control arrives in later
+> phases. See `docs/plans/00-plan.md` for the roadmap and
+> `CHANGELOG.md` for recent changes.
 
 ---
 
@@ -85,15 +87,19 @@ the background until you summon it.
 ### Commands that work today
 
 ```
-play mrbeast newest video
+play mrbeast's newest video
 play the latest video from veritasium
-open youtube and play the newest mkbhd
+play marques brownlee's newest video        # resolves even though the handle is @mkbhd
+play another mkbhd video in a new tab
 ```
 
 The planner understands many phrasings of "play a channel's newest
-video," opens a YouTube pane, and navigates to that video. (You'll need
-to be logged into YouTube in the pane the first time; the login then
-persists across launches.)
+video." You can name the creator however is natural — if the exact
+`@handle` isn't obvious (e.g. *Marques Brownlee* → `@mkbhd`), the shell
+resolves it through YouTube search automatically. Playing another video
+**reuses the current pane** unless you explicitly ask for a new tab.
+(You'll need to be logged into YouTube in the pane the first time; the
+login then persists across launches.)
 
 Anything the executor can't carry out yet is reported plainly in the log
 ("I couldn't handle that step") rather than failing silently.
@@ -136,7 +142,9 @@ swift-format format -i -r Singularity SingularityTests
   answering in text.
 - **YouTube is the reliable path.** The planner's prompt only teaches
   the YouTube pattern by example, so other sites are hit-or-miss until
-  more adapters/examples are added.
+  more adapters/examples are added. Requests like "find the best monitor
+  under $100" are research/judgment tasks that are intentionally out of
+  scope for v1.
 - **Autoplay nudge is flaky.** The newest video opens reliably, but the
   watch page doesn't always auto-start playback yet (tracked for polish).
 - **Logins and permissions are per-machine.** Each person logs into

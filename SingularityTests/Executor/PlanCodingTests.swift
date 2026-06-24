@@ -53,6 +53,24 @@ struct PlanCodingTests {
         #expect(decoded.steps.count == 2)
     }
 
+    /// `new_pane` decodes when present and defaults to false when absent;
+    /// it is only emitted when true (so existing fixtures stay stable).
+    @Test func newPaneDecodesAndDefaultsFalse() throws {
+        let withFlag = #"{"steps":[{"action":{"kind":"web_navigate","url":"https://x.com/"},"new_pane":true}]}"#
+        let without = #"{"steps":[{"action":{"kind":"web_navigate","url":"https://x.com/"}}]}"#
+        let dataA = try #require(withFlag.data(using: .utf8))
+        let dataB = try #require(without.data(using: .utf8))
+
+        let planA = try JSONDecoder().decode(RawPlan.self, from: dataA)
+        let planB = try JSONDecoder().decode(RawPlan.self, from: dataB)
+        #expect(planA.steps[0].newPane == true)
+        #expect(planB.steps[0].newPane == false)
+
+        // Absent by default -> not emitted on encode.
+        let encoded = try #require(String(bytes: try JSONEncoder().encode(planB), encoding: .utf8))
+        #expect(!encoded.contains("new_pane"))
+    }
+
     @Test func decodingUnknownKindFails() {
         let badJSON = #"{"steps":[{"action":{"kind":"telepathy","url":"x"}}]}"#
         // swiftlint:disable:next force_unwrapping

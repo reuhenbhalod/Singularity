@@ -16,32 +16,42 @@ struct PaneContainerView<Content: View>: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(ShellStyle.accent.opacity(0.85))
+                    .frame(width: 7, height: 7)
                 Text(title)
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .font(.system(.caption, design: .monospaced).weight(.medium))
+                    .foregroundStyle(ShellStyle.textSecondary)
                     .lineLimit(1)
-                Spacer()
+                Spacer(minLength: 8)
                 Button {
                     onClose(paneID)
                 } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.6))
-                        .font(.body)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(ShellStyle.textSecondary)
+                        .frame(width: 18, height: 18)
+                        .background(Circle().fill(ShellStyle.surfaceStrong))
+                        .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Close \(title)")
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(Color.white.opacity(0.12))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(ShellStyle.surfaceStrong)
 
             // Fill the tile so the content (e.g. a WKWebView, which has
             // no intrinsic size) doesn't collapse to its header.
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 6))
-        .padding(4)
+        .clipShape(RoundedRectangle(cornerRadius: ShellStyle.cornerRadius))
+        .overlay(
+            RoundedRectangle(cornerRadius: ShellStyle.cornerRadius)
+                .strokeBorder(ShellStyle.hairline, lineWidth: 1)
+        )
+        .padding(5)
     }
 }

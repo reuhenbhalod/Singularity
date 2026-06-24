@@ -22,7 +22,14 @@ enum PlanSchema {
                 "type": .string("array"),
                 "items": .object([
                     "type": .string("object"),
-                    "properties": .object(["action": action]),
+                    "properties": .object([
+                        "action": action,
+                        // Optional: open this navigation in a new pane
+                        // instead of reusing the current one. Only the
+                        // planner sets it (and only when the user asks);
+                        // absent means reuse.
+                        "new_pane": .object(["type": .string("boolean")]),
+                    ]),
                     "required": .array([.string("action")]),
                 ]),
             ])

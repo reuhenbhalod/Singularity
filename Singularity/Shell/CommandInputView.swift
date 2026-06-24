@@ -13,10 +13,11 @@ struct CommandInputView: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        HStack(spacing: 12) {
-            Text(">")
-                .font(.system(.title2, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.5))
+        HStack(spacing: 14) {
+            Image(systemName: "chevron.right")
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .foregroundStyle(isFocused ? ShellStyle.accent : ShellStyle.textTertiary)
+                .animation(.easeOut(duration: 0.15), value: isFocused)
 
             TextField(
                 "",
@@ -26,18 +27,32 @@ struct CommandInputView: View {
                 )
             )
             .textFieldStyle(.plain)
-            .font(.system(.title3, design: .monospaced))
-            .foregroundStyle(.white)
+            .font(.system(size: 18, design: .monospaced))
+            .foregroundStyle(ShellStyle.textPrimary)
+            .tint(ShellStyle.accent)
             .focused($isFocused)
             .onSubmit { viewModel.submit() }
             .onKeyPress(.escape) {
                 viewModel.escape()
                 return .handled
             }
-            .onAppear { isFocused = true }
+            // Take keyboard focus the instant the shell is summoned, so
+            // the user can start typing without clicking. Setting it once
+            // synchronously covers the case where the panel is already
+            // key; re-asserting on the next runloop tick covers the race
+            // where the non-activating panel only *becomes* key just
+            // after this view mounts (otherwise the focus is dropped and
+            // a click is needed).
+            .onAppear {
+                isFocused = true
+                DispatchQueue.main.async { isFocused = true }
+            }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 26)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.white.opacity(0.06))
+        .background(ShellStyle.surfaceStrong)
+        .overlay(alignment: .top) {
+            Rectangle().fill(ShellStyle.hairline).frame(height: 1)
+        }
     }
 }

@@ -39,32 +39,37 @@ struct YouTubeAdapter: WebAdapter {
     ///
     /// Returns a body suitable for `WKWebView.callAsyncJavaScript`,
     /// which wraps it in an `async` function — so it may `await` and
-    /// `return`. It defines a `MutationObserver`-based `waitForSelector`
-    /// inline (the reusable Swift-side bridge arrives in T-P1-06) so it
+    /// `return`. It composes the shared `WebHookJS` toolkit so it
     /// survives YouTube's lazy SPA render: the grid tiles appear well
     /// after `didFinish`. The caller navigates to the returned URL —
     /// driving `location` from an isolated content world does not
     /// reliably navigate the page.
+    ///
+    /// Robustness: the newest upload is found by the *stable* shape of a
+    /// video link (its `href` contains `/watch?v=`), not by a generated
+    /// id like `a#video-title-link` that a YouTube redesign renames. The
+    /// `/videos` grid is newest-first, so the first such link in document
+    /// order is the newest upload. A consent wall, if present, is
+    /// dismissed first so it can't hide the grid.
     ///
     /// - Parameter channel: the channel handle (e.g. `"MrBeast"`),
     ///   embedded only as a diagnostic marker — navigation to the
     ///   channel page is the web lane's job (the preceding
     ///   `webNavigate` step).
     func playNewestForChannel(_ channel: String) -> String {
-        let channelLiteral = Self.jsStringLiteral(channel)
-        // Title links in the grid: `a#video-title-link` is the modern
-        // markup; the others are fallbacks across YouTube layouts.
-        let selector = "a#video-title-link, a#video-title, ytd-rich-grid-media a#thumbnail"
-        let selectorLiteral = Self.jsStringLiteral(selector)
+        let channelLiteral = WebHookJS.jsStringLiteral(channel)
+        let watchNeedle = WebHookJS.jsStringLiteral("/watch?v=")
         return """
-            \(Self.waitForSelectorJS)
+            \(WebHookJS.library)
             const __sgl_channel = \(channelLiteral);
             console.log("[singularity] play_newest for channel " + __sgl_channel);
-            const __sgl_link = await __sgl_waitForSelector(\(selectorLiteral), 10000);
-            // Return the newest video's absolute watch URL. The caller
-            // (Swift) performs the navigation — driving location from an
-            // isolated content world doesn't reliably navigate the page.
-            return __sgl_link.href || "";
+            __sgl_dismissConsent();
+            // Find the newest video by the durable URL shape, not a
+            // brittle id. The caller (Swift) performs the navigation —
+            // driving location from an isolated content world doesn't
+            // reliably navigate the page.
+            const __sgl_link = await __sgl_firstLinkMatching(\(watchNeedle), 15000);
+            return __sgl_link ? (__sgl_link.href || "") : "";
             """
     }
 
@@ -76,7 +81,7 @@ struct YouTubeAdapter: WebAdapter {
     /// play button if it's still paused. Returns `"playing"` / `"paused"`.
     func playCurrentVideo() -> String {
         """
-        \(Self.waitForSelectorJS)
+        \(WebHookJS.library)
         const __sgl_video = await __sgl_waitForSelector("video.html5-main-video, video", 10000);
         try { await __sgl_video.play(); } catch (e) {}
         if (__sgl_video.paused) {
@@ -87,42 +92,33 @@ struct YouTubeAdapter: WebAdapter {
         """
     }
 
-    /// Shared `MutationObserver`-based `waitForSelector` helper, prepended
-    /// to each hook's body. Resolves with the first element matching the
-    /// selector once it appears, or rejects after `timeoutMs` — so a hook
-    /// survives YouTube's lazy SPA render (content appears after
-    /// `didFinish`).
-    private static let waitForSelectorJS = """
-        function __sgl_waitForSelector(selector, timeoutMs) {
-            return new Promise((resolve, reject) => {
-                const existing = document.querySelector(selector);
-                if (existing) { resolve(existing); return; }
-                const observer = new MutationObserver(() => {
-                    const el = document.querySelector(selector);
-                    if (el) { observer.disconnect(); resolve(el); }
-                });
-                observer.observe(document.documentElement, { childList: true, subtree: true });
-                setTimeout(() => {
-                    observer.disconnect();
-                    reject(new Error("timeout waiting for " + selector));
-                }, timeoutMs);
-            });
-        }
-        """
+    /// A channels-filtered YouTube search URL for a creator name. Used to
+    /// resolve a name to its real channel when a guessed `@handle` misses
+    /// (e.g. "Marques Brownlee" → `@mkbhd`): YouTube's own search is the
+    /// reliable name→channel resolver. The `sp=EgIQAg==` token is YouTube's
+    /// "filter: channels" parameter, so every result is a channel.
+    func channelSearchURL(for query: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "www.youtube.com"
+        components.path = "/results"
+        components.queryItems = [
+            URLQueryItem(name: "search_query", value: query),
+            URLQueryItem(name: "sp", value: "EgIQAg=="),
+        ]
+        return components.url
+    }
 
-    /// Encodes a Swift string as a JavaScript string literal (quoted
-    /// and escaped) by reusing JSON's string grammar, which is a strict
-    /// subset of JS string syntax. Prevents a channel name with quotes
-    /// or backslashes from breaking out of the literal.
-    private static func jsStringLiteral(_ value: String) -> String {
-        // JSON-encoding a bare String yields a valid, escaped JS string
-        // literal. Encoding a String cannot realistically fail; fall
-        // back to an empty literal rather than throwing from a hook.
-        guard let data = try? JSONEncoder().encode(value),
-            let literal = String(data: data, encoding: .utf8)
-        else {
-            return "\"\""
-        }
-        return literal
+    /// JS that returns the first channel result's URL on a YouTube search
+    /// page (or `""`). Channel results link to `/@handle` or
+    /// `/channel/UC…`; this selects them by the channel renderer / that
+    /// stable URL shape rather than a generated id.
+    func firstChannelHref() -> String {
+        """
+        \(WebHookJS.library)
+        const __sgl_el = await __sgl_waitForSelector(
+            'ytd-channel-renderer a[href], a[href*="/channel/"]', 12000).catch(() => null);
+        return (__sgl_el && __sgl_el.href) ? __sgl_el.href : "";
+        """
     }
 }

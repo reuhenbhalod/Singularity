@@ -15,43 +15,56 @@ struct SessionLogView: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 5) {
                     ForEach(store.entries) { entry in
-                        Text(prefix(for: entry.kind) + entry.text)
-                            .font(.system(.caption, design: .monospaced))
-                            .foregroundStyle(color(for: entry.kind))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .id(entry.id)
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text(glyph(for: entry.kind))
+                                .foregroundStyle(glyphColor(for: entry.kind))
+                            Text(entry.text)
+                                .foregroundStyle(color(for: entry.kind))
+                                .textSelection(.enabled)
+                            Spacer(minLength: 0)
+                        }
+                        .font(.system(.caption, design: .monospaced))
+                        .id(entry.id)
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 26)
+                .padding(.vertical, 12)
             }
             .scrollIndicators(.never)
             .onChange(of: store.entries.count) { _, _ in
                 if let last = store.entries.last {
-                    withAnimation(.easeOut(duration: 0.1)) {
+                    withAnimation(.easeOut(duration: 0.12)) {
                         proxy.scrollTo(last.id, anchor: .bottom)
                     }
                 }
             }
         }
-        .background(Color.white.opacity(0.04))
+        .background(ShellStyle.surface)
     }
 
-    private func prefix(for kind: SessionLogEntry.Kind) -> String {
+    private func glyph(for kind: SessionLogEntry.Kind) -> String {
         switch kind {
-        case .command: return "> "
-        case .system: return "· "
-        case .result: return "  "
+        case .command: return "›"
+        case .system: return "·"
+        case .result: return "↳"
+        }
+    }
+
+    private func glyphColor(for kind: SessionLogEntry.Kind) -> Color {
+        switch kind {
+        case .command: return ShellStyle.accent
+        case .system: return ShellStyle.textTertiary
+        case .result: return ShellStyle.textTertiary
         }
     }
 
     private func color(for kind: SessionLogEntry.Kind) -> Color {
         switch kind {
-        case .command: return Color.white.opacity(0.9)
-        case .system: return Color.white.opacity(0.45)
-        case .result: return Color.white.opacity(0.7)
+        case .command: return ShellStyle.textPrimary
+        case .system: return ShellStyle.textTertiary
+        case .result: return ShellStyle.textSecondary
         }
     }
 }

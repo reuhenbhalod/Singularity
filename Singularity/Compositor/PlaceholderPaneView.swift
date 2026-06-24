@@ -11,11 +11,11 @@ import SwiftUI
 struct PlaceholderPaneView: View {
     var body: some View {
         Rectangle()
-            .fill(Color.white.opacity(0.04))
+            .fill(ShellStyle.surface)
             .overlay(
                 Text("placeholder pane")
                     .font(.system(.body, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.25))
+                    .foregroundStyle(ShellStyle.textTertiary)
             )
     }
 }
