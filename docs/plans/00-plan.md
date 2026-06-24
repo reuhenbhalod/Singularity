@@ -539,7 +539,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
 
 ### Phase 4 — Native app control
 
-- [ ] **T-P4-01 [USER]: Grant Accessibility permission to the dev build**
+- [x] **T-P4-01 [USER]: Grant Accessibility permission to the dev build**
   *Advances: US-E-3, US-PERM-1*
   *Per brief: §9*
   *Depends on: T-P3-12*
@@ -557,7 +557,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P4-02*
   *Acceptance check:* Test: subscribing to `kAXFocusedUIElementChangedNotification` on a known target app yields events when focus changes (manual verification on Finder).
 
-- [ ] **T-P4-04: `AXLane` dispatcher**
+- [x] **T-P4-04: `AXLane` dispatcher**
   *Advances: US-E-3*
   *Per brief: §5*
   *Depends on: T-P4-02, T-P3-02*

@@ -45,7 +45,7 @@ final class WebLane: ExecutorLane {
             return adapter(for: url) != nil
         case .runScript(let adapterName, let hook):
             return adapterName == "youtube" && hook == "play_newest"
-        case .webEvaluate:
+        case .webEvaluate, .axAction:
             return false
         }
     }
@@ -86,7 +86,7 @@ final class WebLane: ExecutorLane {
             }
             return .handled(summary: await playNewest(channel: currentChannel, in: controller))
 
-        case .webEvaluate:
+        case .webEvaluate, .axAction:
             return .unhandled
         }
     }

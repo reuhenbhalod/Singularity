@@ -32,6 +32,12 @@ enum Action: Equatable {
     /// "play_newest"`). The adapter owns the resilient selectors;
     /// the planner only names what to run.
     case runScript(adapter: String, hook: String)
+
+    /// Lane 3 (Accessibility): run a named hook from a named
+    /// `AXAdapter` against a native app (e.g. `adapter: "spotify"`,
+    /// `hook: "playpause"`). Like `runScript`, the adapter owns the AX
+    /// traversal; the planner only names the app and the operation.
+    case axAction(adapter: String, hook: String)
 }
 
 extension Action: Codable {
@@ -48,6 +54,7 @@ extension Action: Codable {
         case webNavigate = "web_navigate"
         case webEvaluate = "web_evaluate"
         case runScript = "run_script"
+        case axAction = "ax_action"
     }
 
     init(from decoder: any Decoder) throws {
@@ -62,6 +69,11 @@ extension Action: Codable {
             self = .webEvaluate(script: try container.decode(String.self, forKey: .script))
         case .runScript:
             self = .runScript(
+                adapter: try container.decode(String.self, forKey: .adapter),
+                hook: try container.decode(String.self, forKey: .hook)
+            )
+        case .axAction:
+            self = .axAction(
                 adapter: try container.decode(String.self, forKey: .adapter),
                 hook: try container.decode(String.self, forKey: .hook)
             )
@@ -82,6 +94,10 @@ extension Action: Codable {
             try container.encode(script, forKey: .script)
         case .runScript(let adapter, let hook):
             try container.encode(Kind.runScript, forKey: .kind)
+            try container.encode(adapter, forKey: .adapter)
+            try container.encode(hook, forKey: .hook)
+        case .axAction(let adapter, let hook):
+            try container.encode(Kind.axAction, forKey: .kind)
             try container.encode(adapter, forKey: .adapter)
             try container.encode(hook, forKey: .hook)
         }

@@ -71,6 +71,19 @@ struct PlanCodingTests {
         #expect(!encoded.contains("new_pane"))
     }
 
+    /// T-P4-04: an ax_action step round-trips and emits the snake_case
+    /// kind with adapter + hook.
+    @Test func axActionRoundTripsThroughJSON() throws {
+        let plan = RawPlan(steps: [PlanStep(action: .axAction(adapter: "spotify", hook: "playpause"))])
+
+        let data = try JSONEncoder().encode(plan)
+        let decoded = try JSONDecoder().decode(RawPlan.self, from: data)
+        #expect(decoded == plan)
+
+        let json = try #require(String(bytes: data, encoding: .utf8))
+        #expect(json.contains("\"kind\":\"ax_action\"") || json.contains("\"kind\" : \"ax_action\""))
+    }
+
     @Test func decodingUnknownKindFails() {
         let badJSON = #"{"steps":[{"action":{"kind":"telepathy","url":"x"}}]}"#
         // swiftlint:disable:next force_unwrapping
