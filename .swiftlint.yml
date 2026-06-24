@@ -16,6 +16,7 @@ disabled_rules:
   - todo                # in-progress build; TODOs are allowed during development
   - trailing_whitespace # swift-format owns whitespace formatting
   - trailing_comma      # swift-format wants trailing commas in multiline collection literals
+  - opening_brace       # swift-format owns brace placement (it puts `{` on its own line after a wrapped declaration/condition)
 
 opt_in_rules:
   - empty_count
