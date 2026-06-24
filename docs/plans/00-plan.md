@@ -587,7 +587,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P4-02*
   *Acceptance check:* From Advanced settings, entering bundle ID `com.apple.finder` and pressing "Dump AX tree" prints the tree into the session log; smoke test that the function returns non-empty output for Finder.
 
-- [ ] **T-P4-09: `PermissionsManager` skeleton — Accessibility only**
+- [x] **T-P4-09: `PermissionsManager` skeleton — Accessibility only**
   *Advances: US-PERM-1*
   *Per brief: §9*
   *Depends on: T-P4-01*
