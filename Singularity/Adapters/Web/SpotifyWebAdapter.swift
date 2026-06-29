@@ -25,6 +25,12 @@ struct SpotifyWebAdapter: WebAdapter {
 
     let contentWorldName = "singularity"
 
+    /// Spotify serves a degraded/broken layout to WKWebView's default UA;
+    /// a current desktop Safari UA makes it render the real web player.
+    let userAgent: String? =
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        + "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15"
+
     /// Fixed identifier for Spotify-web's isolated, persistent data store
     /// so the logged-in session survives cold launches.
     let dataStoreIdentifier =

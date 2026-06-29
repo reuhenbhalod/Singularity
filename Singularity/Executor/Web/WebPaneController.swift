@@ -40,6 +40,11 @@ final class WebPaneController {
         configuration.mediaTypesRequiringUserActionForPlayback = []
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
+        // Some sites (Spotify) serve a broken layout to WKWebView's
+        // default UA; an adapter can declare a desktop Safari UA instead.
+        if let userAgent = adapter.userAgent {
+            webView.customUserAgent = userAgent
+        }
         // The nav delegate consults the central URLPolicy (the union of
         // all adapters' allowed hosts), not just this adapter's.
         // Downloads follow the adapter's own opt-in.

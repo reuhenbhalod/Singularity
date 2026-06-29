@@ -53,6 +53,20 @@ struct WebPaneControllerTests {
         #expect(controller.navigationDelegate.allowsDownloads)
     }
 
+    /// An adapter's custom User-Agent is applied to its pane; an adapter
+    /// without one (YouTube) leaves WKWebView's default UA in place.
+    @Test func adapterUserAgentIsApplied() {
+        let spotify = WebPaneController(adapter: SpotifyWebAdapter())
+        #expect(spotify.webView.customUserAgent == SpotifyWebAdapter().userAgent)
+        #expect(spotify.webView.customUserAgent?.contains("Safari") == true)
+
+        // YouTube declares no custom UA, so the pane keeps WKWebView's
+        // default (nil or empty depending on the WebKit version) — and in
+        // particular it is NOT a Safari-spoofing string.
+        let youtube = WebPaneController(adapter: YouTubeAdapter())
+        #expect((youtube.webView.customUserAgent ?? "").isEmpty)
+    }
+
     /// The navigation delegate enforces the adapter's host allowlist.
     @Test func navigationDelegateUsesAdapterHosts() {
         let controller = WebPaneController(adapter: YouTubeAdapter())

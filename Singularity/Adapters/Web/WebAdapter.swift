@@ -41,8 +41,18 @@ protocol WebAdapter: Sendable {
     /// `false` (deny) — an adapter opts in only when a hook genuinely
     /// needs it (e.g. "save attachment").
     var allowsDownloads: Bool { get }
+
+    /// A custom User-Agent for this adapter's panes, or `nil` to use
+    /// WKWebView's default. WKWebView's default UA omits the
+    /// `Version/… Safari/…` suffix that real Safari sends, and some sites
+    /// (Spotify) sniff that and serve a broken / "unsupported browser"
+    /// layout. Declaring a desktop Safari UA makes them render the proper
+    /// experience. Defaults to `nil` (sites that work on the default,
+    /// like YouTube, leave it alone).
+    var userAgent: String? { get }
 }
 
 extension WebAdapter {
     var allowsDownloads: Bool { false }
+    var userAgent: String? { nil }
 }
