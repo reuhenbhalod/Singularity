@@ -248,6 +248,26 @@ struct WebLaneTests {
                 == "https://www.youtube.com/channel/UC123/videos")
     }
 
+    /// Spotify "play a song": navigate to the search page, then the
+    /// spotify/play_track hook presses play on the first result.
+    @Test func playsSpotifyTrackViaWebSearch() async throws {
+        let compositor = CompositorStore()
+        let driver = FakeWebPaneDriver()
+        driver.hookResult = "playing"
+        let lane = WebLane(compositor: compositor, driver: driver)
+        let search = try #require(URL(string: "https://open.spotify.com/search/92%20explorer"))
+
+        #expect(lane.canHandle(PlanStep(action: .runScript(adapter: "spotify", hook: "play_track"))))
+
+        let nav = try await lane.execute(PlanStep(action: .webNavigate(search)))
+        #expect(nav == .handled(summary: "opened open.spotify.com"))
+        #expect(compositor.panes.count == 1)
+
+        let play = try await lane.execute(
+            PlanStep(action: .runScript(adapter: "spotify", hook: "play_track")))
+        #expect(play == .handled(summary: "playing the track on Spotify"))
+    }
+
     /// play_newest with no open pane degrades gracefully.
     @Test func playWithoutOpenPaneReportsGracefully() async throws {
         let lane = WebLane(compositor: CompositorStore(), driver: FakeWebPaneDriver())

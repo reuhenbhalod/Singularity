@@ -11,7 +11,7 @@ import Foundation
 struct AXAdapterRegistry {
     let adapters: [any AXAdapter]
 
-    static let defaultAdapters: [any AXAdapter] = [SpotifyAXAdapter()]
+    static let defaultAdapters: [any AXAdapter] = [SpotifyAXAdapter(), MailAXAdapter()]
 
     init(adapters: [any AXAdapter] = AXAdapterRegistry.defaultAdapters) {
         self.adapters = adapters

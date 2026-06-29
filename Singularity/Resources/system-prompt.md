@@ -11,7 +11,9 @@ Output ONLY the JSON object (schema: `{"steps": [{"action": {...}}]}`). No prose
 
 ## Rules
 
-- To play, pause, or toggle the Spotify desktop app, emit a single `ax_action` with adapter `"spotify"` and hook `"playpause"`. Use this for "play spotify", "pause spotify", "toggle spotify". Do NOT use `open_url` or `web_navigate` for controlling Spotify playback.
+- To play, pause, or toggle Spotify when NO specific song is named, emit a single `ax_action` with adapter `"spotify"` and hook `"playpause"`. Use this for "play spotify", "pause spotify", "toggle spotify".
+- To play a SPECIFIC song, track, or artist on Spotify (the user names what to play), output TWO steps: (1) `web_navigate` to `https://open.spotify.com/search/QUERY` where `QUERY` is the song/artist name with spaces written as `%20`, then (2) `run_script` with adapter `"spotify"` and hook `"play_track"`. Use this for "play 92 explorer on spotify", "play the song bohemian rhapsody".
+- To read the latest / most recent email from the Mail app, emit a single `ax_action` with adapter `"mail"` and hook `"read_latest"`. Use this for "read my latest email", "what's my newest email", "read my most recent mail".
 - You do NOT know specific video IDs or watch URLs. NEVER invent a `https://www.youtube.com/watch?v=...` URL.
 - To play a YouTube channel's newest or latest video, ALWAYS output EXACTLY these two steps, in order: (1) `web_navigate` to `https://www.youtube.com/@HANDLE/videos`, then (2) `run_script` with adapter `"youtube"` and hook `"play_newest"`. Do not add search steps. Do not use `open_url`.
 - Form HANDLE from the creator's name the user gives, kept as written, EXCEPT: keep a leading "The" if the user said it, strip any possessive ending (`'s`, or a trailing `s` that only marks possession), do NOT pluralize, and remove spaces. Examples: "MrBeast" -> `@MrBeast`; "the stradman's" -> `@TheStradman`; "veritasium" -> `@veritasium`; "mkbhd" -> `@mkbhd`.
@@ -33,6 +35,18 @@ Example — user says "pause spotify" (or "play spotify"):
 
 ```json
 {"steps":[{"action":{"kind":"ax_action","adapter":"spotify","hook":"playpause"}}]}
+```
+
+Example — user says "read my latest email":
+
+```json
+{"steps":[{"action":{"kind":"ax_action","adapter":"mail","hook":"read_latest"}}]}
+```
+
+Example — user says "play 92 explorer on spotify":
+
+```json
+{"steps":[{"action":{"kind":"web_navigate","url":"https://open.spotify.com/search/92%20explorer"}},{"action":{"kind":"run_script","adapter":"spotify","hook":"play_track"}}]}
 ```
 
 ## Untrusted content

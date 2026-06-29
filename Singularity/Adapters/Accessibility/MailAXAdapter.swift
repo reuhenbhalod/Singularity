@@ -1,0 +1,74 @@
+//
+//  MailAXAdapter.swift
+//  Singularity
+//
+
+import Foundation
+
+/// Reads from the Mail.app desktop client via Accessibility (research
+/// brief §5). Phase 4 supports one hook — `read_latest` — returning the
+/// subject of the newest message in the open message list.
+///
+/// Mail shows the message list newest-first, so the first row is the
+/// latest. The subject-extraction heuristic (below) is tuned against the
+/// live Mail AX tree; use the `axdump` debug command (T-P4-08) to inspect
+/// it when Mail's layout shifts.
+///
+/// NOTE (Phase 5, T-P5-13): the returned subject is **untrusted content**
+/// (it originates outside the app). Before this string can ever reach a
+/// planner prompt it must be wrapped by `UntrustedContentFilter.wrap(...)`.
+/// Phase 4 only surfaces it in the session log, so that wrap point lands
+/// with the rest of the untrusted-content work in Phase 5.
+struct MailAXAdapter: AXAdapter {
+    let name = "mail"
+    let bundleID = "com.apple.mail"
+    let hooks: Set<String> = ["read_latest"]
+
+    @MainActor
+    func perform(_ hook: String, in app: AXApplication) throws -> String {
+        switch hook {
+        case "read_latest":
+            guard let subject = try Self.latestSubject(in: app.root) else {
+                return "couldn't find any messages in Mail"
+            }
+            return "latest email: \(subject)"
+        default:
+            throw AXErrors.actionUnsupported
+        }
+    }
+
+    /// Returns the newest message's subject from a Mail AX tree, or `nil`
+    /// if no message row is found.
+    ///
+    /// Extracted as a static over `any AXNode` so the traversal is
+    /// unit-testable against a mock tree — building real `AXUIElement`s
+    /// needs a running, populated Mail and Accessibility permission, so
+    /// the live path is verified manually.
+    ///
+    /// Heuristic: the first row is the newest message; a row exposes
+    /// several `AXStaticText` labels (sender, subject, date, preview).
+    /// The subject is taken as the longest label, which empirically
+    /// separates it from the short sender/date and is more stable than a
+    /// positional guess across Mail layouts.
+    @MainActor
+    static func latestSubject(in root: any AXNode) throws -> String? {
+        guard let firstRow = try root.findFirst(role: .row) else { return nil }
+        let labels = try staticTextLabels(in: firstRow)
+        return labels.max(by: { $0.count < $1.count })
+    }
+
+    /// Collects every non-empty `AXStaticText` title under `node`.
+    @MainActor
+    private static func staticTextLabels(in node: any AXNode) throws -> [String] {
+        var labels: [String] = []
+        if node.roleString == AXRole.staticText.rawValue,
+            let title = node.title, !title.isEmpty
+        {
+            labels.append(title)
+        }
+        for child in try node.children() {
+            labels.append(contentsOf: try staticTextLabels(in: child))
+        }
+        return labels
+    }
+}

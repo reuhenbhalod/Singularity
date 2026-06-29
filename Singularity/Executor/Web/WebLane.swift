@@ -21,6 +21,7 @@ final class WebLane: ExecutorLane {
     private let registry: AdapterRegistry
     private let driver: any WebPaneDriving
     private let youTube = YouTubeAdapter()  // supplies the play_newest hook JS
+    private let spotify = SpotifyWebAdapter()  // supplies the play_track hook JS
     private var currentPane: WebPaneController?
     private var currentChannel: String?
     /// The data-store id of the current pane's adapter — used to tell
@@ -44,7 +45,8 @@ final class WebLane: ExecutorLane {
         case .webNavigate(let url), .openURL(let url):
             return adapter(for: url) != nil
         case .runScript(let adapterName, let hook):
-            return adapterName == "youtube" && hook == "play_newest"
+            return (adapterName == "youtube" && hook == "play_newest")
+                || (adapterName == "spotify" && hook == "play_track")
         case .webEvaluate, .axAction:
             return false
         }
@@ -80,9 +82,12 @@ final class WebLane: ExecutorLane {
             try await driver.navigate(controller, to: url)
             return .handled(summary: "opened \(url.host ?? "page")")
 
-        case .runScript:
+        case .runScript(let adapterName, _):
             guard let controller = currentPane else {
                 return .handled(summary: "couldn't play — no page is open")
+            }
+            if adapterName == "spotify" {
+                return .handled(summary: await playSpotifyTrack(in: controller))
             }
             return .handled(summary: await playNewest(channel: currentChannel, in: controller))
 
@@ -198,6 +203,16 @@ final class WebLane: ExecutorLane {
             return URL(string: "https://\(host)/channel/\(parts[index + 1])/videos")
         }
         return nil
+    }
+
+    /// Presses play on the first track of the open Spotify-web search
+    /// page (the song the user named). Degrades to a status string.
+    private func playSpotifyTrack(in controller: WebPaneController) async -> String {
+        let result =
+            (try? await driver.runHook(controller, javaScript: spotify.playFirstTrack())) as? String
+        return result == "playing"
+            ? "playing the track on Spotify"
+            : "couldn't find that track on Spotify"
     }
 
     /// Pulls the channel handle from a YouTube `/@Handle/...` URL —
