@@ -17,10 +17,18 @@ import os
 @MainActor
 final class AXLane: ExecutorLane {
     private let registry: AXAdapterRegistry
+    private let onPermissionRevoked: () -> Void
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "executor")
 
-    init(registry: AXAdapterRegistry = AXAdapterRegistry()) {
+    /// `onPermissionRevoked` fires when an in-flight AX call finds
+    /// Accessibility no longer granted, so the shell can raise a
+    /// non-blocking banner (T-P4-07). Defaults to a no-op for tests.
+    init(
+        registry: AXAdapterRegistry = AXAdapterRegistry(),
+        onPermissionRevoked: @escaping () -> Void = {}
+    ) {
         self.registry = registry
+        self.onPermissionRevoked = onPermissionRevoked
     }
 
     func canHandle(_ step: PlanStep) -> Bool {
@@ -51,7 +59,12 @@ final class AXLane: ExecutorLane {
         do {
             return .handled(summary: try adapter.perform(hook, in: app))
         } catch AXErrors.notAuthorized {
-            return .handled(summary: "I need Accessibility permission to control \(adapter.name)")
+            // Permission was revoked (or never granted) — raise a banner
+            // and tell the user, without crashing the in-flight command.
+            onPermissionRevoked()
+            return .handled(
+                summary: "Accessibility was revoked — re-enable it in "
+                    + "System Settings → Privacy & Security → Accessibility.")
         } catch AXErrors.elementUnavailable {
             return .handled(summary: "couldn't find the control in \(adapter.name)")
         } catch {

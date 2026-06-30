@@ -551,7 +551,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P4-01*
   *Acceptance check:* Unit tests: `AXApplication(bundleId: "com.apple.finder")` returns a non-nil root; `findFirst(role: .button, title: "OK")` on a constructed mock element tree returns the expected element. AX traversal is synchronous IPC, so timeouts are tested at integration level.
 
-- [ ] **T-P4-03: `AXObservation` → `AsyncStream` bridge**
+- [x] **T-P4-03: `AXObservation` → `AsyncStream` bridge**
   *Advances: US-E-3*
   *Per brief: §5*
   *Depends on: T-P4-02*
@@ -563,25 +563,25 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P4-02, T-P3-02*
   *Acceptance check:* Test: a `RawPlan` step `ax_action(bundle: "com.spotify.client", action: .press, selector: …)` is dispatched to the AX lane.
 
-- [ ] **T-P4-05: `AXAdapter` protocol + `SpotifyAXAdapter`**
+- [x] **T-P4-05: `AXAdapter` protocol + `SpotifyAXAdapter`**
   *Advances: US-E-3*
   *Per brief: §5*
   *Depends on: T-P4-04*
   *Acceptance check:* Manual: command `play spotify` triggers Spotify play/pause via AX on a machine with Spotify open and logged in. AX traversal output is not logged at `.public` (verified in `SafetyLog` interpolation review).
 
-- [ ] **T-P4-06: `MailAXAdapter` read-latest-subject hook**
+- [x] **T-P4-06: `MailAXAdapter` read-latest-subject hook**
   *Advances: US-E-3*
   *Per brief: §5*
   *Depends on: T-P4-05*
   *Acceptance check:* Manual: command `read my latest mail subject` returns the subject string from Mail.app's open window. A TODO comment is left where the subject string will route through `UntrustedContentFilter.wrap(…)` in Phase 5 (verified by a Phase 5 grep-for-TODO task).
 
-- [ ] **T-P4-07: Mid-session AX revocation banner**
+- [x] **T-P4-07: Mid-session AX revocation banner**
   *Advances: US-E-3, US-PERM-1*
   *Per brief: §9*
   *Depends on: T-P4-05*
   *Acceptance check:* Manual: revoke Accessibility in System Settings while the shell is open; the next AX call surfaces a non-blocking banner in the session log ("Accessibility was revoked — re-enable it in Settings"); the app does not crash.
 
-- [ ] **T-P4-08: `AXDump` debug command + minimal `AdvancedTabView` invoker**
+- [x] **T-P4-08: `AXDump` debug command + minimal `AdvancedTabView` invoker**
   *Advances: US-SET-7 (partial)*
   *Per brief: §5, §12.4 (per §6 decision #11)*
   *Depends on: T-P4-02*

@@ -41,6 +41,12 @@ final class CommandPipeline {
         }
         log.append(kind: .command, clean)
 
+        // Debug commands (e.g. `axdump <bundle id>`) run locally and
+        // never reach the planner or executor.
+        if runDebugCommand(clean) {
+            return
+        }
+
         do {
             guard let raw = try await planner.plan(clean) else {
                 log.append(kind: .system, "I don't know how to do that yet.")
@@ -61,6 +67,22 @@ final class CommandPipeline {
             logger.error("dispatch failed: \(String(describing: error), privacy: .public)")
             log.append(kind: .system, "Something went wrong running that.")
         }
+    }
+
+    /// Handles local debug commands without invoking the planner.
+    /// Returns whether the input was a debug command. Currently:
+    /// `axdump <bundle id>` prints the target app's Accessibility tree
+    /// into the session log (T-P4-08).
+    private func runDebugCommand(_ input: String) -> Bool {
+        let parts = input.split(separator: " ", maxSplits: 1).map(String.init)
+        guard parts.first?.lowercased() == "axdump" else { return false }
+        guard parts.count == 2, !parts[1].trimmingCharacters(in: .whitespaces).isEmpty else {
+            log.append(kind: .system, "Usage: axdump <bundle id>  —  e.g. axdump com.apple.finder")
+            return true
+        }
+        let bundleId = parts[1].trimmingCharacters(in: .whitespaces)
+        log.append(kind: .result, AXDump.dump(bundleId: bundleId))
+        return true
     }
 
     private static func message(for error: PlannerError) -> String {

@@ -49,6 +49,7 @@ struct SessionLogView: View {
         case .command: return "›"
         case .system: return "·"
         case .result: return "↳"
+        case .banner: return "⚠"
         }
     }
 
@@ -57,6 +58,7 @@ struct SessionLogView: View {
         case .command: return ShellStyle.accent
         case .system: return ShellStyle.textTertiary
         case .result: return ShellStyle.textTertiary
+        case .banner: return ShellStyle.warning
         }
     }
 
@@ -65,6 +67,7 @@ struct SessionLogView: View {
         case .command: return ShellStyle.textPrimary
         case .system: return ShellStyle.textTertiary
         case .result: return ShellStyle.textSecondary
+        case .banner: return ShellStyle.warning
         }
     }
 }

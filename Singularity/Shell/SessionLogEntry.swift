@@ -14,6 +14,7 @@ struct SessionLogEntry: Identifiable, Equatable {
         case command  // what the user typed
         case system  // a system line (truncation, dismiss, etc.)
         case result  // result of executing a command (later phases)
+        case banner  // a prominent, non-blocking alert (e.g. permission revoked)
     }
 
     let id: UUID

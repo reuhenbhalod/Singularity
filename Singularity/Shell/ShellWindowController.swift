@@ -62,7 +62,16 @@ final class ShellWindowController {
         // router and pipeline log into this show's SessionLogStore.
         let pipeline = CommandPipeline(
             planner: OllamaPlanner(client: OllamaClient()),
-            router: ExecutorRouter(lanes: [URLSchemeLane(), AXLane(), WebLane(compositor: comp)]),
+            router: ExecutorRouter(lanes: [
+                URLSchemeLane(),
+                AXLane(onPermissionRevoked: { [weak log] in
+                    log?.append(
+                        kind: .banner,
+                        "Accessibility was revoked — re-enable it in System Settings "
+                            + "→ Privacy & Security → Accessibility.")
+                }),
+                WebLane(compositor: comp),
+            ]),
             log: log
         )
         inputViewModel.onSubmit = { [logger] text in

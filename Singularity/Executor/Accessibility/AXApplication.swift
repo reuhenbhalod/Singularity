@@ -17,6 +17,9 @@ struct AXApplication {
     /// The app's root AX element.
     let root: AXElement
 
+    /// The target app's process id (needed to create an `AXObserver`).
+    let pid: pid_t
+
     /// Fails (returns nil) if no running app has `bundleId`.
     init?(bundleId: String) {
         guard
@@ -26,6 +29,7 @@ struct AXApplication {
         else {
             return nil
         }
+        pid = app.processIdentifier
         root = AXElement(element: AXUIElementCreateApplication(app.processIdentifier))
     }
 }

@@ -31,6 +31,19 @@ private struct GhostAXAdapter: AXAdapter {
     func perform(_ hook: String, in app: AXApplication) throws -> String { "" }
 }
 
+/// Targets a running app (Finder) but its hook reports permission was
+/// revoked — exercises the T-P4-07 banner path.
+private struct RevokedAXAdapter: AXAdapter {
+    let name = "revoked"
+    let bundleID = "com.apple.finder"
+    let hooks: Set<String> = ["x"]
+
+    @MainActor
+    func perform(_ hook: String, in app: AXApplication) throws -> String {
+        throw AXErrors.notAuthorized
+    }
+}
+
 @MainActor
 struct AXLaneTests {
     /// T-P4-04: an ax_action step is dispatched to its adapter.
@@ -73,6 +86,25 @@ struct AXLaneTests {
         let lane = AXLane(registry: AXAdapterRegistry(adapters: [MockAXAdapter()]))
         let reason = lane.diagnose(PlanStep(action: .axAction(adapter: "mock", hook: "fly")))
         #expect(reason?.contains("ping") == true)  // the supported hook
+    }
+
+    /// T-P4-07: a revoked-permission AX call fires the banner callback and
+    /// reports cleanly (no crash) rather than failing silently.
+    @Test func revocationFiresBannerAndReportsCleanly() async throws {
+        var bannerFired = false
+        let lane = AXLane(
+            registry: AXAdapterRegistry(adapters: [RevokedAXAdapter()]),
+            onPermissionRevoked: { bannerFired = true }
+        )
+
+        let result = try await lane.execute(PlanStep(action: .axAction(adapter: "revoked", hook: "x")))
+
+        #expect(bannerFired)
+        guard case .handled(let summary) = result else {
+            Issue.record("expected a handled result")
+            return
+        }
+        #expect(summary.contains("Accessibility was revoked"))
     }
 
     /// The default registry resolves Spotify by name.

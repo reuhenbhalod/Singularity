@@ -13,6 +13,9 @@ enum ShellStyle {
     /// Single accent, used sparingly (focused prompt, command marker).
     static let accent = Color(red: 0.40, green: 0.62, blue: 1.0)
 
+    /// Amber, for non-blocking alerts (e.g. a revoked-permission banner).
+    static let warning = Color(red: 1.0, green: 0.72, blue: 0.30)
+
     // Text tiers (on the dark, translucent shell background).
     static let textPrimary = Color.white.opacity(0.92)
     static let textSecondary = Color.white.opacity(0.55)
