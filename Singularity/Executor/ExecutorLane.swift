@@ -20,4 +20,16 @@ protocol ExecutorLane {
     /// Runs `step`, returning a user-facing result. Only called when
     /// `canHandle(step)` is true.
     func execute(_ step: PlanStep) async throws -> LaneResult
+
+    /// If `step` falls in this lane's domain but the lane can't carry it
+    /// out, an honest, user-facing reason — what's missing and, where
+    /// possible, what the lane *can* do. Returns `nil` if the step isn't
+    /// this lane's concern at all. The router uses this to explain an
+    /// unhandled step instead of failing generically. Optional: lanes
+    /// that don't override it contribute no diagnosis.
+    func diagnose(_ step: PlanStep) -> String?
+}
+
+extension ExecutorLane {
+    func diagnose(_ step: PlanStep) -> String? { nil }
 }

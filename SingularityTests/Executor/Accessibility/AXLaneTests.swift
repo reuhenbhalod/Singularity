@@ -59,6 +59,22 @@ struct AXLaneTests {
         #expect(result == .handled(summary: "ghost isn't running"))
     }
 
+    /// Honest feedback: an unknown native app is explained, not silently
+    /// dropped.
+    @Test func diagnoseExplainsUnknownNativeApp() {
+        let lane = AXLane(registry: AXAdapterRegistry(adapters: [MockAXAdapter()]))
+        let reason = lane.diagnose(PlanStep(action: .axAction(adapter: "finder", hook: "open")))
+        #expect(reason?.contains("finder") == true)
+    }
+
+    /// Honest feedback: an unsupported hook on a known app lists what the
+    /// app *can* do.
+    @Test func diagnoseListsSupportedHooks() {
+        let lane = AXLane(registry: AXAdapterRegistry(adapters: [MockAXAdapter()]))
+        let reason = lane.diagnose(PlanStep(action: .axAction(adapter: "mock", hook: "fly")))
+        #expect(reason?.contains("ping") == true)  // the supported hook
+    }
+
     /// The default registry resolves Spotify by name.
     @Test func registryResolvesSpotify() throws {
         let adapter = try #require(AXAdapterRegistry().adapter(named: "spotify"))

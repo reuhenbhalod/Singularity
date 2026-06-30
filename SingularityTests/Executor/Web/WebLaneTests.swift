@@ -278,6 +278,20 @@ struct WebLaneTests {
         #expect(result == .handled(summary: "couldn't play — no page is open"))
     }
 
+    /// Honest feedback: a site we have no adapter for is explained (with
+    /// what we *can* drive), instead of a generic failure.
+    @Test func diagnoseExplainsUnknownSite() throws {
+        let lane = WebLane(compositor: CompositorStore(), driver: FakeWebPaneDriver())
+        let amazon = try #require(URL(string: "https://www.amazon.com/"))
+
+        let reason = lane.diagnose(PlanStep(action: .webNavigate(amazon)))
+        #expect(reason?.contains("amazon.com") == true)
+        #expect(reason?.contains("YouTube") == true)
+        // A site we DO support gets no complaint.
+        let youtube = try #require(URL(string: "https://www.youtube.com/feed"))
+        #expect(lane.diagnose(PlanStep(action: .webNavigate(youtube))) == nil)
+    }
+
     /// Channel handle is pulled from the `/@Handle/...` path.
     @Test func extractsChannelHandle() throws {
         #expect(WebLane.youTubeChannelHandle(from: try channelURL()) == "MrBeast")

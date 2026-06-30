@@ -52,8 +52,8 @@ final class CommandPipeline {
             switch try await router.dispatch(validated) {
             case .handled(let summary):
                 log.append(kind: .result, summary)
-            case .unhandled:
-                log.append(kind: .system, "I couldn't handle that step.")
+            case .unhandled(let reason):
+                log.append(kind: .system, reason)
             }
         } catch let error as PlannerError {
             log.append(kind: .system, Self.message(for: error))

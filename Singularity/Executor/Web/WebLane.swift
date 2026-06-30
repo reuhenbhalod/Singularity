@@ -52,10 +52,34 @@ final class WebLane: ExecutorLane {
         }
     }
 
+    func diagnose(_ step: PlanStep) -> String? {
+        switch step.action {
+        case .webNavigate(let url), .openURL(let url):
+            // An https site we have no adapter for.
+            guard url.scheme?.lowercased() == "https", let host = url.host else { return nil }
+            if adapter(for: url) == nil {
+                return "I can't drive \(host) yet — so far I can only use YouTube, Gmail, "
+                    + "and Spotify on the web."
+            }
+            return nil
+        case .runScript(let adapterName, let hook):
+            if (adapterName == "youtube" && hook == "play_newest")
+                || (adapterName == "spotify" && hook == "play_track")
+            {
+                return nil  // handled
+            }
+            return "I don't have a \"\(hook)\" action for \(adapterName)."
+        case .webEvaluate, .axAction:
+            return nil
+        }
+    }
+
     func execute(_ step: PlanStep) async throws -> LaneResult {
         switch step.action {
         case .webNavigate(let url), .openURL(let url):
-            guard let adapter = adapter(for: url) else { return .unhandled }
+            guard let adapter = adapter(for: url) else {
+                return .unhandled(reason: diagnose(step) ?? "I don't have a way to do that yet.")
+            }
             // Reuse the open pane when this navigation targets the same
             // site and the planner didn't ask for a new one — so "play
             // another video" replaces in place instead of opening a new
@@ -92,7 +116,7 @@ final class WebLane: ExecutorLane {
             return .handled(summary: await playNewest(channel: currentChannel, in: controller))
 
         case .webEvaluate, .axAction:
-            return .unhandled
+            return .unhandled(reason: "I don't have a way to do that yet.")
         }
     }
 

@@ -29,7 +29,7 @@ final class URLSchemeLane: ExecutorLane {
 
     func execute(_ step: PlanStep) async throws -> LaneResult {
         guard case .openURL(let url) = step.action else {
-            return .unhandled
+            return .unhandled(reason: "I don't have a way to do that yet.")
         }
         let opened = opener.open(url)
         let label = url.scheme.map { "\($0): link" } ?? "link"

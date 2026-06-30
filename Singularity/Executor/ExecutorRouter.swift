@@ -29,7 +29,7 @@ final class ExecutorRouter {
         for step in plan.steps {
             let result = try await dispatch(step)
             if case .unhandled = result {
-                return .unhandled
+                return result  // propagate the reason for this step
             }
             last = result
         }
@@ -40,6 +40,18 @@ final class ExecutorRouter {
         for lane in lanes where lane.canHandle(step) {
             return try await lane.execute(step)
         }
-        return .unhandled
+        return .unhandled(reason: diagnose(step))
+    }
+
+    /// The most specific reason a registered lane can give for why `step`
+    /// can't run (first lane to recognize the step's domain wins), or a
+    /// generic fallback if none does.
+    private func diagnose(_ step: PlanStep) -> String {
+        for lane in lanes {
+            if let reason = lane.diagnose(step) {
+                return reason
+            }
+        }
+        return "I don't have a way to do that yet."
     }
 }

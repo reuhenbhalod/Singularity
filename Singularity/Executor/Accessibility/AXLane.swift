@@ -28,11 +28,20 @@ final class AXLane: ExecutorLane {
         return registry.adapter(named: adapter)?.hooks.contains(hook) ?? false
     }
 
+    func diagnose(_ step: PlanStep) -> String? {
+        guard case .axAction(let adapterName, let hook) = step.action else { return nil }
+        guard let adapter = registry.adapter(named: adapterName) else {
+            return "I can't control \(adapterName) as a native app yet."
+        }
+        let supported = adapter.hooks.sorted().joined(separator: ", ")
+        return "I can't \"\(hook)\" \(adapter.name) — what I can do there: \(supported)."
+    }
+
     func execute(_ step: PlanStep) async throws -> LaneResult {
         guard case .axAction(let adapterName, let hook) = step.action,
             let adapter = registry.adapter(named: adapterName)
         else {
-            return .unhandled
+            return .unhandled(reason: diagnose(step) ?? "I don't have a way to do that yet.")
         }
 
         guard let app = AXApplication(bundleId: adapter.bundleID) else {
