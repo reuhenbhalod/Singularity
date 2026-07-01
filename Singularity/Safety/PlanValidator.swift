@@ -60,7 +60,9 @@ struct PlanValidator {
     /// A short, content-free fingerprint of the plan body, for logging a
     /// rejection without logging the plan itself.
     static func planHash(_ raw: RawPlan) -> String {
-        guard let data = try? JSONEncoder().encode(raw) else { return "unknown" }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]  // deterministic bytes
+        guard let data = try? encoder.encode(raw) else { return "unknown" }
         return SHA256.hash(data: data).prefix(8).map { String(format: "%02x", $0) }.joined()
     }
 }

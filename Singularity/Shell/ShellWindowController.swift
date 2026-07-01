@@ -74,9 +74,17 @@ final class ShellWindowController {
             ]),
             log: log
         )
-        inputViewModel.onSubmit = { [logger] text in
+        // Panic stop: typing the panic phrase (`abort`) cancels the
+        // in-flight command instead of queuing a new one (US-SAFE-7).
+        let panic = PanicController()
+        inputViewModel.onSubmit = { [logger, weak log] text in
+            if panic.isPanicPhrase(text) {
+                panic.panic()
+                log?.append(kind: .system, "Stopped.")
+                return
+            }
             logger.info("submit: \(text, privacy: .public)")
-            Task { await pipeline.run(text) }
+            panic.track(Task { await pipeline.run(text) })
         }
         inputViewModel.onLog = { [weak log, logger] line in
             log?.append(kind: .system, line)

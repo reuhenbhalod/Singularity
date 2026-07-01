@@ -1,0 +1,17 @@
+# Singularity NSFW blocklist — adult-content hosts denied by URLPolicy
+# when the NSFW filter is on (default). Starter set; regenerate the full
+# list from StevenBlack/hosts (porn extension) with
+# Scripts/refresh-nsfw-list.sh. One host per line; '#' comments ignored;
+# subdomains match automatically.
+pornhub.com
+xvideos.com
+xnxx.com
+xhamster.com
+redtube.com
+youporn.com
+onlyfans.com
+chaturbate.com
+brazzers.com
+spankbang.com
+tube8.com
+youjizz.com

@@ -625,25 +625,25 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P5-04*
   *Acceptance check:* The Phase-1 `phase1Allow(_:)` factory is removed; `ValidatedPlan.init` is file-private to `PlanValidator.swift`; a test in another file that tries to construct `ValidatedPlan(...)` fails to compile (verified by a `// EXPECTED-FAIL` marker file run separately). The `ExecutorRouter.dispatch(_:)` signature accepts only `ValidatedPlan`.
 
-- [ ] **T-P5-06: `NSFWBlocklist` loader + bundled `nsfw-blocklist.txt`**
+- [x] **T-P5-06: `NSFWBlocklist` loader + bundled `nsfw-blocklist.txt`**
   *Advances: US-NSFW-1*
   *Per brief: §12.2*
   *Depends on: T-P3-12*
   *Acceptance check:* `NSFWBlocklist.contains("…")` returns expected results against a curated test list; loading takes < 100ms at app start on a representative dataset.
 
-- [ ] **T-P5-07: `Scripts/refresh-nsfw-list.sh` maintainer script**
+- [x] **T-P5-07: `Scripts/refresh-nsfw-list.sh` maintainer script**
   *Advances: US-NSFW-1*
   *Per brief: §12.2*
   *Depends on: T-P5-06*
   *Acceptance check:* Script downloads the StevenBlack porn extension, parses host lines, writes `Singularity/Resources/nsfw-blocklist.txt`. Manual verification by running once.
 
-- [ ] **T-P5-08: Fold NSFW check into `URLPolicy.evaluate`**
+- [x] **T-P5-08: Fold NSFW check into `URLPolicy.evaluate`**
   *Advances: US-NSFW-1, US-SAFE-3*
   *Per brief: §12.2*
   *Depends on: T-P5-06*
   *Acceptance check:* Test: with NSFW toggle on, an NSFW-listed host is denied even if some hypothetical adapter were to list it; with NSFW toggle off, the same host is denied because the allowlist still doesn't include it. Toggle off never widens the allowlist (US-NSFW-1).
 
-- [ ] **T-P5-09: `AuthorizationGate` (`LAContext.evaluatePolicy(.deviceOwnerAuthentication, …)`)**
+- [x] **T-P5-09: `AuthorizationGate` (`LAContext.evaluatePolicy(.deviceOwnerAuthentication, …)`)**
   *Advances: US-SAFE-4*
   *Per brief: §11.2*
   *Depends on: T-P5-01*
@@ -655,13 +655,13 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P5-09*
   *Acceptance check:* Test: Destructive/Spend plan step renders a modal-inline preview; explicit confirm required after Touch ID; Esc cancels cleanly; Amazon-purchase plan has two stops (add-to-cart + place-order) with Touch ID on the second.
 
-- [ ] **T-P5-11: `EnvelopedContent` + `UntrustedContentFilter.wrap` and `scan`**
+- [x] **T-P5-11: `EnvelopedContent` + `UntrustedContentFilter.wrap` and `scan`**
   *Advances: US-SAFE-6*
   *Per brief: §11.6*
   *Depends on: T-P5-04*
   *Acceptance check:* Tests: `wrap(content:source:)` produces `<UNTRUSTED-CONTENT source="…" id="…">…</UNTRUSTED-CONTENT>` with normalized unicode and escaped literal envelope tags; `scan(content:)` flags "ignore previous instructions", "you are now", action-type names; planner-context builder accepts only `EnvelopedContent` (verified by a compile-fail test on direct `String` append).
 
-- [ ] **T-P5-12: `ContentRing` for cross-context contamination**
+- [x] **T-P5-12: `ContentRing` for cross-context contamination**
   *Advances: US-SAFE-6, US-SAFE-2*
   *Per brief: §11.6, §11.3*
   *Depends on: T-P5-11*
@@ -679,19 +679,19 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P5-11, T-P5-09*
   *Acceptance check:* Test: a wrapped content with "ignore previous instructions" raises a warning into the session log AND the resulting plan's risk class is downgraded one level harsher (a Reversible plan becomes Destructive and now requires Touch ID).
 
-- [ ] **T-P5-15: `PanicController` (`abort` + double-Esc, `Task.cancel()` propagation)**
+- [x] **T-P5-15: `PanicController` (`abort` + double-Esc, `Task.cancel()` propagation)**
   *Advances: US-SAFE-7*
   *Per brief: §11.1*
   *Depends on: T-P5-04*
   *Acceptance check:* Test: typing `abort` while an executor task is mid-flight calls `Task.cancel()` on the root task; double-Esc within 500ms has the same effect; `SafetyLog.panicCancelled()` is emitted; in-flight `ConfirmGate` is dismissed.
 
-- [ ] **T-P5-16: `SafetyLog` full API surface**
+- [x] **T-P5-16: `SafetyLog` full API surface**
   *Advances: US-SAFE-8*
   *Per brief: §11.7*
   *Depends on: T-P5-04, T-P5-09, T-P5-11, T-P5-15*
   *Acceptance check:* Every guardrail (input blocked, plan rejected, URL denied, auth failed, untrusted-heuristic fired, panic cancelled) routes through `SafetyLog`. Privacy markers verified: enums/hashes/hosts are `.public`; URLs/contents/user text are `.private`. A code-review checklist task.
 
-- [ ] **T-P5-17: `Routine` model + `RoutineStore` actor**
+- [x] **T-P5-17: `Routine` model + `RoutineStore` actor**
   *Advances: US-RT-1 (foundation), US-RT-4, US-RT-5 (foundation)*
   *Per brief: §11 (per §6 decision #13)*
   *Depends on: T-P5-04*

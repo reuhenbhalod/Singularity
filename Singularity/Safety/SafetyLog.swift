@@ -42,4 +42,30 @@ enum SafetyLog {
         logger.warning(
             "plan rejected reason=\(reason, privacy: .public) hash=\(planHash, privacy: .public)")
     }
+
+    /// Input was dropped at the boundary (the category is safe to log;
+    /// the raw input is never logged).
+    static func inputBlocked(reason: String) {
+        logger.warning("input blocked reason=\(reason, privacy: .public)")
+    }
+
+    /// A device-authentication prompt failed or was cancelled (the action
+    /// label is low-cardinality; no user content).
+    static func authFailed(action: String) {
+        logger.warning("auth failed action=\(action, privacy: .public)")
+    }
+
+    /// The instruction-detection heuristic fired on untrusted content
+    /// (only the source label and matched pattern are logged, not the
+    /// content).
+    static func untrustedHeuristicFired(source: String, pattern: String) {
+        logger.warning(
+            "untrusted heuristic source=\(source, privacy: .public) pattern=\(pattern, privacy: .public)"
+        )
+    }
+
+    /// An in-flight command was hard-stopped by the panic phrase / double-Esc.
+    static func panicCancelled() {
+        logger.notice("panic cancelled")
+    }
 }

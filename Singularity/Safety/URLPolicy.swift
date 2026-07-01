@@ -15,6 +15,7 @@ struct URLPolicy {
         case userInfoPresent
         case hostNotAllowed
         case noHost
+        case nsfwBlocked
     }
 
     enum Decision: Equatable {
@@ -23,9 +24,17 @@ struct URLPolicy {
     }
 
     private let allowed: AllowedDomains
+    private let nsfw: NSFWBlocklist
+    private let nsfwEnabled: Bool
 
-    init(allowedDomains: AllowedDomains = AllowedDomains()) {
+    init(
+        allowedDomains: AllowedDomains = AllowedDomains(),
+        nsfw: NSFWBlocklist = NSFWBlocklist(),
+        nsfwEnabled: Bool = true
+    ) {
         allowed = allowedDomains
+        self.nsfw = nsfw
+        self.nsfwEnabled = nsfwEnabled
     }
 
     func evaluate(url: URL) -> Decision {
@@ -42,6 +51,13 @@ struct URLPolicy {
         }
         guard let host = components.host?.lowercased() else {
             return .deny(reason: .noHost)
+        }
+        // NSFW check sits AHEAD of the allowlist and short-circuits: an
+        // adult host is denied even if some adapter listed it. Turning
+        // the filter off only skips this check — it never widens the
+        // allowlist (brief §12.2 / US-NSFW-1).
+        if nsfwEnabled, nsfw.contains(host) {
+            return .deny(reason: .nsfwBlocked)
         }
         return allowed.contains(host) ? .allow : .deny(reason: .hostNotAllowed)
     }
