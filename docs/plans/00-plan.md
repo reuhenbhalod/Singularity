@@ -595,31 +595,31 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
 
 ### Phase 5 — Safety pipeline
 
-- [ ] **T-P5-01: `RiskClass` enum and default action-to-risk mapping**
+- [x] **T-P5-01: `RiskClass` enum and default action-to-risk mapping**
   *Advances: US-SAFE-4*
   *Per brief: §11.2*
   *Depends on: T-P4-09*
   *Acceptance check:* Table-driven test: `open_url(https://allowed)` → `.read`; `move_file(…trash…)` → `.reversible`; `delete_file(non-trash)` → `.destructive`; `place_order(...)` → `.spend`. Adapter override can raise the class but not lower it (compile-time check by `where Class >= Default`).
 
-- [ ] **T-P5-02: `PlanRejection` enum + structured payload**
+- [x] **T-P5-02: `PlanRejection` enum + structured payload**
   *Advances: US-SAFE-2, US-SAFE-8*
   *Per brief: §11.3, §11.7*
   *Depends on: T-P5-01*
   *Acceptance check:* Each rejection case carries (a) a `reason: RejectionReason` enum (public-loggable), (b) a `planHash: String` (public-loggable), (c) a `humanMessage: String` (renderable inline).
 
-- [ ] **T-P5-03: Real `PlanValidator` — URL validation**
+- [x] **T-P5-03: Real `PlanValidator` — URL validation**
   *Advances: US-SAFE-2, US-SAFE-3*
   *Per brief: §11.3, §11.4*
   *Depends on: T-P5-02, T-P3-06*
   *Acceptance check:* Tests: off-list host → reject; non-HTTPS → reject; userinfo → reject; IDN host `xn--…` normalized to ASCII then checked → expected result; unknown custom scheme → reject; rejection logged with reason + hash, not the plan body.
 
-- [ ] **T-P5-04: Real `PlanValidator` — fail-closed unknown action types/fields**
+- [x] **T-P5-04: Real `PlanValidator` — fail-closed unknown action types/fields**
   *Advances: US-SAFE-2*
   *Per brief: §11.3*
   *Depends on: T-P5-03*
   *Acceptance check:* Test: a `RawPlan` with an `action_type` not in the enum throws `PlanRejection.unknownActionType`; a plan with an unknown field on a known action throws `PlanRejection.unknownField`.
 
-- [ ] **T-P5-05: Make `ValidatedPlan` constructible only by `PlanValidator`**
+- [x] **T-P5-05: Make `ValidatedPlan` constructible only by `PlanValidator`**
   *Advances: US-SAFE-2*
   *Per brief: §11.3 (type-level handoff)*
   *Depends on: T-P5-04*

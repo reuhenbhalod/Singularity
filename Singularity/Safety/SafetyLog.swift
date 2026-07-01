@@ -34,4 +34,12 @@ enum SafetyLog {
     static func downloadDenied(filename: String) {
         logger.warning("download denied file=\(filename, privacy: .private)")
     }
+
+    /// The `PlanValidator` rejected a plan. The reason label and plan
+    /// fingerprint are content-free and logged `.public`; the plan body
+    /// is never logged (brief §11.7).
+    static func planRejected(reason: String, planHash: String) {
+        logger.warning(
+            "plan rejected reason=\(reason, privacy: .public) hash=\(planHash, privacy: .public)")
+    }
 }

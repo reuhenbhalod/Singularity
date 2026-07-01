@@ -35,18 +35,22 @@ private final class RecordingLane: ExecutorLane {
 
 @MainActor
 struct ExecutorRouterTests {
-    private func plan(_ actions: [Action]) -> ValidatedPlan {
-        .phase1Allow(RawPlan(steps: actions.map { PlanStep(action: $0) }))
+    /// Builds a ValidatedPlan the only legal way — through PlanValidator.
+    /// Uses allowlisted (YouTube) URLs so validation passes; the routing
+    /// logic under test is independent of the host.
+    private func plan(_ actions: [Action]) throws -> ValidatedPlan {
+        let raw = RawPlan(steps: actions.map { PlanStep(action: $0) })
+        return try PlanValidator().validate(raw).get()
     }
 
     /// T-P3-02: each step goes to the first lane whose canHandle is true.
     @Test func dispatchesToFirstCapableLane() async throws {
-        let url = try #require(URL(string: "https://example.com"))
+        let url = try #require(URL(string: "https://www.youtube.com"))
         let urlLane = RecordingLane { if case .openURL = $0.action { return true } else { return false } }
         let webLane = RecordingLane { if case .webNavigate = $0.action { return true } else { return false } }
         let router = ExecutorRouter(lanes: [urlLane, webLane])
 
-        let result = try await router.dispatch(plan([.webNavigate(url)]))
+        let result = try await router.dispatch(try plan([.webNavigate(url)]))
 
         #expect(result == .handled(summary: "call 1"))
         #expect(webLane.executed.count == 1)
@@ -55,12 +59,12 @@ struct ExecutorRouterTests {
 
     /// First-match-wins: an earlier lane that also matches is preferred.
     @Test func earlierLaneWinsWhenBothMatch() async throws {
-        let url = try #require(URL(string: "https://example.com"))
+        let url = try #require(URL(string: "https://www.youtube.com"))
         let first = RecordingLane { _ in true }
         let second = RecordingLane { _ in true }
         let router = ExecutorRouter(lanes: [first, second])
 
-        _ = try await router.dispatch(plan([.webNavigate(url)]))
+        _ = try await router.dispatch(try plan([.webNavigate(url)]))
 
         #expect(first.executed.count == 1)
         #expect(second.executed.isEmpty)
@@ -69,11 +73,11 @@ struct ExecutorRouterTests {
     /// T-P3-02: no matching lane -> `.unhandled` with the generic reason
     /// (no lane offered a diagnosis).
     @Test func unhandledWhenNoLaneMatches() async throws {
-        let url = try #require(URL(string: "https://example.com"))
+        let url = try #require(URL(string: "https://www.youtube.com"))
         let lane = RecordingLane { _ in false }
         let router = ExecutorRouter(lanes: [lane])
 
-        let result = try await router.dispatch(plan([.webNavigate(url)]))
+        let result = try await router.dispatch(try plan([.webNavigate(url)]))
 
         #expect(result == .unhandled(reason: "I don't have a way to do that yet."))
     }
@@ -81,25 +85,25 @@ struct ExecutorRouterTests {
     /// Honest feedback: an unhandled step surfaces the most specific
     /// reason a lane can give, not a generic failure.
     @Test func unhandledSurfacesLaneDiagnosis() async throws {
-        let url = try #require(URL(string: "https://example.com"))
+        let url = try #require(URL(string: "https://www.youtube.com"))
         let lane = RecordingLane(
             handles: { _ in false },
             diagnoses: { _ in "I can't drive example.com yet." }
         )
         let router = ExecutorRouter(lanes: [lane])
 
-        let result = try await router.dispatch(plan([.webNavigate(url)]))
+        let result = try await router.dispatch(try plan([.webNavigate(url)]))
 
         #expect(result == .unhandled(reason: "I can't drive example.com yet."))
     }
 
     /// Multi-step: returns the last handled step's result.
     @Test func returnsLastStepResult() async throws {
-        let url = try #require(URL(string: "https://example.com"))
+        let url = try #require(URL(string: "https://www.youtube.com"))
         let lane = RecordingLane { _ in true }
         let router = ExecutorRouter(lanes: [lane])
 
-        let result = try await router.dispatch(plan([.webNavigate(url), .webNavigate(url)]))
+        let result = try await router.dispatch(try plan([.webNavigate(url), .webNavigate(url)]))
 
         #expect(result == .handled(summary: "call 2"))
         #expect(lane.executed.count == 2)
@@ -107,11 +111,11 @@ struct ExecutorRouterTests {
 
     /// An unhandled step short-circuits the rest of the plan.
     @Test func unhandledStepStopsDispatch() async throws {
-        let url = try #require(URL(string: "https://example.com"))
+        let url = try #require(URL(string: "https://www.youtube.com"))
         let lane = RecordingLane { _ in false }
         let router = ExecutorRouter(lanes: [lane])
 
-        let result = try await router.dispatch(plan([.webNavigate(url), .webNavigate(url)]))
+        let result = try await router.dispatch(try plan([.webNavigate(url), .webNavigate(url)]))
 
         #expect(result == .unhandled(reason: "I don't have a way to do that yet."))
         #expect(lane.executed.isEmpty)

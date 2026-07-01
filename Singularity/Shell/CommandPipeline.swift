@@ -9,10 +9,10 @@ import os
 /// Orchestrates one command end to end: echo it to the log, validate
 /// the input, plan it, execute it, and log the outcome.
 ///
-/// Phase 2 wiring: `InputValidator` -> planner (`OllamaPlanner` in the
-/// app, any `PlannerProtocol` for tests) -> `ValidatedPlan.phase1Allow`
-/// (stub validator, replaced by the real `PlanValidator` in T-P5-05) ->
-/// `ExecutorRouter`.
+/// Wiring: `InputValidator` -> planner (`OllamaPlanner` in the app, any
+/// `PlannerProtocol` for tests) -> `PlanValidator` (the sole producer of
+/// `ValidatedPlan`) -> `ExecutorRouter`. A rejected plan surfaces its
+/// reason in the log and never reaches the executor.
 ///
 /// `run` never throws — every failure becomes a log line so the shell
 /// stays responsive and the user always gets feedback.
@@ -22,12 +22,19 @@ final class CommandPipeline {
     private let router: ExecutorRouter
     private let log: SessionLogStore
     private let validator: InputValidator
+    private let planValidator: PlanValidator
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "pipeline")
 
-    init(planner: any PlannerProtocol, router: ExecutorRouter, log: SessionLogStore) {
+    init(
+        planner: any PlannerProtocol,
+        router: ExecutorRouter,
+        log: SessionLogStore,
+        planValidator: PlanValidator = PlanValidator()
+    ) {
         self.planner = planner
         self.router = router
         self.log = log
+        self.planValidator = planValidator
         self.validator = InputValidator(warn: { [log] line in log.append(kind: .system, line) })
     }
 
@@ -52,14 +59,19 @@ final class CommandPipeline {
                 log.append(kind: .system, "I don't know how to do that yet.")
                 return
             }
-            // Phase-2 stub validator; T-P5-05 swaps in the real
-            // PlanValidator as the only producer of ValidatedPlan.
-            let validated = ValidatedPlan.phase1Allow(raw)
-            switch try await router.dispatch(validated) {
-            case .handled(let summary):
-                log.append(kind: .result, summary)
-            case .unhandled(let reason):
-                log.append(kind: .system, reason)
+            // The real safety gate: PlanValidator is the only producer of
+            // ValidatedPlan, and the router accepts nothing else.
+            switch planValidator.validate(raw) {
+            case .failure(let rejection):
+                SafetyLog.planRejected(reason: rejection.reasonLabel, planHash: rejection.planHash)
+                log.append(kind: .system, rejection.humanMessage)
+            case .success(let validated):
+                switch try await router.dispatch(validated) {
+                case .handled(let summary):
+                    log.append(kind: .result, summary)
+                case .unhandled(let reason):
+                    log.append(kind: .system, reason)
+                }
             }
         } catch let error as PlannerError {
             log.append(kind: .system, Self.message(for: error))
