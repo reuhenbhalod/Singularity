@@ -1,0 +1,36 @@
+//
+//  SettingsViewTests.swift
+//  SingularityTests
+//
+
+import SwiftUI
+import Testing
+
+@testable import Singularity
+
+@MainActor
+struct SettingsViewTests {
+    private func store() throws -> SettingsStore {
+        SettingsStore(defaults: try #require(UserDefaults(suiteName: "t-\(UUID().uuidString)")))
+    }
+
+    /// T-P7-10: the tabbed Settings root instantiates and hosts.
+    @Test func settingsRootHosts() throws {
+        let view = SettingsRootView(
+            settings: try store(),
+            account: AccountModel(store: InMemoryIdentityStore()))
+        #expect(NSHostingView(rootView: view).rootView is SettingsRootView)
+    }
+
+    /// The Account tab hosts in both signed-out and signed-in states.
+    @Test func accountTabHostsBothStates() {
+        let signedOut = AccountTabView(account: AccountModel(store: InMemoryIdentityStore()))
+        #expect(NSHostingView(rootView: signedOut).rootView is AccountTabView)
+
+        let signedIn = AccountTabView(
+            account: AccountModel(
+                store: InMemoryIdentityStore(
+                    IdentityRecord(user: "u", displayName: "Abhiram P", email: "a@b.com"))))
+        #expect(NSHostingView(rootView: signedIn).rootView is AccountTabView)
+    }
+}

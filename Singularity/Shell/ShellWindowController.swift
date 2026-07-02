@@ -57,8 +57,11 @@ final class ShellWindowController {
         let log = SessionLogStore()
         let comp = CompositorStore()
         let inputViewModel = CommandInputViewModel()
-        // Confirm gate that presents in the shell (dormant until a
-        // destructive/spend action exists in Phase 6).
+        // Live settings (read from the same UserDefaults the Settings UI
+        // writes) — the NSFW toggle and panic phrase take effect here.
+        let settings = SettingsStore()
+        // Confirm gate that presents in the shell (fires for the file /
+        // shell actions from Phase 6 onward).
         let confirmGate = ShellConfirmGate()
         // Command pipeline: input validation -> Ollama planner ->
         // PlanValidator -> risk gates -> executor router. Logs into this
@@ -78,15 +81,25 @@ final class ShellWindowController {
                 FilesLane(),
             ]),
             log: log,
+            planValidator: PlanValidator(
+                urlPolicy: URLPolicy(nsfwEnabled: settings.nsfwFilterEnabled)),
             confirmGate: confirmGate
         )
         // Panic stop: typing the panic phrase (`abort`) cancels the
         // in-flight command instead of queuing a new one (US-SAFE-7).
         let panic = PanicController()
-        inputViewModel.onSubmit = { [logger, weak log] text in
+        panic.panicPhrase = settings.panicPhrase
+        inputViewModel.onSubmit = { [logger, weak log, weak self] text in
             if panic.isPanicPhrase(text) {
                 panic.panic()
                 log?.append(kind: .system, "Stopped.")
+                return
+            }
+            // "settings" opens the Settings window (dismissing the shell,
+            // which sits above everything).
+            if text.trimmingCharacters(in: .whitespaces).lowercased() == "settings" {
+                self?.hide()
+                Self.openSettingsWindow()
                 return
             }
             logger.info("submit: \(text, privacy: .public)")
@@ -149,6 +162,13 @@ final class ShellWindowController {
 
         isShowing = false
         logger.info("hide: panel ordered out")
+    }
+
+    /// Opens the SwiftUI `Settings` scene. The accessory app has no menu
+    /// bar, so the shell summons Settings via the app's action selector.
+    private static func openSettingsWindow() {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 
     /// Returns the `NSScreen` whose frame contains the mouse cursor,

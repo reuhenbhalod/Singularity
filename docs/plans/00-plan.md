@@ -815,7 +815,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P6-14*
   *Acceptance check:* The user has provisioned an App ID with "Sign in with Apple" enabled in Apple Developer; the team ID and bundle ID are recorded for the entitlements. Stop here.
 
-- [ ] **T-P7-02: `IdentityRecord` + `IdentityStore` Keychain wrapper**
+- [x] **T-P7-02: `IdentityRecord` + `IdentityStore` Keychain wrapper**
   *Advances: US-ID-1, US-ID-3*
   *Per brief: §12.1*
   *Depends on: T-P7-01*
@@ -917,7 +917,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-10, T-P7-06, T-P7-07*
   *Acceptance check:* One section per permission (Accessibility, Automation per-target sub-list, FDA); live tinted status; explanation paragraph; "Open System Settings" button; footer link re-runs first-run onboarding.
 
-- [ ] **T-P7-19: `AccountTabView`**
+- [x] **T-P7-19: `AccountTabView`**
   *Advances: US-SET-6, US-ACC-1*
   *Per brief: §12.3*
   *Depends on: T-P7-10, T-P7-05*

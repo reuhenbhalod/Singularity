@@ -8,11 +8,12 @@ import SwiftUI
 @main
 struct SingularityApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @State private var settings = SettingsStore()
+    @State private var account = AccountModel()
 
     var body: some Scene {
-        // Phase 7 (US-SET-1..7) fills these tabs.
         Settings {
-            EmptyView()
+            SettingsRootView(settings: settings, account: account)
         }
     }
 }
