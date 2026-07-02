@@ -821,7 +821,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-01*
   *Acceptance check:* Tests: write/read of `IdentityRecord` to Keychain at `kSecAttrService = "<bundle-id>.identity"`, `kSecAttrAccount = "appleID"`, `kSecAttrAccessible = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`; delete clears.
 
-- [ ] **T-P7-03: `AppleIDSignIn` (`SignInWithAppleButton`)**
+- [x] **T-P7-03: `AppleIDSignIn` (`SignInWithAppleButton`)**
   *Advances: US-ID-1*
   *Per brief: §12.1*
   *Depends on: T-P7-02*
@@ -833,7 +833,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-03*
   *Acceptance check:* Test: with a stored identity, `getCredentialState(forUserID:)` is called on launch; `.revoked` / `.notFound` / `.transferred` clears Keychain and re-presents first-run on next shell open; `.authorized` leaves state intact.
 
-- [ ] **T-P7-05: Sign-out from Account tab**
+- [x] **T-P7-05: Sign-out from Account tab**
   *Advances: US-ID-3*
   *Per brief: §12.3*
   *Depends on: T-P7-02*
@@ -863,19 +863,19 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-06*
   *Acceptance check:* Manual: revoking any of the three TCC permissions mid-session surfaces a non-blocking banner; lane calls fail cleanly, no crash, no modal.
 
-- [ ] **T-P7-10: `SettingsScene` with 7-tab `TabView`**
+- [x] **T-P7-10: `SettingsScene` with 7-tab `TabView`**
   *Advances: US-SET-1..7*
   *Per brief: §12.3, §12.4*
   *Depends on: T-P7-08*
   *Acceptance check:* Opening Settings (via `SettingsLink` or `openSettings`) shows seven tabs in order: General, Planner, Safety, Routines, Permissions, Account, Advanced.
 
-- [ ] **T-P7-11: `GeneralTabView` (hotkey, launch-at-login, appearance)**
+- [x] **T-P7-11: `GeneralTabView` (hotkey, launch-at-login, appearance)**
   *Advances: US-SET-1*
   *Per brief: §12.4*
   *Depends on: T-P7-10*
   *Acceptance check:* Rebinding the hotkey via the recorder field replaces the old combo without restart; `SMAppService` toggle persists across restarts; appearance picker writes `NSApp.appearance`.
 
-- [ ] **T-P7-12: `PlannerTabView` (model picker from `/api/tags`, URL, timeout, Apply)**
+- [x] **T-P7-12: `PlannerTabView` (model picker from `/api/tags`, URL, timeout, Apply)**
   *Advances: US-SET-2, US-P-3*
   *Per brief: §12.4*
   *Depends on: T-P7-10, T-P2-10*

@@ -16,7 +16,7 @@ struct SettingsRootView: View {
 
     var body: some View {
         TabView {
-            GeneralTabView()
+            GeneralTabView(settings: settings)
                 .tabItem { Label("General", systemImage: "gearshape") }
             PlannerTabView(settings: settings)
                 .tabItem { Label("Planner", systemImage: "cpu") }

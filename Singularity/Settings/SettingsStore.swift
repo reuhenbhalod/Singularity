@@ -46,6 +46,18 @@ final class SettingsStore {
         didSet { defaults.set(panicPhrase, forKey: Keys.panicPhrase) }
     }
 
+    // MARK: - General (Phase 7)
+
+    /// Appearance: "system", "light", or "dark".
+    var appearanceID: String {
+        didSet { defaults.set(appearanceID, forKey: Keys.appearanceID) }
+    }
+
+    /// Summon-hotkey preset id (see `HotkeyPreset`).
+    var summonHotkeyID: String {
+        didSet { defaults.set(summonHotkeyID, forKey: Keys.summonHotkeyID) }
+    }
+
     @ObservationIgnored private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
@@ -59,6 +71,8 @@ final class SettingsStore {
         self.touchIDGraceSeconds =
             defaults.object(forKey: Keys.touchIDGraceSeconds) as? Int ?? Defaults.touchIDGraceSeconds
         self.panicPhrase = defaults.string(forKey: Keys.panicPhrase) ?? Defaults.panicPhrase
+        self.appearanceID = defaults.string(forKey: Keys.appearanceID) ?? Defaults.appearanceID
+        self.summonHotkeyID = defaults.string(forKey: Keys.summonHotkeyID) ?? Defaults.summonHotkeyID
     }
 
     /// Restores every setting to its default and clears the backing keys
@@ -70,6 +84,8 @@ final class SettingsStore {
         nsfwFilterEnabled = Defaults.nsfwFilterEnabled
         touchIDGraceSeconds = Defaults.touchIDGraceSeconds
         panicPhrase = Defaults.panicPhrase
+        appearanceID = Defaults.appearanceID
+        summonHotkeyID = Defaults.summonHotkeyID
     }
 
     enum Defaults {
@@ -79,6 +95,8 @@ final class SettingsStore {
         static let nsfwFilterEnabled = true
         static let touchIDGraceSeconds = 30
         static let panicPhrase = "abort"
+        static let appearanceID = "system"
+        static let summonHotkeyID = "opt-space"
     }
 
     private enum Keys {
@@ -88,5 +106,7 @@ final class SettingsStore {
         static let nsfwFilterEnabled = "safety.nsfwFilterEnabled"
         static let touchIDGraceSeconds = "safety.touchIDGraceSeconds"
         static let panicPhrase = "safety.panicPhrase"
+        static let appearanceID = "general.appearance"
+        static let summonHotkeyID = "general.summonHotkey"
     }
 }

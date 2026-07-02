@@ -22,6 +22,18 @@ struct SettingsViewTests {
         #expect(NSHostingView(rootView: view).rootView is SettingsRootView)
     }
 
+    /// T-P7-11: the General tab hosts.
+    @Test func generalTabHosts() throws {
+        let view = GeneralTabView(settings: try store())
+        #expect(NSHostingView(rootView: view).rootView is GeneralTabView)
+    }
+
+    /// T-P7-12: the Planner tab hosts.
+    @Test func plannerTabHosts() throws {
+        let view = PlannerTabView(settings: try store())
+        #expect(NSHostingView(rootView: view).rootView is PlannerTabView)
+    }
+
     /// T-P7-20/22: the Advanced tab hosts.
     @Test func advancedTabHosts() throws {
         let view = AdvancedTabView(
