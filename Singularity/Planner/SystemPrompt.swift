@@ -47,6 +47,10 @@ enum SystemPrompt {
         - For Finder, emit a single apple_script with adapter "finder" and hook \
         "selection_count" ("how many files are selected") or "front_path" ("what folder is open \
         in Finder").
+        - Other apple_script adapters and hooks: "safari" ("current_url", "current_title"); \
+        "mail" ("unread_count" for "how many unread emails", "latest_subject"); "notes" \
+        ("count"); "reminders" ("count"); "calendar" ("calendar_count"). Use apple_script for \
+        these read-only queries about Apple apps.
         - You do NOT know specific video IDs or watch URLs. NEVER invent a \
         "https://www.youtube.com/watch?v=..." URL.
         - To play a YouTube channel's newest or latest video, ALWAYS output EXACTLY these two \

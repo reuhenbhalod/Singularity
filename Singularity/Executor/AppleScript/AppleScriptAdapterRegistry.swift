@@ -13,6 +13,11 @@ struct AppleScriptAdapterRegistry {
     static let defaultAdapters: [any AppleScriptAdapter] = [
         MusicAppleScriptAdapter(),
         FinderAppleScriptAdapter(),
+        NotesAppleScriptAdapter(),
+        SafariAppleScriptAdapter(),
+        RemindersAppleScriptAdapter(),
+        CalendarAppleScriptAdapter(),
+        MailAppleScriptAdapter(),
     ]
 
     init(adapters: [any AppleScriptAdapter] = AppleScriptAdapterRegistry.defaultAdapters) {

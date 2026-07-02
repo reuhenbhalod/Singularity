@@ -20,6 +20,14 @@ struct AppleScriptLaneTests {
         #expect(!lane.canHandle(PlanStep(action: .axAction(adapter: "music", hook: "playpause"))))
     }
 
+    /// T-P6-03/04: all the AppleScript adapters are registered.
+    @Test func registryResolvesAllApps() {
+        let registry = AppleScriptAdapterRegistry()
+        for app in ["music", "finder", "notes", "safari", "reminders", "calendar", "mail"] {
+            #expect(registry.adapter(named: app) != nil, "missing adapter: \(app)")
+        }
+    }
+
     /// Honest feedback for an unknown app and an unsupported hook.
     @Test func diagnoseExplains() {
         let lane = AppleScriptLane()

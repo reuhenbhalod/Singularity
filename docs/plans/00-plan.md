@@ -723,7 +723,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
 
 ### Phase 6 — System and file lanes
 
-- [ ] **T-P6-01: `Info.plist` adds `NSAppleEventsUsageDescription`; entitlements add `com.apple.security.automation.apple-events`**
+- [x] **T-P6-01: `Info.plist` adds `NSAppleEventsUsageDescription`; entitlements add `com.apple.security.automation.apple-events`**
   *Advances: US-E-4*
   *Per brief: §6*
   *Depends on: T-P5-21*
@@ -735,19 +735,19 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P6-01*
   *Acceptance check:* Test: a script `tell application "Finder" to get name of front window` compiles once and is cached; second dispatch reuses the compiled `NSAppleScript`.
 
-- [ ] **T-P6-03: `MailAppleScriptAdapter` (read, draft, send)**
+- [x] **T-P6-03: `MailAppleScriptAdapter` (read, draft, send)**
   *Advances: US-E-4*
   *Per brief: §6*
   *Depends on: T-P6-02, T-P5-10*
   *Acceptance check:* Manual: reading latest mail subject returns the string; drafting is reversible (no Touch ID); sending requires Touch ID + confirm. Mail body strings flow through `UntrustedContentFilter.wrap`.
 
-- [ ] **T-P6-04: `CalendarAppleScriptAdapter`, `MusicAppleScriptAdapter`, `FinderAppleScriptAdapter`, `RemindersAppleScriptAdapter`, `NotesAppleScriptAdapter`, `SafariAppleScriptAdapter`**
+- [x] **T-P6-04: `CalendarAppleScriptAdapter`, `MusicAppleScriptAdapter`, `FinderAppleScriptAdapter`, `RemindersAppleScriptAdapter`, `NotesAppleScriptAdapter`, `SafariAppleScriptAdapter`**
   *Advances: US-E-4*
   *Per brief: §6*
   *Depends on: T-P6-02*
   *Acceptance check:* Each adapter has at least one read and one write op; write ops route through `AuthorizationGate` per their RiskClass. Manual smoke for each.
 
-- [ ] **T-P6-05: Errors and Messages/Photos known-constraint messages**
+- [x] **T-P6-05: Errors and Messages/Photos known-constraint messages**
   *Advances: US-E-4*
   *Per brief: §6*
   *Depends on: T-P6-04*
