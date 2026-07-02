@@ -165,6 +165,22 @@ final class CommandPipeline {
     /// `axdump <bundle id>` prints the target app's Accessibility tree
     /// into the session log (T-P4-08).
     private func runDebugCommand(_ input: String) -> Bool {
+        // `/safety log` (or `safety log`) dumps the recent safety-category
+        // events into the session log — the same view as the Advanced tab
+        // (T-P7-21). Local only; never reaches the planner.
+        let normalized = input.trimmingCharacters(in: .whitespaces).lowercased()
+        if normalized == "/safety log" || normalized == "safety log" {
+            let lines = SafetyLogReader.recent()
+            if lines.isEmpty {
+                log.append(kind: .system, "No safety events in the last hour.")
+            } else {
+                for line in lines.suffix(20) {
+                    log.append(kind: .result, line.message)
+                }
+            }
+            return true
+        }
+
         let parts = input.split(separator: " ", maxSplits: 1).map(String.init)
         guard parts.first?.lowercased() == "axdump" else { return false }
         guard parts.count == 2, !parts[1].trimmingCharacters(in: .whitespaces).isEmpty else {

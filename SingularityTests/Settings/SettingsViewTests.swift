@@ -22,6 +22,14 @@ struct SettingsViewTests {
         #expect(NSHostingView(rootView: view).rootView is SettingsRootView)
     }
 
+    /// T-P7-20/22: the Advanced tab hosts.
+    @Test func advancedTabHosts() throws {
+        let view = AdvancedTabView(
+            settings: try store(),
+            account: AccountModel(store: InMemoryIdentityStore()))
+        #expect(NSHostingView(rootView: view).rootView is AdvancedTabView)
+    }
+
     /// T-P7-18: the Permissions tab hosts.
     @Test func permissionsTabHosts() {
         let view = PermissionsTabView(

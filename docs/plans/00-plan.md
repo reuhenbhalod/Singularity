@@ -923,19 +923,19 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-10, T-P7-05*
   *Acceptance check:* Three sections (Identity, About, Sign-out footer); avatar = initials in colored circle (or generic person SF Symbol); `(relayed)` label when email ends in `privaterelay.appleid.com`; About shows version + build + privacy policy button (opens in default browser, not in a pane); no upsells. Signed-out state shows "Not signed in" + a button that re-runs first-run identity.
 
-- [ ] **T-P7-20: `AdvancedTabView` log viewer (`OSLogStore`, last hour, safety category)**
+- [x] **T-P7-20: `AdvancedTabView` log viewer (`OSLogStore`, last hour, safety category)**
   *Advances: US-SET-7, US-SAFE-8*
   *Per brief: §11.7, §12.4*
   *Depends on: T-P7-10*
   *Acceptance check:* Tab renders the last hour of `subsystem == <bundle-id> AND category == "safety"` entries from `OSLogStore`; auto-refreshes on tab open.
 
-- [ ] **T-P7-21: `/safety log` inline invoker**
+- [x] **T-P7-21: `/safety log` inline invoker**
   *Advances: US-SET-7, US-SAFE-8*
   *Per brief: §11.7*
   *Depends on: T-P7-20*
   *Acceptance check:* Typing `/safety log` in the shell prints the same last-hour log into the session log.
 
-- [ ] **T-P7-22: `FactoryReset` + Advanced tab button**
+- [x] **T-P7-22: `FactoryReset` + Advanced tab button**
   *Advances: US-SET-7*
   *Per brief: §12.4*
   *Depends on: T-P7-20, T-P7-02, T-P5-17*

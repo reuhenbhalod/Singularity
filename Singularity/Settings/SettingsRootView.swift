@@ -28,6 +28,8 @@ struct SettingsRootView: View {
                 .tabItem { Label("Permissions", systemImage: "hand.raised") }
             AccountTabView(account: account)
                 .tabItem { Label("Account", systemImage: "person.crop.circle") }
+            AdvancedTabView(settings: settings, account: account)
+                .tabItem { Label("Advanced", systemImage: "wrench.and.screwdriver") }
         }
         .frame(width: 480, height: 460)
     }

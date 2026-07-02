@@ -61,6 +61,17 @@ final class SettingsStore {
         self.panicPhrase = defaults.string(forKey: Keys.panicPhrase) ?? Defaults.panicPhrase
     }
 
+    /// Restores every setting to its default and clears the backing keys
+    /// (used by the Advanced tab's factory reset, T-P7-22).
+    func resetToDefaults() {
+        ollamaBaseURL = Defaults.ollamaBaseURL
+        plannerModel = Defaults.plannerModel
+        plannerTimeoutSec = Defaults.plannerTimeoutSec
+        nsfwFilterEnabled = Defaults.nsfwFilterEnabled
+        touchIDGraceSeconds = Defaults.touchIDGraceSeconds
+        panicPhrase = Defaults.panicPhrase
+    }
+
     enum Defaults {
         static let ollamaBaseURL = "http://localhost:11434"
         static let plannerModel = "qwen2.5-coder:7b-instruct-q4_K_M"
