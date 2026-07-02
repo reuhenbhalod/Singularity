@@ -753,49 +753,49 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P6-04*
   *Acceptance check:* `errAEEventNotPermitted (-1743)` surfaces a "grant in Settings" hint; Messages-write-only and Photos-limited surfaces explicit fallback messages in the session log rather than silent partial results.
 
-- [ ] **T-P6-06: `FileOperations` (`FileManager` move/copy/list/trash)**
+- [x] **T-P6-06: `FileOperations` (`FileManager` move/copy/list/trash)**
   *Advances: US-E-5*
   *Per brief: §7*
   *Depends on: T-P5-21*
   *Acceptance check:* Tests: move, copy, list work; `delete` uses `FileManager.trashItem(at:resultingItemURL:)` (not `removeItem`); a test asserting `removeItem` is not called for any user-initiated delete path.
 
-- [ ] **T-P6-07: `StagingStore` (copy-to-staging, retain N=10)**
+- [x] **T-P6-07: `StagingStore` (copy-to-staging, retain N=10)**
   *Advances: US-E-5*
   *Per brief: §7*
   *Depends on: T-P6-06*
   *Acceptance check:* Test: an in-place edit copies the original to `~/Library/Application Support/Singularity/staging/<timestamp>/…`; after 11 edits, the oldest staged copy is removed; retention configurable via SettingsStore default 10.
 
-- [ ] **T-P6-08: `ShellValidator` static rules**
+- [x] **T-P6-08: `ShellValidator` static rules**
   *Advances: US-E-5, US-SAFE-2*
   *Per brief: §11.3*
   *Depends on: T-P5-04*
   *Acceptance check:* Table-driven tests: `curl … | sh` → reject; `wget … | bash` → reject; `echo "$x" | base64 -d | bash` → reject; `eval "$cmd"` → reject; `cd /tmp && ../../etc/passwd` → reject; access to `~/Library/Mail` without declared intent → reject.
 
-- [ ] **T-P6-09: `FilePathValidator` (symlink resolution + scope re-check)**
+- [x] **T-P6-09: `FilePathValidator` (symlink resolution + scope re-check)**
   *Advances: US-SAFE-2, US-E-5*
   *Per brief: §11.3*
   *Depends on: T-P5-04*
   *Acceptance check:* Test: a path with a symlink that escapes the declared scope is rejected; in-scope paths with no symlink escape pass; `..` traversal that resolves outside scope is rejected.
 
-- [ ] **T-P6-10: `PlanValidator` integrates `ShellValidator` and `FilePathValidator`**
+- [x] **T-P6-10: `PlanValidator` integrates `ShellValidator` and `FilePathValidator`**
   *Advances: US-SAFE-2*
   *Per brief: §11.3*
   *Depends on: T-P6-08, T-P6-09*
   *Acceptance check:* Validator rejects shell-rule violations and file-path-rule violations with structured `PlanRejection`s.
 
-- [ ] **T-P6-11: Action-graph taint check**
+- [x] **T-P6-11: Action-graph taint check**
   *Advances: US-SAFE-2*
   *Per brief: §11.3*
   *Depends on: T-P6-10*
   *Acceptance check:* Test: a 2-step plan where step 2's shell argument is derived from step 1's read content gets tagged as tainted; the validator either rejects or escalates risk to Destructive (configurable per spec §6 #4 default = escalate).
 
-- [ ] **T-P6-12: `SandboxRunner` + `SandboxProfile.sb`**
+- [x] **T-P6-12: `SandboxRunner` + `SandboxProfile.sb`**
   *Advances: US-E-5*
   *Per brief: §8*
   *Depends on: T-P6-08*
   *Acceptance check:* Tests: running `echo hello` returns "hello"; an attempted `curl example.com` fails with a sandbox-denied error (network denied); writing outside the declared working directory fails; spawning `ssh` fails (not on the utility whitelist).
 
-- [ ] **T-P6-13: `FilesLane` dispatcher**
+- [x] **T-P6-13: `FilesLane` dispatcher**
   *Advances: US-E-5*
   *Per brief: §7, §8*
   *Depends on: T-P6-06, T-P6-12*

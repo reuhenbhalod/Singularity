@@ -96,6 +96,20 @@ struct PlanCodingTests {
         #expect(json.contains("\"kind\":\"apple_script\"") || json.contains("\"kind\" : \"apple_script\""))
     }
 
+    /// T-P6-06/12: file_op and run_shell round-trip (optional destination).
+    @Test func fileOpAndRunShellRoundTrip() throws {
+        let plan = RawPlan(steps: [
+            PlanStep(action: .fileOp(operation: "move", source: "~/a", destination: "~/b")),
+            PlanStep(action: .fileOp(operation: "trash", source: "~/c", destination: nil)),
+            PlanStep(action: .runShell(command: "ls", scope: "~")),
+        ])
+        let data = try JSONEncoder().encode(plan)
+        #expect(try JSONDecoder().decode(RawPlan.self, from: data) == plan)
+        let json = try #require(String(bytes: data, encoding: .utf8))
+        #expect(json.contains("file_op"))
+        #expect(json.contains("run_shell"))
+    }
+
     @Test func decodingUnknownKindFails() {
         let badJSON = #"{"steps":[{"action":{"kind":"telepathy","url":"x"}}]}"#
         // swiftlint:disable:next force_unwrapping

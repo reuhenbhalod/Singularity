@@ -75,6 +75,7 @@ final class ShellWindowController {
                 }),
                 AppleScriptLane(),
                 WebLane(compositor: comp),
+                FilesLane(),
             ]),
             log: log,
             confirmGate: confirmGate

@@ -51,6 +51,13 @@ enum SystemPrompt {
         "mail" ("unread_count" for "how many unread emails", "latest_subject"); "notes" \
         ("count"); "reminders" ("count"); "calendar" ("calendar_count"). Use apple_script for \
         these read-only queries about Apple apps.
+        - For files, emit a file_op with fields operation ("list", "trash", "move", or "copy"), \
+        source (the path, keep ~ for home), and destination (only for move/copy). Use for \
+        "list/show files in FOLDER" (list), "trash/delete FILE" (trash), "move/copy A to B". \
+        Only paths inside the home folder are allowed.
+        - For a shell command the user explicitly asks to run, emit a run_shell with fields \
+        command (the exact command) and scope (the working folder path, e.g. "~"). Prefer the \
+        specific actions above; use run_shell only when the user literally gives a command.
         - You do NOT know specific video IDs or watch URLs. NEVER invent a \
         "https://www.youtube.com/watch?v=..." URL.
         - To play a YouTube channel's newest or latest video, ALWAYS output EXACTLY these two \

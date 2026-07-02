@@ -59,6 +59,8 @@ enum PlanSchema {
             variant(kind: "run_script", fields: ["adapter", "hook"]),
             variant(kind: "ax_action", fields: ["adapter", "hook"]),
             variant(kind: "apple_script", fields: ["adapter", "hook"]),
+            variant(kind: "file_op", fields: ["operation", "source"]),
+            variant(kind: "run_shell", fields: ["command", "scope"]),
         ])
     ])
 

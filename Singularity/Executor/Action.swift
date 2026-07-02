@@ -44,6 +44,18 @@ enum Action: Equatable {
     /// `adapter: "music"`, `hook: "playpause"`). The adapter owns the
     /// compiled scripts; the planner only names the app and operation.
     case appleScript(adapter: String, hook: String)
+
+    /// Lane 5 (Files): a file operation. `operation` is one of
+    /// `move`/`copy`/`list`/`trash`; `source` is the target path;
+    /// `destination` is the move/copy target (nil for list/trash).
+    /// Deletes always use the Trash (never `unlink`), and every path is
+    /// re-validated by `FilePathValidator` before it runs.
+    case fileOp(operation: String, source: String, destination: String?)
+
+    /// Lane 5 (Shell): a sandboxed shell command run inside `scope`
+    /// (the declared working directory). Passes the `ShellValidator`
+    /// static rules and runs under `sandbox-exec`.
+    case runShell(command: String, scope: String)
 }
 
 extension Action: Codable {
@@ -53,6 +65,11 @@ extension Action: Codable {
         case script
         case adapter
         case hook
+        case operation
+        case source
+        case destination
+        case command
+        case scope
     }
 
     private enum Kind: String, Codable {
@@ -62,6 +79,8 @@ extension Action: Codable {
         case runScript = "run_script"
         case axAction = "ax_action"
         case appleScript = "apple_script"
+        case fileOp = "file_op"
+        case runShell = "run_shell"
     }
 
     init(from decoder: any Decoder) throws {
@@ -88,6 +107,17 @@ extension Action: Codable {
             self = .appleScript(
                 adapter: try container.decode(String.self, forKey: .adapter),
                 hook: try container.decode(String.self, forKey: .hook)
+            )
+        case .fileOp:
+            self = .fileOp(
+                operation: try container.decode(String.self, forKey: .operation),
+                source: try container.decode(String.self, forKey: .source),
+                destination: try container.decodeIfPresent(String.self, forKey: .destination)
+            )
+        case .runShell:
+            self = .runShell(
+                command: try container.decode(String.self, forKey: .command),
+                scope: try container.decode(String.self, forKey: .scope)
             )
         }
     }
@@ -116,6 +146,15 @@ extension Action: Codable {
             try container.encode(Kind.appleScript, forKey: .kind)
             try container.encode(adapter, forKey: .adapter)
             try container.encode(hook, forKey: .hook)
+        case .fileOp(let operation, let source, let destination):
+            try container.encode(Kind.fileOp, forKey: .kind)
+            try container.encode(operation, forKey: .operation)
+            try container.encode(source, forKey: .source)
+            try container.encodeIfPresent(destination, forKey: .destination)
+        case .runShell(let command, let scope):
+            try container.encode(Kind.runShell, forKey: .kind)
+            try container.encode(command, forKey: .command)
+            try container.encode(scope, forKey: .scope)
         }
     }
 }

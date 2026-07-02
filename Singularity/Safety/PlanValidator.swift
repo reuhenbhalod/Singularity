@@ -23,9 +23,20 @@ import Foundation
 /// validation and the cross-context taint check fold in during Phase 6.
 struct PlanValidator {
     private let urlPolicy: URLPolicy
+    private let filePathValidator: FilePathValidator
+    private let shellValidator: ShellValidator
+    private let contentRing: ContentRing?
 
-    init(urlPolicy: URLPolicy = URLPolicy()) {
+    init(
+        urlPolicy: URLPolicy = URLPolicy(),
+        filePathValidator: FilePathValidator = FilePathValidator(),
+        shellValidator: ShellValidator = ShellValidator(),
+        contentRing: ContentRing? = nil
+    ) {
         self.urlPolicy = urlPolicy
+        self.filePathValidator = filePathValidator
+        self.shellValidator = shellValidator
+        self.contentRing = contentRing
     }
 
     /// Validates every step, returning a `ValidatedPlan` or the first
@@ -52,6 +63,24 @@ struct PlanValidator {
                 // Raw JavaScript is never trusted (and the planner's
                 // schema can't even emit it). Fail closed.
                 return .failure(.disallowedAction(kind: "web_evaluate", planHash: hash))
+            case .fileOp(_, let source, let destination):
+                // Every path must resolve inside the allowed scope, and
+                // must not echo recently-read untrusted content.
+                for path in [source, destination].compactMap({ $0 }) {
+                    if case .rejected = filePathValidator.validate(path) {
+                        return .failure(.filePathEscape(planHash: hash))
+                    }
+                    if contentRing?.isTainted(path) == true {
+                        return .failure(.crossContextContamination(planHash: hash))
+                    }
+                }
+            case .runShell(let command, _):
+                if case .rejected(let rule) = shellValidator.validate(command) {
+                    return .failure(.shellRuleViolation(rule: rule, planHash: hash))
+                }
+                if contentRing?.isTainted(command) == true {
+                    return .failure(.crossContextContamination(planHash: hash))
+                }
             }
         }
         return .success(ValidatedPlan(steps: raw.steps))

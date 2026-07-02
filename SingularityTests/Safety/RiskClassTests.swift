@@ -29,6 +29,14 @@ struct RiskClassTests {
         #expect(RiskClass.default(for: .axAction(adapter: "spotify", hook: "playpause")) == .read)
     }
 
+    /// T-P6: file ops and shell get real risk — so the gates fire.
+    @Test func fileAndShellCarryRealRisk() {
+        #expect(RiskClass.default(for: .fileOp(operation: "list", source: "~", destination: nil)) == .read)
+        #expect(RiskClass.default(for: .fileOp(operation: "trash", source: "~/x", destination: nil)) == .reversible)
+        #expect(RiskClass.default(for: .fileOp(operation: "move", source: "~/x", destination: "~/y")) == .reversible)
+        #expect(RiskClass.default(for: .runShell(command: "ls", scope: "~")) == .destructive)
+    }
+
     /// T-P5-14: escalation bumps one class, capped at `.spend`.
     @Test func escalatesOneClassCappedAtSpend() {
         #expect(RiskClass.read.escalated == .reversible)

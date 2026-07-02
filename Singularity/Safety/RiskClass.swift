@@ -44,6 +44,13 @@ enum RiskClass: Int, Comparable, CaseIterable {
         switch action {
         case .openURL, .webNavigate, .webEvaluate, .runScript, .axAction, .appleScript:
             return .read
+        case .fileOp(let operation, _, _):
+            // Listing is a read; move/copy/trash change the filesystem but
+            // are recoverable (Trash / staging) → reversible (confirm).
+            return operation.lowercased() == "list" ? .read : .reversible
+        case .runShell:
+            // Arbitrary shell is the catch-all — always destructive.
+            return .destructive
         }
     }
 }

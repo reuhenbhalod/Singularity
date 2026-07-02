@@ -51,6 +51,25 @@
                   "hook": { "type": "string" }
                 },
                 "required": ["kind", "adapter", "hook"]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": { "const": "file_op" },
+                  "operation": { "type": "string" },
+                  "source": { "type": "string" },
+                  "destination": { "type": "string" }
+                },
+                "required": ["kind", "operation", "source"]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": { "const": "run_shell" },
+                  "command": { "type": "string" },
+                  "scope": { "type": "string" }
+                },
+                "required": ["kind", "command", "scope"]
               }
             ]
           }
