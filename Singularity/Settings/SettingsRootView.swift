@@ -12,6 +12,7 @@ import SwiftUI
 struct SettingsRootView: View {
     @Bindable var settings: SettingsStore
     @Bindable var account: AccountModel
+    @State private var permissions = PermissionsManager()
 
     var body: some View {
         TabView {
@@ -23,6 +24,8 @@ struct SettingsRootView: View {
                 .tabItem { Label("Safety", systemImage: "lock.shield") }
             RoutinesTabView()
                 .tabItem { Label("Routines", systemImage: "list.bullet.rectangle") }
+            PermissionsTabView(permissions: permissions)
+                .tabItem { Label("Permissions", systemImage: "hand.raised") }
             AccountTabView(account: account)
                 .tabItem { Label("Account", systemImage: "person.crop.circle") }
         }

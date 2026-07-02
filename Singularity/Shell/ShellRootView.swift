@@ -13,9 +13,13 @@ struct ShellRootView: View {
     @Bindable var sessionLog: SessionLogStore
     @Bindable var compositor: CompositorStore
     @Bindable var confirmGate: ShellConfirmGate
+    @Bindable var permissions: PermissionsManager
 
     var body: some View {
         VStack(spacing: 0) {
+            // Non-blocking strip when a permission is revoked mid-session.
+            PermissionBanner(denied: permissions.deniedKinds)
+
             // The log strip only appears once there's something to show,
             // so an idle shell is just the centered hint and the line.
             if !sessionLog.entries.isEmpty {

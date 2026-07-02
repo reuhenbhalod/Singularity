@@ -35,6 +35,7 @@ final class ShellWindowController {
     private var sessionLog: SessionLogStore?
     private var compositor: CompositorStore?
     private var pipeline: CommandPipeline?
+    private var permissions: PermissionsManager?
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "shell")
 
     func toggle() {
@@ -63,6 +64,10 @@ final class ShellWindowController {
         // Confirm gate that presents in the shell (fires for the file /
         // shell actions from Phase 6 onward).
         let confirmGate = ShellConfirmGate()
+        // Live permission state: polled while the shell is up so a
+        // mid-session revocation surfaces a non-blocking banner (T-P7-09).
+        let permissions = PermissionsManager()
+        permissions.startPolling()
         // Command pipeline: input validation -> Ollama planner ->
         // PlanValidator -> risk gates -> executor router. Logs into this
         // show's SessionLogStore.
@@ -76,7 +81,9 @@ final class ShellWindowController {
                         "Accessibility was revoked — re-enable it in System Settings "
                             + "→ Privacy & Security → Accessibility.")
                 }),
-                AppleScriptLane(),
+                AppleScriptLane(onAutomationResult: { [weak permissions] code in
+                    Task { @MainActor in permissions?.recordAutomationResult(errorCode: code) }
+                }),
                 WebLane(compositor: comp),
                 FilesLane(),
             ]),
@@ -116,12 +123,14 @@ final class ShellWindowController {
         sessionLog = log
         compositor = comp
         self.pipeline = pipeline
+        self.permissions = permissions
         panel.contentView = NSHostingView(
             rootView: ShellRootView(
                 commandInputViewModel: inputViewModel,
                 sessionLog: log,
                 compositor: comp,
-                confirmGate: confirmGate
+                confirmGate: confirmGate,
+                permissions: permissions
             )
         )
         self.panel = panel
@@ -146,12 +155,15 @@ final class ShellWindowController {
         sessionLog?.clear()
         compositor?.clear()
 
+        permissions?.stopPolling()
+
         panel.orderOut(nil)
         self.panel = nil
         sessionLog = nil
         commandInput = nil
         compositor = nil
         pipeline = nil
+        permissions = nil
 
         NSApp.presentationOptions = savedPresentationOptions
 

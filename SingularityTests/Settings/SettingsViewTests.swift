@@ -22,6 +22,13 @@ struct SettingsViewTests {
         #expect(NSHostingView(rootView: view).rootView is SettingsRootView)
     }
 
+    /// T-P7-18: the Permissions tab hosts.
+    @Test func permissionsTabHosts() {
+        let view = PermissionsTabView(
+            permissions: PermissionsManager(isTrusted: { false }, fdaProbe: { .denied }))
+        #expect(NSHostingView(rootView: view).rootView is PermissionsTabView)
+    }
+
     /// T-P7-17: the Routines tab hosts.
     @Test func routinesTabHosts() {
         let view = RoutinesTabView(

@@ -839,13 +839,13 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-02*
   *Acceptance check:* Sign Out button opens a confirm sheet; on confirm, Keychain entry is deleted and in-memory state cleared; next shell open re-presents first-run.
 
-- [ ] **T-P7-06: `PermissionsManager` adds Automation cache + FDA probe + 2s polling-when-foregrounded**
+- [x] **T-P7-06: `PermissionsManager` adds Automation cache + FDA probe + 2s polling-when-foregrounded**
   *Advances: US-SET-5, US-PERM-1*
   *Per brief: §9, §12.5*
   *Depends on: T-P4-09, T-P6-14*
   *Acceptance check:* Tests: Automation cache populates from AppleScript adapter call results (`-1743` → denied, success → granted); FDA probe reads a TCC-protected path and inspects `EPERM`; polling fires every 2s only while the Permissions tab is foreground.
 
-- [ ] **T-P7-07: `SystemSettingsLinks` + open-with-fallback helper**
+- [x] **T-P7-07: `SystemSettingsLinks` + open-with-fallback helper**
   *Advances: US-SET-5, US-PERM-1*
   *Per brief: §12.5*
   *Depends on: T-P7-06*
@@ -857,7 +857,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-06, T-P7-03*
   *Acceptance check:* On a freshly installed app, first launch shows the checklist (Accessibility, Automation, FDA) + Sign in with Apple step + "Skip for now"; shell is reachable even with not-yet-granted permissions; lanes that need the missing permission surface a clean banner.
 
-- [ ] **T-P7-09: Mid-session permission revocation banner (all three)**
+- [x] **T-P7-09: Mid-session permission revocation banner (all three)**
   *Advances: US-PERM-1, US-E-3, US-E-4, US-E-5*
   *Per brief: §9*
   *Depends on: T-P7-06*
@@ -911,7 +911,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-10, T-P7-16*
   *Acceptance check:* Tab lists routines (name, step count, single-line preview); selecting opens detail with free-form text editor; Edit mode + Save validates via the same parser; Delete prompts confirm; reveal-in-Finder footer opens `routines.json`; no "New routine" button.
 
-- [ ] **T-P7-18: `PermissionsTabView`**
+- [x] **T-P7-18: `PermissionsTabView`**
   *Advances: US-SET-5*
   *Per brief: §12.5*
   *Depends on: T-P7-10, T-P7-06, T-P7-07*

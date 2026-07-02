@@ -24,8 +24,17 @@ final class AppleScriptLane: ExecutorLane {
     /// errAEEventNotPermitted — Automation consent was denied.
     private static let notPermitted = -1743
 
-    init(registry: AppleScriptAdapterRegistry = AppleScriptAdapterRegistry()) {
+    /// Reports each call's outcome so the PermissionsManager can keep its
+    /// Automation cache current: `nil` on success, the OSStatus on failure
+    /// (T-P7-06). macOS offers no way to read Automation state directly.
+    private let onAutomationResult: (@Sendable (Int?) -> Void)?
+
+    init(
+        registry: AppleScriptAdapterRegistry = AppleScriptAdapterRegistry(),
+        onAutomationResult: (@Sendable (Int?) -> Void)? = nil
+    ) {
         self.registry = registry
+        self.onAutomationResult = onAutomationResult
     }
 
     func canHandle(_ step: PlanStep) -> Bool {
@@ -59,6 +68,7 @@ final class AppleScriptLane: ExecutorLane {
 
         if let errorInfo {
             let code = errorInfo[NSAppleScript.errorNumber] as? Int ?? 0
+            onAutomationResult?(code)
             if code == Self.notPermitted {
                 return .handled(
                     summary: "I need permission to control \(adapter.name) — grant it in "
@@ -69,6 +79,7 @@ final class AppleScriptLane: ExecutorLane {
             return .handled(summary: "couldn't \(hook) \(adapter.name)")
         }
 
+        onAutomationResult?(nil)
         if let text = output.stringValue, !text.isEmpty {
             return .handled(summary: text)
         }
