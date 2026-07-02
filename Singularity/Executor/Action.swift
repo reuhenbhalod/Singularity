@@ -38,6 +38,12 @@ enum Action: Equatable {
     /// `hook: "playpause"`). Like `runScript`, the adapter owns the AX
     /// traversal; the planner only names the app and the operation.
     case axAction(adapter: String, hook: String)
+
+    /// Lane 4 (AppleScript): run a named hook from a named
+    /// `AppleScriptAdapter` against an Apple-native app (e.g.
+    /// `adapter: "music"`, `hook: "playpause"`). The adapter owns the
+    /// compiled scripts; the planner only names the app and operation.
+    case appleScript(adapter: String, hook: String)
 }
 
 extension Action: Codable {
@@ -55,6 +61,7 @@ extension Action: Codable {
         case webEvaluate = "web_evaluate"
         case runScript = "run_script"
         case axAction = "ax_action"
+        case appleScript = "apple_script"
     }
 
     init(from decoder: any Decoder) throws {
@@ -74,6 +81,11 @@ extension Action: Codable {
             )
         case .axAction:
             self = .axAction(
+                adapter: try container.decode(String.self, forKey: .adapter),
+                hook: try container.decode(String.self, forKey: .hook)
+            )
+        case .appleScript:
+            self = .appleScript(
                 adapter: try container.decode(String.self, forKey: .adapter),
                 hook: try container.decode(String.self, forKey: .hook)
             )
@@ -98,6 +110,10 @@ extension Action: Codable {
             try container.encode(hook, forKey: .hook)
         case .axAction(let adapter, let hook):
             try container.encode(Kind.axAction, forKey: .kind)
+            try container.encode(adapter, forKey: .adapter)
+            try container.encode(hook, forKey: .hook)
+        case .appleScript(let adapter, let hook):
+            try container.encode(Kind.appleScript, forKey: .kind)
             try container.encode(adapter, forKey: .adapter)
             try container.encode(hook, forKey: .hook)
         }

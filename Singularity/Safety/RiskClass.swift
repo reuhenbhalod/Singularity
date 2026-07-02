@@ -42,7 +42,7 @@ enum RiskClass: Int, Comparable, CaseIterable {
     /// specific hook's risk).
     static func `default`(for action: Action) -> RiskClass {
         switch action {
-        case .openURL, .webNavigate, .webEvaluate, .runScript, .axAction:
+        case .openURL, .webNavigate, .webEvaluate, .runScript, .axAction, .appleScript:
             return .read
         }
     }

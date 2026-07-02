@@ -44,7 +44,7 @@ struct PlanValidator {
                         return .failure(.urlDenied(host: url.host ?? "(none)", planHash: hash))
                     }
                 }
-            case .runScript, .axAction:
+            case .runScript, .axAction, .appleScript:
                 // Adapter + hook are validated at execution time by the
                 // lane's `canHandle`; there's no free-form payload here.
                 continue

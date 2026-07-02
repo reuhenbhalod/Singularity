@@ -58,6 +58,7 @@ enum PlanSchema {
             variant(kind: "web_navigate", fields: ["url"]),
             variant(kind: "run_script", fields: ["adapter", "hook"]),
             variant(kind: "ax_action", fields: ["adapter", "hook"]),
+            variant(kind: "apple_script", fields: ["adapter", "hook"]),
         ])
     ])
 

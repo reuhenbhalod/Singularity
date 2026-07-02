@@ -27,6 +27,7 @@ enum SystemPrompt {
         - "run_script": run a named adapter hook in the current web pane. Fields: adapter, hook.
         - "open_url": open a NON-web URL scheme like "spotify:" or "mailto:". Fields: url.
         - "ax_action": control a native macOS app via Accessibility. Fields: adapter, hook.
+        - "apple_script": control an Apple app via AppleScript. Fields: adapter, hook.
 
         Rules:
         - To play, pause, or toggle Spotify when NO specific song is named, emit a single \
@@ -40,6 +41,12 @@ enum SystemPrompt {
         - To read the latest / most recent email from the Mail app, emit a single ax_action \
         with adapter "mail" and hook "read_latest". Use this for "read my latest email", \
         "what's my newest email", "read my most recent mail".
+        - To control Apple Music (NOT Spotify), emit a single apple_script with adapter \
+        "music" and one hook: "playpause" (play/pause music, play apple music), "next" (next/skip \
+        track), "previous" (previous track), "current" (what's playing / what song is this).
+        - For Finder, emit a single apple_script with adapter "finder" and hook \
+        "selection_count" ("how many files are selected") or "front_path" ("what folder is open \
+        in Finder").
         - You do NOT know specific video IDs or watch URLs. NEVER invent a \
         "https://www.youtube.com/watch?v=..." URL.
         - To play a YouTube channel's newest or latest video, ALWAYS output EXACTLY these two \
@@ -69,6 +76,9 @@ enum SystemPrompt {
 
         Example — user says "read my latest email":
         {"steps":[{"action":{"kind":"ax_action","adapter":"mail","hook":"read_latest"}}]}
+
+        Example — user says "play apple music" (or "next song"):
+        {"steps":[{"action":{"kind":"apple_script","adapter":"music","hook":"playpause"}}]}
 
         Example — user says "play 92 explorer on spotify":
         {"steps":[{"action":{"kind":"web_navigate","url":"https://open.spotify.com/search/92%20explorer"}},\

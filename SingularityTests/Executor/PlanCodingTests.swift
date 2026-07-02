@@ -84,6 +84,18 @@ struct PlanCodingTests {
         #expect(json.contains("\"kind\":\"ax_action\"") || json.contains("\"kind\" : \"ax_action\""))
     }
 
+    /// T-P6-02: an apple_script step round-trips and emits its snake_case
+    /// kind with adapter + hook.
+    @Test func appleScriptRoundTripsThroughJSON() throws {
+        let plan = RawPlan(steps: [PlanStep(action: .appleScript(adapter: "music", hook: "playpause"))])
+
+        let data = try JSONEncoder().encode(plan)
+        #expect(try JSONDecoder().decode(RawPlan.self, from: data) == plan)
+
+        let json = try #require(String(bytes: data, encoding: .utf8))
+        #expect(json.contains("\"kind\":\"apple_script\"") || json.contains("\"kind\" : \"apple_script\""))
+    }
+
     @Test func decodingUnknownKindFails() {
         let badJSON = #"{"steps":[{"action":{"kind":"telepathy","url":"x"}}]}"#
         // swiftlint:disable:next force_unwrapping

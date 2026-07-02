@@ -47,7 +47,7 @@ final class WebLane: ExecutorLane {
         case .runScript(let adapterName, let hook):
             return (adapterName == "youtube" && hook == "play_newest")
                 || (adapterName == "spotify" && hook == "play_track")
-        case .webEvaluate, .axAction:
+        case .webEvaluate, .axAction, .appleScript:
             return false
         }
     }
@@ -69,7 +69,7 @@ final class WebLane: ExecutorLane {
                 return nil  // handled
             }
             return "I don't have a \"\(hook)\" action for \(adapterName)."
-        case .webEvaluate, .axAction:
+        case .webEvaluate, .axAction, .appleScript:
             return nil
         }
     }
@@ -115,7 +115,7 @@ final class WebLane: ExecutorLane {
             }
             return .handled(summary: await playNewest(channel: currentChannel, in: controller))
 
-        case .webEvaluate, .axAction:
+        case .webEvaluate, .axAction, .appleScript:
             return .unhandled(reason: "I don't have a way to do that yet.")
         }
     }

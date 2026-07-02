@@ -73,6 +73,7 @@ final class ShellWindowController {
                         "Accessibility was revoked — re-enable it in System Settings "
                             + "→ Privacy & Security → Accessibility.")
                 }),
+                AppleScriptLane(),
                 WebLane(compositor: comp),
             ]),
             log: log,

@@ -729,7 +729,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P5-21*
   *Acceptance check:* App builds with hardened runtime + the entitlement; manual: first AppleScript dispatch to a new target app prompts the per-app Automation consent dialog.
 
-- [ ] **T-P6-02: `CompiledScriptCache` + `AppleScriptLane`**
+- [x] **T-P6-02: `CompiledScriptCache` + `AppleScriptLane`**
   *Advances: US-E-4*
   *Per brief: §6*
   *Depends on: T-P6-01*
