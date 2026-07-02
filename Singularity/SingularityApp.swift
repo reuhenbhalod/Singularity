@@ -8,13 +8,12 @@ import SwiftUI
 @main
 struct SingularityApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @State private var account = AccountModel()
 
     var body: some Scene {
-        // Share the delegate's SettingsStore so hotkey/appearance changes
-        // in Settings are the same object the delegate re-reads live.
+        // Share the delegate's stores so hotkey/appearance changes and
+        // sign-in are the same objects the delegate reads.
         Settings {
-            SettingsRootView(settings: appDelegate.settings, account: account)
+            SettingsRootView(settings: appDelegate.settings, account: appDelegate.account)
         }
     }
 }

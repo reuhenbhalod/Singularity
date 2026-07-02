@@ -19,7 +19,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Shared with the SwiftUI Settings scene so a hotkey/appearance change
     /// there is the same object this delegate reads when re-registering.
     let settings = SettingsStore()
+    /// Shared with the Settings scene and the first-run window.
+    let account = AccountModel()
     let shellController = ShellWindowController()
+    private let firstRun = FirstRunController()
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "lifecycle")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -40,6 +43,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ) { [weak self] _ in
             MainActor.assumeIsolated { self?.installHotkey() }
         }
+
+        // Re-validate a stored Apple ID: sign out locally if Apple says the
+        // credential was revoked (T-P7-04). No-op when signed out.
+        Task { await account.refreshCredentialState() }
+
+        // First launch: show onboarding (permissions checklist + optional
+        // sign-in). The shell still works if the user skips (T-P7-08).
+        firstRun.showIfNeeded(account: account)
     }
 
     /// (Re)installs the global hotkey from the current settings preset,

@@ -24,7 +24,7 @@ struct AccountTabView: View {
                     SignInWithAppleButton(.signIn) { request in
                         request.requestedScopes = [.fullName, .email]
                     } onCompletion: { result in
-                        handleSignIn(result)
+                        account.signIn(from: result)
                     }
                     .signInWithAppleButtonStyle(.whiteOutline)
                     .frame(height: 38)
@@ -98,23 +98,6 @@ struct AccountTabView: View {
         let short = info?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = info?["CFBundleVersion"] as? String ?? "1"
         return "\(short) (\(build))"
-    }
-
-    private func handleSignIn(_ result: Result<ASAuthorization, any Error>) {
-        guard case .success(let authorization) = result,
-            let credential = authorization.credential as? ASAuthorizationAppleIDCredential
-        else {
-            return  // failure (e.g. Sign in with Apple capability not set up) — button stays
-        }
-        let name =
-            [credential.fullName?.givenName, credential.fullName?.familyName]
-            .compactMap { $0 }
-            .joined(separator: " ")
-        account.signIn(
-            IdentityRecord(
-                user: credential.user,
-                displayName: name.isEmpty ? nil : name,
-                email: credential.email))
     }
 
     private func openPrivacyPolicy() {

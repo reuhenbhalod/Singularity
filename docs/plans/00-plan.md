@@ -827,7 +827,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-02*
   *Acceptance check:* Manual: first run shows the Sign in with Apple button + a "Skip for now" affordance; on success, `IdentityStore` contains `{user, fullName?, email?}`; `identityToken` and `authorizationCode` are not persisted (asserted via Keychain dump).
 
-- [ ] **T-P7-04: `CredentialStateChecker` (launch-time check)**
+- [x] **T-P7-04: `CredentialStateChecker` (launch-time check)**
   *Advances: US-ID-2*
   *Per brief: §12.1*
   *Depends on: T-P7-03*
@@ -851,7 +851,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-06*
   *Acceptance check:* The three deep links open the correct System Settings panes on macOS 14 and 15; if a specific link fails, the fallback opens the parent Privacy & Security pane.
 
-- [ ] **T-P7-08: `FirstRunFlow` + `FirstRunView`**
+- [x] **T-P7-08: `FirstRunFlow` + `FirstRunView`**
   *Advances: US-PERM-1, US-ID-1*
   *Per brief: §9, §12.1*
   *Depends on: T-P7-06, T-P7-03*
