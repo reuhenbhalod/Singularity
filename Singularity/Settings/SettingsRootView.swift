@@ -21,6 +21,8 @@ struct SettingsRootView: View {
                 .tabItem { Label("Planner", systemImage: "cpu") }
             SafetyTabView(settings: settings)
                 .tabItem { Label("Safety", systemImage: "lock.shield") }
+            RoutinesTabView()
+                .tabItem { Label("Routines", systemImage: "list.bullet.rectangle") }
             AccountTabView(account: account)
                 .tabItem { Label("Account", systemImage: "person.crop.circle") }
         }

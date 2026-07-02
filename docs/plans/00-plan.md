@@ -881,31 +881,31 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P7-10, T-P2-10*
   *Acceptance check:* Model picker populates from `GET /api/tags` against the configured base URL; on tags failure, free-text entry is allowed as fallback; "Apply" button confirms; mid-plan changes don't take effect until next command.
 
-- [ ] **T-P7-13: `RoutineParser` + reserved-word check**
+- [x] **T-P7-13: `RoutineParser` + reserved-word check**
   *Advances: US-RT-1, US-RT-6*
   *Per brief: §11 (per §6 decisions #12 / #18)*
   *Depends on: T-P5-17*
   *Acceptance check:* Tests: `routine dev = open vscode; cd ~/code` parses to `("dev", ["open vscode", "cd ~/code"])`; reserved words (`routine`, `routines`, `abort`, `run`, `delete`, `cancel`, `help`, `settings`, `quit`, `exit`) → reject; whitespace in NAME → reject; `=` missing → reject; empty step list → reject; unbalanced quote → reject.
 
-- [ ] **T-P7-14: `RoutineResolver` (bare-name + `run NAME`, no mid-sentence)**
+- [x] **T-P7-14: `RoutineResolver` (bare-name + `run NAME`, no mid-sentence)**
   *Advances: US-RT-2, US-RT-6*
   *Per brief: §11 (per §6 decisions #15 / #17)*
   *Depends on: T-P7-13*
   *Acceptance check:* Tests: bare `dev` invokes routine `dev`; `run dev` invokes routine `dev`; `tell me about dev tooling` does NOT invoke routine `dev`; `dev tools` (whitespace) does NOT invoke; case-insensitive; unknown bare name falls through to the planner; unknown `run NAME` surfaces "No routine named 'NAME'.".
 
-- [ ] **T-P7-15: `RoutineCommandHandler` for inline create / list / delete**
+- [x] **T-P7-15: `RoutineCommandHandler` for inline create / list / delete**
   *Advances: US-RT-1, US-RT-3, US-RT-4 (inline form), US-RT-5*
   *Per brief: §11 (per §6 decisions #12, #15, #17)*
   *Depends on: T-P7-13*
   *Acceptance check:* Tests: `routine NAME = …` persists; overwrite requires trailing `overwrite` token; `routines` lists all; `routine NAME` (no `=`) shows the full step list; `routine delete NAME` requires literal `confirm` on next input; deleting unknown name surfaces "No routine named 'NAME'." and is a no-op.
 
-- [ ] **T-P7-16: Wire `RoutineResolver` and `RoutineCommandHandler` into `CommandPipeline`**
+- [x] **T-P7-16: Wire `RoutineResolver` and `RoutineCommandHandler` into `CommandPipeline`**
   *Advances: US-RT-1..6, US-P-1 (resolver runs before planner)*
   *Per brief: §11 (per §6 decisions #12–#17)*
   *Depends on: T-P7-14, T-P7-15*
   *Acceptance check:* Order verified by test: input → InputValidator → RoutineCommandHandler (if `routine`/`routines`) → RoutineResolver (expand bare-name or `run NAME`) → for each expanded step: re-enter the pipeline as if typed → Planner → PlanValidator → ExecutorRouter. `abort` mid-routine cancels the in-flight step and skips remaining steps; the log notes counts.
 
-- [ ] **T-P7-17: `RoutinesTabView`**
+- [x] **T-P7-17: `RoutinesTabView`**
   *Advances: US-SET-4, US-RT-3, US-RT-4 (Settings form), US-RT-5 (Settings form)*
   *Per brief: §12 (per §6 decision #14)*
   *Depends on: T-P7-10, T-P7-16*

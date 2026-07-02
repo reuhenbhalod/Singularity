@@ -64,6 +64,31 @@ struct CommandPipelineTests {
         #expect(texts.contains("playing newest MrBeast video"))
     }
 
+    /// T-P7-16: invoking a routine expands to its steps, each re-entering
+    /// the pipeline. A one-step "play mrbeast" routine ends with a web
+    /// pane and the hero result, plus the routine banner.
+    @Test func routineInvocationExpandsAndRuns() async {
+        let compositor = CompositorStore()
+        let log = SessionLogStore()
+        let router = ExecutorRouter(lanes: [WebLane(compositor: compositor, driver: StubWebPaneDriver())])
+        let store = RoutineStore(
+            url: FileManager.default.temporaryDirectory
+                .appendingPathComponent("rt-\(UUID().uuidString).json"))
+        try? await store.upsert(
+            Routine(
+                name: "demo", steps: ["play mrbeast newest video"],
+                createdAt: Date(), updatedAt: Date()))
+        let pipeline = CommandPipeline(
+            planner: StringMatcherPlanner(), router: router, log: log, routineStore: store)
+
+        await pipeline.run("demo")
+
+        #expect(compositor.panes.count == 1)
+        let texts = log.entries.map(\.text)
+        #expect(texts.contains("Routine 'demo' → 1 step."))
+        #expect(texts.contains("playing newest MrBeast video"))
+    }
+
     /// The command is echoed as a `.command` entry and the result as a
     /// `.result` entry.
     @Test func logsCommandThenResultKinds() async {

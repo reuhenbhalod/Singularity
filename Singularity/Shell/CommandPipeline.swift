@@ -25,6 +25,8 @@ final class CommandPipeline {
     private let planValidator: PlanValidator
     private let authGate: any AuthorizationGate
     private let confirmGate: any ConfirmGate
+    private let routineStore: RoutineStore
+    private let routineHandler: RoutineCommandHandler
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "pipeline")
 
     init(
@@ -33,7 +35,8 @@ final class CommandPipeline {
         log: SessionLogStore,
         planValidator: PlanValidator = PlanValidator(),
         authGate: (any AuthorizationGate)? = nil,
-        confirmGate: any ConfirmGate = DenyingConfirmGate()
+        confirmGate: any ConfirmGate = DenyingConfirmGate(),
+        routineStore: RoutineStore = RoutineStore()
     ) {
         self.planner = planner
         self.router = router
@@ -41,10 +44,22 @@ final class CommandPipeline {
         self.planValidator = planValidator
         self.authGate = authGate ?? DeviceAuthorizationGate()
         self.confirmGate = confirmGate
+        self.routineStore = routineStore
+        self.routineHandler = RoutineCommandHandler(
+            store: routineStore,
+            log: { kind, text in log.append(kind: kind, text) })
         self.validator = InputValidator(warn: { [log] line in log.append(kind: .system, line) })
     }
 
     func run(_ input: String) async {
+        await run(input, isRoutineStep: false)
+    }
+
+    /// Runs one command. `isRoutineStep` is true when this call is an
+    /// expanded step of a routine — such steps skip routine handling and
+    /// resolution entirely, so a routine can never invoke another routine
+    /// or recurse (spec §6 #15).
+    private func run(_ input: String, isRoutineStep: Bool) async {
         // Boundary first — normalize, scan for secrets, cap, rate-limit
         // — BEFORE echoing, so a secret in the raw input never lands in
         // the log via the command echo. A blocked input never reaches
@@ -56,8 +71,40 @@ final class CommandPipeline {
 
         // Debug commands (e.g. `axdump <bundle id>`) run locally and
         // never reach the planner or executor.
-        if runDebugCommand(clean) {
+        if !isRoutineStep, runDebugCommand(clean) {
             return
+        }
+
+        // Routines: management commands (create/list/delete) are handled
+        // inline; an invocation expands to its steps, each re-entering the
+        // pipeline as if typed. Both are top-level only.
+        if !isRoutineStep {
+            if await routineHandler.handle(clean) {
+                return
+            }
+            let routines = await routineStore.all()
+            let map = Dictionary(routines.map { ($0.name, $0.steps) }) { first, _ in first }
+            switch RoutineResolver(routines: map).resolve(clean) {
+            case .expanded(let name, let steps):
+                log.append(
+                    kind: .system,
+                    "Routine '\(name)' → \(steps.count) step\(steps.count == 1 ? "" : "s").")
+                for (index, step) in steps.enumerated() {
+                    if Task.isCancelled {
+                        log.append(
+                            kind: .system,
+                            "Routine '\(name)' aborted — \(index) of \(steps.count) steps ran.")
+                        return
+                    }
+                    await run(step, isRoutineStep: true)
+                }
+                return
+            case .notFound(let name):
+                log.append(kind: .system, "No routine named '\(name)'.")
+                return
+            case .passthrough:
+                break
+            }
         }
 
         do {

@@ -22,6 +22,15 @@ struct SettingsViewTests {
         #expect(NSHostingView(rootView: view).rootView is SettingsRootView)
     }
 
+    /// T-P7-17: the Routines tab hosts.
+    @Test func routinesTabHosts() {
+        let view = RoutinesTabView(
+            store: RoutineStore(
+                url: FileManager.default.temporaryDirectory
+                    .appendingPathComponent("rt-\(UUID().uuidString).json")))
+        #expect(NSHostingView(rootView: view).rootView is RoutinesTabView)
+    }
+
     /// The Account tab hosts in both signed-out and signed-in states.
     @Test func accountTabHostsBothStates() {
         let signedOut = AccountTabView(account: AccountModel(store: InMemoryIdentityStore()))
