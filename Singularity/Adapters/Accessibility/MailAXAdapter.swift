@@ -14,11 +14,12 @@ import Foundation
 /// live Mail AX tree; use the `axdump` debug command (T-P4-08) to inspect
 /// it when Mail's layout shifts.
 ///
-/// NOTE (Phase 5, T-P5-13): the returned subject is **untrusted content**
-/// (it originates outside the app). Before this string can ever reach a
-/// planner prompt it must be wrapped by `UntrustedContentFilter.wrap(...)`.
-/// Phase 4 only surfaces it in the session log, so that wrap point lands
-/// with the rest of the untrusted-content work in Phase 5.
+/// The returned subject is **untrusted content** (it originates outside
+/// the app). It is only shown in the session log here — never a planner
+/// prompt — so it's surfaced raw. Any future read-then-plan flow (e.g.
+/// "read my mail and draft a reply") MUST route it through
+/// `UntrustedContentFilter.wrap(...)` first (that wrap point exists as of
+/// Phase 5); a bare `String` can't enter planner context.
 struct MailAXAdapter: AXAdapter {
     let name = "mail"
     let bundleID = "com.apple.mail"

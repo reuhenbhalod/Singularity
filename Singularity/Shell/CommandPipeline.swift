@@ -23,18 +23,24 @@ final class CommandPipeline {
     private let log: SessionLogStore
     private let validator: InputValidator
     private let planValidator: PlanValidator
+    private let authGate: any AuthorizationGate
+    private let confirmGate: any ConfirmGate
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "pipeline")
 
     init(
         planner: any PlannerProtocol,
         router: ExecutorRouter,
         log: SessionLogStore,
-        planValidator: PlanValidator = PlanValidator()
+        planValidator: PlanValidator = PlanValidator(),
+        authGate: (any AuthorizationGate)? = nil,
+        confirmGate: any ConfirmGate = DenyingConfirmGate()
     ) {
         self.planner = planner
         self.router = router
         self.log = log
         self.planValidator = planValidator
+        self.authGate = authGate ?? DeviceAuthorizationGate()
+        self.confirmGate = confirmGate
         self.validator = InputValidator(warn: { [log] line in log.append(kind: .system, line) })
     }
 
@@ -66,6 +72,7 @@ final class CommandPipeline {
                 SafetyLog.planRejected(reason: rejection.reasonLabel, planHash: rejection.planHash)
                 log.append(kind: .system, rejection.humanMessage)
             case .success(let validated):
+                guard await passesGates(validated) else { return }
                 switch try await router.dispatch(validated) {
                 case .handled(let summary):
                     log.append(kind: .result, summary)
@@ -79,6 +86,31 @@ final class CommandPipeline {
             logger.error("dispatch failed: \(String(describing: error), privacy: .public)")
             log.append(kind: .system, "Something went wrong running that.")
         }
+    }
+
+    /// Runs the risk gates for a validated plan: Touch ID for
+    /// destructive/spend, then an explicit confirm for anything mutating.
+    /// Returns whether the plan may proceed. Today every action is
+    /// `.read`, so this passes straight through — the wiring is here for
+    /// when Phase 6 adds file/spend actions.
+    private func passesGates(_ plan: ValidatedPlan) async -> Bool {
+        let risk = plan.steps.map { RiskClass.default(for: $0.action) }.max() ?? .read
+
+        if risk >= DeviceAuthorizationGate.threshold {
+            if await authGate.authorize(action: "this command", risk: risk) == .denied {
+                log.append(kind: .system, "Cancelled — authentication is required for that.")
+                return false
+            }
+        }
+        if risk >= .reversible {
+            let approved = await confirmGate.confirm(
+                ConfirmPreview(title: "Confirm this action", detail: "Go ahead and run it?"))
+            if !approved {
+                log.append(kind: .system, "Cancelled.")
+                return false
+            }
+        }
+        return true
     }
 
     /// Handles local debug commands without invoking the planner.

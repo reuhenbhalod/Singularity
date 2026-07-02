@@ -21,7 +21,8 @@ struct ShellRootViewTests {
         let view = ShellRootView(
             commandInputViewModel: CommandInputViewModel(),
             sessionLog: SessionLogStore(),
-            compositor: CompositorStore()
+            compositor: CompositorStore(),
+            confirmGate: ShellConfirmGate()
         )
         let hosting = NSHostingView(rootView: view)
         #expect(hosting.rootView is ShellRootView)

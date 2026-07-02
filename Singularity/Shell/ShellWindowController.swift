@@ -57,9 +57,12 @@ final class ShellWindowController {
         let log = SessionLogStore()
         let comp = CompositorStore()
         let inputViewModel = CommandInputViewModel()
-        // Phase-2 command pipeline: input validator -> Ollama planner
-        // -> stub validator -> executor router (live WebKit driver). The
-        // router and pipeline log into this show's SessionLogStore.
+        // Confirm gate that presents in the shell (dormant until a
+        // destructive/spend action exists in Phase 6).
+        let confirmGate = ShellConfirmGate()
+        // Command pipeline: input validation -> Ollama planner ->
+        // PlanValidator -> risk gates -> executor router. Logs into this
+        // show's SessionLogStore.
         let pipeline = CommandPipeline(
             planner: OllamaPlanner(client: OllamaClient()),
             router: ExecutorRouter(lanes: [
@@ -72,7 +75,8 @@ final class ShellWindowController {
                 }),
                 WebLane(compositor: comp),
             ]),
-            log: log
+            log: log,
+            confirmGate: confirmGate
         )
         // Panic stop: typing the panic phrase (`abort`) cancels the
         // in-flight command instead of queuing a new one (US-SAFE-7).
@@ -101,7 +105,8 @@ final class ShellWindowController {
             rootView: ShellRootView(
                 commandInputViewModel: inputViewModel,
                 sessionLog: log,
-                compositor: comp
+                compositor: comp,
+                confirmGate: confirmGate
             )
         )
         self.panel = panel

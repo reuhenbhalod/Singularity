@@ -27,16 +27,23 @@ enum RiskClass: Int, Comparable, CaseIterable {
         lhs.rawValue < rhs.rawValue
     }
 
-    /// The default risk for an action before any adapter override. The
-    /// actions that exist today only read or reversibly drive an app;
-    /// destructive/spend land with the file and checkout actions in
-    /// Phase 6 / the Amazon flow.
+    /// One class harsher, capped at `.spend`. When untrusted content looks
+    /// like an injection attempt, the next plan's risk is escalated by
+    /// this so it faces a stricter gate (US-SAFE-6, §6 decision #4).
+    var escalated: RiskClass {
+        RiskClass(rawValue: rawValue + 1) ?? .spend
+    }
+
+    /// The default risk for an action before any adapter override. Every
+    /// action that exists today only opens, reads, or drives playback —
+    /// all `.read`, so nothing trips the confirm/Touch-ID gates. The
+    /// higher classes attach to the file operations and the Amazon
+    /// checkout in Phase 6 / the Amazon flow (an adapter may also raise a
+    /// specific hook's risk).
     static func `default`(for action: Action) -> RiskClass {
         switch action {
-        case .openURL, .webNavigate, .webEvaluate:
+        case .openURL, .webNavigate, .webEvaluate, .runScript, .axAction:
             return .read
-        case .runScript, .axAction:
-            return .reversible
         }
     }
 }

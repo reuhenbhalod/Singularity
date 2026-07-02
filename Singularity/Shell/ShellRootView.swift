@@ -12,6 +12,7 @@ struct ShellRootView: View {
     @Bindable var commandInputViewModel: CommandInputViewModel
     @Bindable var sessionLog: SessionLogStore
     @Bindable var compositor: CompositorStore
+    @Bindable var confirmGate: ShellConfirmGate
 
     var body: some View {
         VStack(spacing: 0) {
@@ -39,6 +40,7 @@ struct ShellRootView: View {
             .ignoresSafeArea()
         }
         .animation(.easeOut(duration: 0.15), value: sessionLog.entries.isEmpty)
+        .overlay { ConfirmGateView(gate: confirmGate) }
         .preferredColorScheme(.dark)
     }
 }

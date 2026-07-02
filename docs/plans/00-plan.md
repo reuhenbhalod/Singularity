@@ -649,7 +649,7 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P5-01*
   *Acceptance check:* Test (LAContext mocked): a Destructive step prompts Touch ID; on success returns `.authorized`; on cancel/fail returns `.denied`. Successful auth is cached 30s; after grace expiry, re-prompt. Cache cleared on shell dismiss. `NSFaceIDUsageDescription` exists in `Info.plist`.
 
-- [ ] **T-P5-10: `ConfirmGate` + `ConfirmGateView`**
+- [x] **T-P5-10: `ConfirmGate` + `ConfirmGateView`**
   *Advances: US-SAFE-5*
   *Per brief: §11.2*
   *Depends on: T-P5-09*
@@ -667,13 +667,13 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P5-11*
   *Acceptance check:* Test: a `RawPlan.run_shell` argument that contains a substring traceable to a recently wrapped untrusted content (ring of last 8 hashes) is rejected; the rejection reason is `.crossContextContamination`.
 
-- [ ] **T-P5-13: Phase 4 untrusted-content wrap retrofit**
+- [x] **T-P5-13: Phase 4 untrusted-content wrap retrofit**
   *Advances: US-SAFE-6, US-E-3*
   *Per brief: §11.6*
   *Depends on: T-P5-11*
   *Acceptance check:* Grep for TODO comments left in Phase 4 AX adapters returns zero; all AX read outputs now flow through `UntrustedContentFilter.wrap`. Test: `MailAXAdapter.latestSubject()` returns `EnvelopedContent`.
 
-- [ ] **T-P5-14: Instruction-detection risk escalation**
+- [x] **T-P5-14: Instruction-detection risk escalation**
   *Advances: US-SAFE-6*
   *Per brief: §11.6 (per §6 decision #4)*
   *Depends on: T-P5-11, T-P5-09*
@@ -697,25 +697,25 @@ Atomic, ordered, traceable. Each task is small enough for one focused sitting. M
   *Depends on: T-P5-04*
   *Acceptance check:* Tests: load from non-existent file returns empty; upsert writes atomically (temp + `rename(2)`); concurrent upserts serialize correctly through the actor; delete removes the entry and persists. No UI here — storage layer only (per spec §10 Phase 5 note).
 
-- [ ] **T-P5-18: Wire real `PlanValidator` into `CommandPipeline`**
+- [x] **T-P5-18: Wire real `PlanValidator` into `CommandPipeline`**
   *Advances: US-SAFE-2*
   *Per brief: §11.3*
   *Depends on: T-P5-05, T-P5-10, T-P5-15*
   *Acceptance check:* The Phase-1 stub is removed from `CommandPipeline.swift`; integration test: hero command still works (regression); a malformed `RawPlan` (injected via a test seam) is rejected before reaching the router.
 
-- [ ] **T-P5-19: `SettingsStore` adds Safety settings + `SafetyTabView`**
+- [x] **T-P5-19: `SettingsStore` adds Safety settings + `SafetyTabView`**
   *Advances: US-SET-3*
   *Per brief: §12.4*
   *Depends on: T-P5-08, T-P5-09, T-P5-15*
   *Acceptance check:* Tab exposes NSFW toggle (default on, verbatim disclaimer), Touch ID grace (default 30, range 0–300), panic phrase (default `abort`), read-only allowlist viewer. Changes take effect immediately.
 
-- [ ] **T-P5-20: `AmazonAdapter` two-stop checkout flow**
+- [x] **T-P5-20: `AmazonAdapter` two-stop checkout flow**
   *Advances: US-SAFE-5, US-E-2*
   *Per brief: §11.2*
   *Depends on: T-P5-10*
   *Acceptance check:* Adapter declares two RiskClass.spend steps with explicit `ConfirmGate` previews; integration test (with a mock checkout fixture) verifies both stops fire and Touch ID is required on the second.
 
-- [ ] **T-P5-21: Phase 5 hardening test pass**
+- [x] **T-P5-21: Phase 5 hardening test pass**
   *Advances: US-SAFE-1..8, US-NSFW-1*
   *Per brief: §11*
   *Depends on: T-P5-20*

@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import Observation
 
 /// A plain-English preview of a mutating action, shown before it runs
 /// (brief §11 / `Singularity.md` §6). e.g. title "Place order", detail
@@ -20,10 +21,35 @@ protocol ConfirmGate {
     func confirm(_ preview: ConfirmPreview) async -> Bool
 }
 
-/// Test/default gate that denies without asking (fail-safe). The real,
-/// UI-presenting gate (`ConfirmGateView` bound to the shell) lands with
-/// the first destructive/spend action; today's actions are all
-/// read/reversible, so nothing reaches a confirm gate yet.
+/// Fail-safe default gate that denies without asking. Used where no UI is
+/// wired; the shell injects `ShellConfirmGate` instead.
 struct DenyingConfirmGate: ConfirmGate {
     func confirm(_ preview: ConfirmPreview) async -> Bool { false }
+}
+
+/// The shell's confirm gate: publishes the `pending` preview so
+/// `ConfirmGateView` can render it, and suspends the caller until the
+/// user taps Confirm/Cancel. Nothing reaches it yet (today's actions are
+/// all `.read`); it goes live when Phase 6 adds destructive/spend actions.
+@MainActor
+@Observable
+final class ShellConfirmGate: ConfirmGate {
+    /// The preview currently awaiting a decision, or `nil`.
+    private(set) var pending: ConfirmPreview?
+
+    @ObservationIgnored private var continuation: CheckedContinuation<Bool, Never>?
+
+    func confirm(_ preview: ConfirmPreview) async -> Bool {
+        await withCheckedContinuation { continuation in
+            self.pending = preview
+            self.continuation = continuation
+        }
+    }
+
+    /// Resolves the pending confirmation (from the view's buttons).
+    func resolve(_ approved: Bool) {
+        pending = nil
+        continuation?.resume(returning: approved)
+        continuation = nil
+    }
 }

@@ -19,13 +19,21 @@ struct RiskClassTests {
         #expect(max(RiskClass.read, .destructive) == .destructive)
     }
 
-    /// T-P5-01: the default action→risk mapping. Today's actions only
-    /// read or reversibly drive an app.
+    /// T-P5-01: today's actions all default to `.read`, so the gates stay
+    /// dormant until Phase 6 introduces file/spend actions.
     @Test func mapsActionsToDefaults() throws {
         let url = try #require(URL(string: "https://www.youtube.com/"))
         #expect(RiskClass.default(for: .openURL(url)) == .read)
         #expect(RiskClass.default(for: .webNavigate(url)) == .read)
-        #expect(RiskClass.default(for: .runScript(adapter: "youtube", hook: "play_newest")) == .reversible)
-        #expect(RiskClass.default(for: .axAction(adapter: "spotify", hook: "playpause")) == .reversible)
+        #expect(RiskClass.default(for: .runScript(adapter: "youtube", hook: "play_newest")) == .read)
+        #expect(RiskClass.default(for: .axAction(adapter: "spotify", hook: "playpause")) == .read)
+    }
+
+    /// T-P5-14: escalation bumps one class, capped at `.spend`.
+    @Test func escalatesOneClassCappedAtSpend() {
+        #expect(RiskClass.read.escalated == .reversible)
+        #expect(RiskClass.reversible.escalated == .destructive)
+        #expect(RiskClass.destructive.escalated == .spend)
+        #expect(RiskClass.spend.escalated == .spend)
     }
 }

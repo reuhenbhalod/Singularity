@@ -22,6 +22,12 @@ private final class StubWebPaneDriver: WebPaneDriving {
     }
 }
 
+/// A planner that always returns a fixed plan (or nil).
+private struct FixedPlanner: PlannerProtocol {
+    let fixed: RawPlan?
+    func plan(_ input: String) async throws -> RawPlan? { fixed }
+}
+
 /// The wired-up pipeline plus the stores to assert against.
 @MainActor
 private struct Harness {
@@ -82,6 +88,26 @@ struct CommandPipelineTests {
         #expect(harness.compositor.panes.isEmpty)
         #expect(!texts.contains("I don't know how to do that yet."))
         #expect(!texts.contains { $0.contains("AKIAIOSFODNN7EXAMPLE") })
+    }
+
+    /// T-P5-21 hardening: a plan whose URL is off the allowlist is
+    /// rejected by the PlanValidator — surfaced with a reason, and it
+    /// never reaches the executor (no pane).
+    @Test func offAllowlistPlanIsRejectedWithReason() async throws {
+        let url = try #require(URL(string: "https://evil.example.com/"))
+        let log = SessionLogStore()
+        let compositor = CompositorStore()
+        let router = ExecutorRouter(
+            lanes: [WebLane(compositor: compositor, driver: StubWebPaneDriver())])
+        let pipeline = CommandPipeline(
+            planner: FixedPlanner(fixed: RawPlan(steps: [PlanStep(action: .webNavigate(url))])),
+            router: router,
+            log: log)
+
+        await pipeline.run("go to evil")
+
+        #expect(log.entries.map(\.text).contains { $0.contains("allowed-sites list") })
+        #expect(compositor.panes.isEmpty)
     }
 
     /// An unrecognized command opens no pane and logs a "don't know
