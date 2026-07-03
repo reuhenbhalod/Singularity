@@ -48,6 +48,7 @@ final class ShellWindowController {
 
     func show() {
         guard !isShowing else { return }
+        let summonStart = DispatchTime.now()
 
         let screen = currentCursorScreen()
         let panel = ShellPanel(contentRect: screen.frame)
@@ -106,11 +107,11 @@ final class ShellWindowController {
             // which sits above everything).
             if text.trimmingCharacters(in: .whitespaces).lowercased() == "settings" {
                 self?.hide()
-                Self.openSettingsWindow()
+                Latency.measure("settings_open") { Self.openSettingsWindow() }
                 return
             }
             logger.info("submit: \(text, privacy: .public)")
-            panic.track(Task { await pipeline.run(text) })
+            panic.track(Task { await Latency.measureAsync("command_return_to_result") { await pipeline.run(text) } })
         }
         inputViewModel.onLog = { [weak log, logger] line in
             log?.append(kind: .system, line)
@@ -143,6 +144,8 @@ final class ShellWindowController {
         panel.makeKeyAndOrderFront(nil)
 
         isShowing = true
+        // Hotkey-to-focus budget is 150ms (US-S-1); this is pure AppKit.
+        Latency.logElapsed("hotkey_to_focus", since: summonStart)
         logger.info("show: panel on screen \(screen.frame.debugDescription, privacy: .public)")
     }
 
