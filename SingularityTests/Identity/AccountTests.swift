@@ -34,9 +34,13 @@ struct IdentityRecordTests {
 
 @MainActor
 struct AccountModelTests {
+    private func flow() throws -> FirstRunFlow {
+        FirstRunFlow(defaults: try #require(UserDefaults(suiteName: "acct-\(UUID().uuidString)")))
+    }
+
     /// T-P7-19: sign-in/out updates the observable state.
-    @Test func signInOutUpdatesState() {
-        let model = AccountModel(store: InMemoryIdentityStore())
+    @Test func signInOutUpdatesState() throws {
+        let model = AccountModel(store: InMemoryIdentityStore(), firstRun: try flow())
         #expect(!model.isSignedIn)
 
         model.signIn(IdentityRecord(user: "u", displayName: "A", email: nil))
@@ -45,6 +49,20 @@ struct AccountModelTests {
 
         model.signOut()
         #expect(!model.isSignedIn)
+    }
+
+    /// US-ID-3: signing out re-arms the first-run flow so onboarding
+    /// re-presents on the next launch.
+    @Test func signOutReArmsFirstRun() throws {
+        let firstRun = try flow()
+        firstRun.markComplete()
+        #expect(!firstRun.shouldShow)
+
+        let model = AccountModel(
+            store: InMemoryIdentityStore(IdentityRecord(user: "u", displayName: "A", email: nil)),
+            firstRun: firstRun)
+        model.signOut()
+        #expect(firstRun.shouldShow)
     }
 
     /// An existing identity is loaded at init.

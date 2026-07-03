@@ -14,9 +14,11 @@ final class AccountModel {
     private(set) var identity: IdentityRecord?
 
     @ObservationIgnored private let store: any IdentityStore
+    @ObservationIgnored private let firstRun: FirstRunFlow
 
-    init(store: any IdentityStore = KeychainIdentityStore()) {
+    init(store: any IdentityStore = KeychainIdentityStore(), firstRun: FirstRunFlow = FirstRunFlow()) {
         self.store = store
+        self.firstRun = firstRun
         self.identity = store.read()
     }
 
@@ -49,6 +51,8 @@ final class AccountModel {
     func signOut() {
         store.clear()
         identity = nil
+        // Re-present the first-run identity step on next launch (US-ID-3).
+        firstRun.reset()
     }
 
     /// Re-validates the stored Apple ID at launch (T-P7-04): if Apple

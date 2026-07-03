@@ -20,4 +20,16 @@ struct FirstRunFlow {
     func markComplete() {
         defaults.set(true, forKey: key)
     }
+
+    /// Re-arms onboarding so it shows again on next launch — used after
+    /// sign-out / credential revocation (US-ID-2/3) and factory reset.
+    func reset() {
+        defaults.removeObject(forKey: key)
+    }
+}
+
+extension Notification.Name {
+    /// Posted by the Permissions tab's "re-run onboarding" link (US-SET-5);
+    /// AppDelegate presents the first-run window unconditionally.
+    static let rerunFirstRun = Notification.Name("SingularityRerunFirstRun")
 }

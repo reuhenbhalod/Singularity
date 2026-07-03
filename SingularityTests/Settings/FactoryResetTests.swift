@@ -28,12 +28,21 @@ struct FactoryResetTests {
             Routine(name: "x", steps: ["a"], createdAt: Date(), updatedAt: Date()))
         #expect(FileManager.default.fileExists(atPath: routinesURL.path))
 
-        FactoryReset.run(settings: settings, identityStore: identity, routinesURL: routinesURL)
+        let frDefaults = try #require(UserDefaults(suiteName: "fr-flow-\(UUID().uuidString)"))
+        let firstRun = FirstRunFlow(defaults: frDefaults)
+        firstRun.markComplete()
+
+        // clearWebData: false — WebKit data-store enumeration isn't
+        // meaningful in the unit-test host and would touch real state.
+        await FactoryReset.run(
+            settings: settings, identityStore: identity, routinesURL: routinesURL,
+            firstRun: firstRun, clearWebData: false)
 
         #expect(settings.nsfwFilterEnabled == SettingsStore.Defaults.nsfwFilterEnabled)
         #expect(settings.plannerModel == SettingsStore.Defaults.plannerModel)
         #expect(identity.read() == nil)
         #expect(!FileManager.default.fileExists(atPath: routinesURL.path))
+        #expect(firstRun.shouldShow)  // re-armed for next launch
     }
 
     /// `resetToDefaults` alone restores every setting value.

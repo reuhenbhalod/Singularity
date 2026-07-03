@@ -51,6 +51,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // First launch: show onboarding (permissions checklist + optional
         // sign-in). The shell still works if the user skips (T-P7-08).
         firstRun.showIfNeeded(account: account)
+
+        // The Permissions tab can re-run onboarding on demand (US-SET-5).
+        NotificationCenter.default.addObserver(
+            forName: .rerunFirstRun, object: nil, queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            MainActor.assumeIsolated { self.firstRun.present(account: self.account) }
+        }
     }
 
     /// (Re)installs the global hotkey from the current settings preset,

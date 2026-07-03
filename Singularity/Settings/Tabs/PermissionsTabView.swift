@@ -20,12 +20,18 @@ struct PermissionsTabView: View {
             } header: {
                 Text("System permissions")
             } footer: {
-                Text(
-                    "Singularity never changes these for you — grant them yourself in System "
-                        + "Settings. A denied permission only disables the lane that needs it; the "
-                        + "shell keeps working.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(
+                        "Singularity never changes these for you — grant them yourself in System "
+                            + "Settings. A denied permission only disables the lane that needs it; the "
+                            + "shell keeps working.")
+                    Button("Re-run first-run setup") {
+                        NotificationCenter.default.post(name: .rerunFirstRun, object: nil)
+                    }
+                    .buttonStyle(.link)
+                }
+                .font(.footnote)
+                .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
