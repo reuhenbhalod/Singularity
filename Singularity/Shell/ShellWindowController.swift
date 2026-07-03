@@ -106,8 +106,7 @@ final class ShellWindowController {
             // "settings" opens the Settings window (dismissing the shell,
             // which sits above everything).
             if text.trimmingCharacters(in: .whitespaces).lowercased() == "settings" {
-                self?.hide()
-                Latency.measure("settings_open") { Self.openSettingsWindow() }
+                self?.dismissAndOpenSettings()
                 return
             }
             logger.info("submit: \(text, privacy: .public)")
@@ -133,8 +132,7 @@ final class ShellWindowController {
                 confirmGate: confirmGate,
                 permissions: permissions,
                 onOpenSettings: { [weak self] in
-                    self?.hide()
-                    Self.openSettingsWindow()
+                    self?.dismissAndOpenSettings()
                 }
             )
         )
@@ -181,6 +179,17 @@ final class ShellWindowController {
 
         isShowing = false
         logger.info("hide: panel ordered out")
+    }
+
+    /// Dismisses the shell and opens Settings on the next runloop tick.
+    /// The deferral is load-bearing: calling `hide()` synchronously from a
+    /// SwiftUI button/text-field action would release the `NSHostingView`
+    /// that is still mid-dispatch of that very event — a use-after-free.
+    private func dismissAndOpenSettings() {
+        Task { [weak self] in
+            self?.hide()
+            Latency.measure("settings_open") { Self.openSettingsWindow() }
+        }
     }
 
     /// Opens the SwiftUI `Settings` scene. The accessory app has no menu
