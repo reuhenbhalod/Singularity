@@ -131,7 +131,11 @@ final class ShellWindowController {
                 sessionLog: log,
                 compositor: comp,
                 confirmGate: confirmGate,
-                permissions: permissions
+                permissions: permissions,
+                onOpenSettings: { [weak self] in
+                    self?.hide()
+                    Self.openSettingsWindow()
+                }
             )
         )
         self.panel = panel

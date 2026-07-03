@@ -14,6 +14,9 @@ struct ShellRootView: View {
     @Bindable var compositor: CompositorStore
     @Bindable var confirmGate: ShellConfirmGate
     @Bindable var permissions: PermissionsManager
+    /// Opens the Settings window (dismisses the shell first). Injected by
+    /// the window controller; defaults to a no-op for previews/tests.
+    var onOpenSettings: () -> Void = {}
 
     var body: some View {
         VStack(spacing: 0) {
@@ -44,7 +47,24 @@ struct ShellRootView: View {
             .ignoresSafeArea()
         }
         .animation(.easeOut(duration: 0.15), value: sessionLog.entries.isEmpty)
+        .overlay(alignment: .topLeading) { settingsButton }
         .overlay { ConfirmGateView(gate: confirmGate) }
         .preferredColorScheme(.dark)
+    }
+
+    /// A subtle gear in the top-left corner — the discoverable way to open
+    /// Settings without knowing the `settings` command.
+    private var settingsButton: some View {
+        Button(action: onOpenSettings) {
+            Image(systemName: "gearshape.fill")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(.white.opacity(0.55))
+                .padding(8)
+                .background(.white.opacity(0.06), in: Circle())
+        }
+        .buttonStyle(.plain)
+        .padding(.top, 14)
+        .padding(.leading, 16)
+        .help("Open Settings")
     }
 }

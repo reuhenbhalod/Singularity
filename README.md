@@ -113,8 +113,9 @@ the background until you summon it. On first launch it shows a short
 3. Press **⌥Space** again (or **Esc**) to dismiss it. Dismissing clears the
    session and closes any open panes.
 
-Type **`settings`** to open the Settings window (or change the hotkey,
-appearance, model, safety, routines, permissions, and account there).
+Click the **gear** in the top-left of the shell, or type **`settings`**, to
+open the Settings window (hotkey, appearance, model, safety, routines,
+permissions, account).
 
 ### What you can do
 
@@ -124,14 +125,26 @@ play mrbeast's newest video
 play the latest video from veritasium
 play marques brownlee's newest video        # resolves even though the handle is @mkbhd
 play another mkbhd video in a new tab        # reuses the pane unless you ask for a new tab
-open gmail                                    # Gmail web adapter
+open gmail                                    # Gmail
+google best mechanical keyboards              # Google search
+directions to the ferry building              # Google Maps
+look up mount everest on wikipedia            # Wikipedia
+open reddit   /   r/macos                      # Reddit
+open twitter   /   open linkedin               # X / LinkedIn
+```
+
+**System controls (macOS via AppleScript):**
+```
+turn on dark mode   /   toggle dark mode
+volume up   /   volume down   /   mute
+lock my screen
 ```
 
 **Native apps (Apple-native via AppleScript; Spotify via Accessibility):**
 ```
 play spotify   /   pause spotify             # Spotify (Accessibility lane)
-open notes   /   create a note …             # Notes, Reminders, Calendar,
-read my latest mail                          # Mail, Music, Finder, Safari
+read my latest mail                          # Mail, Music, Finder, Notes,
+what's playing   /   next song                # Reminders, Calendar, Safari (read/control)
 ```
 
 **Files & shell (tightly sandboxed, safety-gated):**

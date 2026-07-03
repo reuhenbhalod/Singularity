@@ -18,6 +18,7 @@ struct AppleScriptAdapterRegistry {
         RemindersAppleScriptAdapter(),
         CalendarAppleScriptAdapter(),
         MailAppleScriptAdapter(),
+        SystemAppleScriptAdapter(),
     ]
 
     init(adapters: [any AppleScriptAdapter] = AppleScriptAdapterRegistry.defaultAdapters) {
