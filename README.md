@@ -9,30 +9,12 @@ planner into a five-lane executor.
 It is not a chatbot. It does not answer questions — it turns intent into
 actions and performs them.
 
-> **Status:** all eight build phases (0–7) are **code-complete** —
-> **112 / 114 plan tasks done, 320 tests passing.** The two remaining tasks
-> are account/system grants (see the callout below). See
-> **[`docs/plans/00-plan.md`](docs/plans/00-plan.md)** for the task-by-task
-> plan (source of truth for progress), **[`CLAUDE.md`](CLAUDE.md)** for the
-> project conventions, and `CHANGELOG.md` for recent changes.
-
----
-
-## ✅ Remaining before v1 ship — 2 tasks, and **my partner will do these**
-
-Every code task is finished. The only two items left are **manual
-account/system grants that cannot be done in code** — and **my partner is
-handling both of them:**
-
-- [ ] **T-P7-01 — Register the App ID + enable "Sign in with Apple"** in the
-  Apple Developer portal, then record the team/bundle ID for the
-  entitlements. Unlocks real sign-in. **← _partner_**
-- [ ] **T-P6-14 — Grant Full Disk Access** to the built app in System
-  Settings → Privacy & Security. Unlocks reading protected folders (e.g.
-  Mail). **← _partner_**
-
-Until then, both paths **degrade honestly**: the Sign in with Apple button
-and protected-folder reads surface a clear reason instead of crashing.
+> **Status:** v1 (all eight build phases, 0–7) is **code-complete** —
+> **326 tests passing.** What's left (two manual grants + the post-v1 build
+> roadmap) lives in **[`TASKS.md`](TASKS.md)**. See also
+> **[`docs/plans/00-plan.md`](docs/plans/00-plan.md)** for the v1 task
+> plan, **[`docs/specs/00-spec.md`](docs/specs/00-spec.md)** §12 for the
+> post-v1 phases, and **[`CLAUDE.md`](CLAUDE.md)** for conventions.
 
 ---
 

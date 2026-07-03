@@ -22,6 +22,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Shared with the Settings scene and the first-run window.
     let account = AccountModel()
     let shellController = ShellWindowController()
+    private lazy var settingsWindow = SettingsWindowController(settings: settings, account: account)
     private let firstRun = FirstRunController()
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "lifecycle")
 
@@ -47,6 +48,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Re-validate a stored Apple ID: sign out locally if Apple says the
         // credential was revoked (T-P7-04). No-op when signed out.
         Task { await account.refreshCredentialState() }
+
+        // The shell's gear / `settings` command presents Settings as a
+        // centered overlay above the shell — it does not dismiss the shell.
+        shellController.onRequestSettings = { [weak self] in
+            guard let self else { return }
+            self.settingsWindow.present(childOf: self.shellController.overlayParent)
+        }
 
         // First launch: show onboarding (permissions checklist + optional
         // sign-in). The shell still works if the user skips (T-P7-08).

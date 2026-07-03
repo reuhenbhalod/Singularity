@@ -10,10 +10,9 @@ struct SingularityApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        // Share the delegate's stores so hotkey/appearance changes and
-        // sign-in are the same objects the delegate reads.
-        Settings {
-            SettingsRootView(settings: appDelegate.settings, account: appDelegate.account)
-        }
+        // The shell presents Settings itself (a centered overlay above the
+        // shell, via SettingsWindowController), so this scene is an empty
+        // placeholder — SwiftUI's App still requires one Scene.
+        Settings { EmptyView() }
     }
 }

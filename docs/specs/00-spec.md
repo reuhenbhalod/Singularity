@@ -654,3 +654,100 @@ The phase plan as a whole is unchanged in shape — the material changes are (a)
 ## 11. Open product decisions
 
 *(Empty section: every open item raised by the research brief, by `Singularity.md`, and by the v1 routines addition has been resolved in §6 above. If implementation surfaces new product questions that cannot be answered by a defensible default, they will be raised back to the user before the architect or implementer proceeds past them.)*
+
+---
+
+## 12. Post-v1 phases (roadmap)
+
+v1 (Phases 0–7) is code-complete. This section specs the **next** phases —
+the "new stuff we want to add." Each phase is a coherent, shippable slice
+with its own user stories. Phases are ordered by leverage: Phase 8 unlocks
+the largest set of daily commands, so it comes first.
+
+### Phase 8 — Parameterized write actions *(highest leverage)*
+
+Today every adapter hook is **parameterless** (a fixed script/URL), so the
+shell can *read/control* apps but cannot *create with content*. This phase
+adds one new plan action that carries arguments — **injection-safe**:
+arguments are passed to AppleScript out-of-band (e.g. `NSAppleScript`
+handler call / `osascript` argv), never string-interpolated into a script.
+This is a safety-sensitive change; the `Safety/` tests are non-negotiable.
+
+- **US-WR-1 — Send an email.** "email alex@x.com subject Lunch body Running 10 late" → a
+  parameterized `apple_script` (adapter `mail`, hook `send`, args
+  `{to, subject, body}`). Classified **Spend/Destructive-adjacent**:
+  plain-English preview + confirm (+ Touch ID). Recipients/body are shown
+  verbatim in the preview; nothing sends without explicit confirm.
+- **US-WR-2 — Create a calendar event.** "add lunch with sam tomorrow at noon" →
+  `calendar/create {title, start, end?, calendar?}`. Reversible → confirm.
+- **US-WR-3 — Add a reminder.** "remind me to call mom at 6" →
+  `reminders/add {text, due?}`. Reversible → confirm.
+- **US-WR-4 — Create a note.** "note buy milk and eggs" →
+  `notes/create {title?, body}`. Reversible → confirm.
+- **US-WR-5 — Play a specific song.** "play bohemian rhapsody" →
+  `music/play {query}` (Apple Music) or the existing Spotify search path.
+- **Acceptance (cross-cut):** args never reach a raw script string; a
+  fuzz/injection test proves quotes, backslashes, and `¬`/newlines in args
+  cannot break out; every write goes through preview + confirm; a rejected
+  confirm is a clean no-op.
+
+### Phase 9 — Broader reach (adapters, system, clipboard, windows)
+
+- **US-AD-1 — Web adapter library.** Add curated navigation/read adapters:
+  Netflix, Twitch, Apple Music web, GitHub, Amazon (search), Google
+  Docs/Drive, YouTube Music. Each is one adapter file + allowlist + planner
+  example (the v1 pattern).
+- **US-SYS-1 — Expanded system controls.** Wi-Fi on/off, Bluetooth on/off,
+  brightness up/down, Focus/Do-Not-Disturb, start screensaver, display
+  sleep, take a screenshot. Reversible ones stay ungated; anything
+  irreversible waits on per-hook risk classes (below).
+- **US-SAFE-9 — Per-hook risk classes.** An adapter hook may declare a
+  stricter `RiskClass` than the action-kind default (spec §4 US-SAFE-4
+  already permits *stricter, never looser*). This unlocks confirm-gated
+  system ops (empty Trash, delete calendar event) that Phase 8/9 otherwise
+  must exclude.
+- **US-CLIP-1 — Clipboard.** "copy that" / "paste" / "what's on my clipboard"
+  via `NSPasteboard`.
+- **US-WIN-1 — Window & app management.** "quit safari", "hide everything",
+  "close all finder windows", "minimize this".
+
+### Phase 10 — Scheduling & triggers
+
+Introduces a background scheduler (in-app timer + persisted schedule; a
+launch agent only if the app must fire while quit). All fired routines
+still pass the full safety pipeline; a fired write action still surfaces
+its confirm.
+
+- **US-SCHED-1 — Time-based routines.** "every weekday at 8am run morning";
+  managed/cancelled in a Settings → Schedules tab.
+- **US-SCHED-2 — Event triggers.** "when I join wifi HomeNet, run focus" /
+  "when I plug in power, …". A curated, safe trigger set (network, power,
+  display-count, time) — not arbitrary system hooks.
+- **US-SCHED-3 — Visibility & control.** Every scheduled/triggered run is
+  logged; a global "pause all automations" switch exists; triggers never
+  run destructive/spend actions without a per-schedule opt-in.
+
+### Phase 11 — Smarter routines
+
+- **US-RT-7 — Parameterized routines.** `routine gh = open github.com/$1` →
+  "gh anthropics/claude" fills `$1`. Args are treated as untrusted input.
+- **US-RT-8 — Conditional steps.** A step may guard on the previous step's
+  result ("if mail unread > 0 then …"); kept deliberately small (no full
+  scripting language) to preserve auditability.
+- **US-RT-9 — Controlled nesting.** A routine may invoke another by an
+  explicit `run NAME` step (still non-recursive; a cycle is rejected at
+  save time), lifting the v1 "routines can't reference routines" limit.
+
+### Phase 12 — Planner quality
+
+- **US-P-4 — Coverage beyond curated examples.** Grow the few-shot set and/or
+  retrieve adapter capabilities into the prompt so novel phrasings for
+  non-YouTube targets resolve reliably; optional larger model on capable
+  hardware.
+- **US-P-5 — Gated multi-step decomposition.** For genuinely multi-action
+  requests, allow the planner to emit several steps — each independently
+  validated and, where mutating, independently confirmed.
+
+**Out of scope still:** open-ended research/Q&A ("best monitor under $100"),
+arbitrary un-allowlisted websites, and controlling non-scriptable
+third-party apps — unchanged from §7.

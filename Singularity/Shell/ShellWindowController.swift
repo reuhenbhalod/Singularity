@@ -36,6 +36,11 @@ final class ShellWindowController {
     private var compositor: CompositorStore?
     private var pipeline: CommandPipeline?
     private var permissions: PermissionsManager?
+    /// Set by AppDelegate to present the Settings overlay (over the shell,
+    /// without dismissing it).
+    var onRequestSettings: (() -> Void)?
+    /// The shell panel, so the Settings overlay can attach above it.
+    var overlayParent: NSWindow? { panel }
     private let logger = Logger(subsystem: "com.reuhenbhalod.Singularity", category: "shell")
 
     func toggle() {
@@ -106,7 +111,7 @@ final class ShellWindowController {
             // "settings" opens the Settings window (dismissing the shell,
             // which sits above everything).
             if text.trimmingCharacters(in: .whitespaces).lowercased() == "settings" {
-                self?.dismissAndOpenSettings()
+                self?.requestSettings()
                 return
             }
             logger.info("submit: \(text, privacy: .public)")
@@ -132,7 +137,7 @@ final class ShellWindowController {
                 confirmGate: confirmGate,
                 permissions: permissions,
                 onOpenSettings: { [weak self] in
-                    self?.dismissAndOpenSettings()
+                    self?.requestSettings()
                 }
             )
         )
@@ -181,22 +186,11 @@ final class ShellWindowController {
         logger.info("hide: panel ordered out")
     }
 
-    /// Dismisses the shell and opens Settings on the next runloop tick.
-    /// The deferral is load-bearing: calling `hide()` synchronously from a
-    /// SwiftUI button/text-field action would release the `NSHostingView`
-    /// that is still mid-dispatch of that very event — a use-after-free.
-    private func dismissAndOpenSettings() {
-        Task { [weak self] in
-            self?.hide()
-            Latency.measure("settings_open") { Self.openSettingsWindow() }
-        }
-    }
-
-    /// Opens the SwiftUI `Settings` scene. The accessory app has no menu
-    /// bar, so the shell summons Settings via the app's action selector.
-    private static func openSettingsWindow() {
-        NSApp.activate(ignoringOtherApps: true)
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+    /// Asks AppDelegate to present the Settings overlay over the shell.
+    /// Deferred to the next tick so the triggering click/submit event fully
+    /// unwinds before a new window is presented and made key.
+    private func requestSettings() {
+        Task { [weak self] in self?.onRequestSettings?() }
     }
 
     /// Returns the `NSScreen` whose frame contains the mouse cursor,
