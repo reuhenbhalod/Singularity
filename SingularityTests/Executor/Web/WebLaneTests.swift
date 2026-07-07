@@ -286,7 +286,7 @@ struct WebLaneTests {
 
         let reason = lane.diagnose(PlanStep(action: .webNavigate(amazon)))
         #expect(reason?.contains("amazon.com") == true)
-        #expect(reason?.contains("YouTube") == true)
+        #expect(reason?.contains("adapter") == true)
         // A site we DO support gets no complaint.
         let youtube = try #require(URL(string: "https://www.youtube.com/feed"))
         #expect(lane.diagnose(PlanStep(action: .webNavigate(youtube))) == nil)

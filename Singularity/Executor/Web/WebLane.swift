@@ -58,8 +58,7 @@ final class WebLane: ExecutorLane {
             // An https site we have no adapter for.
             guard url.scheme?.lowercased() == "https", let host = url.host else { return nil }
             if adapter(for: url) == nil {
-                return "I can't drive \(host) yet — so far I can only use YouTube, Gmail, "
-                    + "and Spotify on the web."
+                return "I can't drive \(host) yet — it isn't one of the sites I have a web adapter for."
             }
             return nil
         case .runScript(let adapterName, let hook):
