@@ -3,6 +3,8 @@
 //  Singularity
 //
 
+import AppKit
+import Combine
 import Foundation
 import WebKit
 
@@ -19,13 +21,20 @@ import WebKit
 /// `@MainActor` because `WKWebView` and its configuration are
 /// main-actor-bound.
 @MainActor
+@Observable
 final class WebPaneController {
     let webView: WKWebView
 
     /// Retained so the web view's weak `navigationDelegate` stays alive.
     let navigationDelegate: AllowlistNavigationDelegate
 
+    /// Mirrors the web view's history state so the pane's back/forward
+    /// buttons can enable/disable reactively.
+    private(set) var canGoBack = false
+    private(set) var canGoForward = false
+
     private let adapter: any WebAdapter
+    @ObservationIgnored private var cancellables: Set<AnyCancellable> = []
 
     init(adapter: any WebAdapter) {
         self.adapter = adapter
@@ -56,6 +65,34 @@ final class WebPaneController {
 
         self.webView = webView
         self.navigationDelegate = navigationDelegate
+
+        // Reactively mirror history state onto the observable properties
+        // (Combine's KVO publisher delivers Sendable Bools on the main run
+        // loop, so the sink can safely touch this main-actor object).
+        webView.publisher(for: \.canGoBack, options: [.initial, .new])
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.canGoBack = $0 }
+            .store(in: &cancellables)
+        webView.publisher(for: \.canGoForward, options: [.initial, .new])
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.canGoForward = $0 }
+            .store(in: &cancellables)
+    }
+
+    // MARK: - Pane navigation controls
+
+    func goBack() { webView.goBack() }
+    func goForward() { webView.goForward() }
+    func reload() { webView.reload() }
+
+    /// Opens the pane's current page in the user's default browser. This
+    /// is the escape hatch for logins that embedded WebKit can't complete
+    /// — some identity providers (Google, Apple, Facebook "Sign in with…")
+    /// refuse to run inside an embedded web view.
+    func openInDefaultBrowser() {
+        if let url = webView.url {
+            NSWorkspace.shared.open(url)
+        }
     }
 
     /// How long to wait for `didFinish` before proceeding anyway. A

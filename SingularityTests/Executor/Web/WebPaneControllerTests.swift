@@ -67,6 +67,18 @@ struct WebPaneControllerTests {
         #expect((youtube.webView.customUserAgent ?? "").isEmpty)
     }
 
+    /// A fresh pane has no history, so back/forward start disabled, and the
+    /// nav actions (including open-in-Safari with no URL) are safe no-ops.
+    @Test func navControlsStartDisabledAndAreSafe() {
+        let controller = WebPaneController(adapter: YouTubeAdapter())
+        #expect(controller.canGoBack == false)
+        #expect(controller.canGoForward == false)
+        controller.goBack()
+        controller.goForward()
+        controller.reload()
+        controller.openInDefaultBrowser()  // no url yet — must not crash
+    }
+
     /// The navigation delegate enforces the adapter's host allowlist.
     @Test func navigationDelegateUsesAdapterHosts() {
         let controller = WebPaneController(adapter: YouTubeAdapter())
