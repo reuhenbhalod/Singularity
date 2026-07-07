@@ -9,9 +9,16 @@ import SwiftUI
 /// Presents the Settings window as a centered, titled overlay **on top of
 /// the shell** — the shell stays up behind it. It attaches as a child of
 /// the shell panel so it floats above that panel's very high window level
-/// and travels/hides with it. A single window is reused across opens.
+/// and travels with it.
+///
+/// The window is rebuilt fresh on each open and torn down on close (rather
+/// than reused): closing it deallocates the SwiftUI hierarchy so tab
+/// `onDisappear` fires (stopping the Permissions poll timer), and the next
+/// open re-runs each tab's load (so routines / the safety log aren't stale).
+/// Being the window's delegate lets us detach from the shell and drop our
+/// reference exactly when it closes.
 @MainActor
-final class SettingsWindowController {
+final class SettingsWindowController: NSObject, NSWindowDelegate {
     private let settings: SettingsStore
     private let account: AccountModel
     private var window: NSWindow?
@@ -19,6 +26,7 @@ final class SettingsWindowController {
     init(settings: SettingsStore, account: AccountModel) {
         self.settings = settings
         self.account = account
+        super.init()
     }
 
     /// Shows Settings centered over `parent` (the shell panel), above it,
@@ -36,6 +44,25 @@ final class SettingsWindowController {
         window.makeKeyAndOrderFront(nil)
     }
 
+    /// Closes the window if open — used when the shell itself is dismissed,
+    /// so the overlay never outlives its parent.
+    func dismiss() {
+        window?.close()
+    }
+
+    // MARK: - NSWindowDelegate
+
+    func windowWillClose(_ notification: Notification) {
+        // Detach from the shell panel and drop our reference so the window
+        // (and its SwiftUI tree, and any running poll timer) is released.
+        if let window {
+            window.parent?.removeChildWindow(window)
+        }
+        window = nil
+    }
+
+    // MARK: - Building
+
     private func makeWindow() -> NSWindow {
         let hosting = NSHostingView(
             rootView: SettingsRootView(settings: settings, account: account))
@@ -45,6 +72,7 @@ final class SettingsWindowController {
             backing: .buffered, defer: false)
         window.title = "Settings"
         window.contentView = hosting
+        window.delegate = self
         window.isReleasedWhenClosed = false
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true

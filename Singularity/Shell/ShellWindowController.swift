@@ -159,6 +159,13 @@ final class ShellWindowController {
     func hide() {
         guard isShowing, let panel else { return }
 
+        // Close any attached overlay (the Settings window) first, so it
+        // never outlives its parent panel and its child-window bookkeeping
+        // is balanced. Iterates a snapshot; each close() detaches itself.
+        for child in panel.childWindows ?? [] {
+            child.close()
+        }
+
         // Explicit clear per T-P0-09 / T-P0-11 acceptance. Stores
         // are also dropped below; clear() ensures nothing leaks if
         // a reference is held by a view that outlives the hide.
