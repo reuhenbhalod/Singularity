@@ -119,7 +119,7 @@ If a lane cannot carry out a command, the shell says so in plain language, for e
 ┌────────────────────────────────────────────────────────────────┐
 │                       Singularity (macOS)                      │
 │                                                                │
-│   Option+Space  ──►  Fullscreen Shell  ──►  Session log / panes │
+│   Option+Space  ──►  Fullscreen Shell  ──►  Session log / panes│
 │                            │                                   │
 │                            ▼                                   │
 │                  ┌───────────────────┐                         │
