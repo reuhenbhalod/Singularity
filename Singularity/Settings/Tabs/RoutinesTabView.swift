@@ -35,7 +35,7 @@ final class RoutinesViewModel {
     /// `routine NAME = …` form (US-RT-4). Returns an error message on
     /// failure (leaving the stored routine unchanged), or nil on success.
     func save(name: String, stepsText: String, now: Date = Date()) async -> String? {
-        switch RoutineParser.parse("\(name) = \(stepsText)") {
+        switch RoutineParser.parse("\(name) = \(stepsText)", honorOverwriteToken: false) {
         case .failure(let message):
             return message
         case .definition(_, let steps, _):

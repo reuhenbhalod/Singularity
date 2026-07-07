@@ -58,6 +58,14 @@ struct RoutineParserTests {
             return
         }
     }
+
+    /// The Settings edit path (honorOverwriteToken: false) keeps a step that
+    /// legitimately ends in the word "overwrite".
+    @Test func editPathKeepsTrailingOverwriteWord() {
+        #expect(
+            RoutineParser.parse("dev = confirm overwrite", honorOverwriteToken: false)
+                == .definition(name: "dev", steps: ["confirm overwrite"], overwrite: false))
+    }
 }
 
 // MARK: - Resolver (US-RT-2 / US-RT-6)

@@ -23,7 +23,13 @@ enum RoutineParser {
 
     /// Parses text of the form `NAME = step1; step2` (the part AFTER the
     /// `routine` keyword). Name is lowercased for storage.
-    static func parse(_ text: String) -> Result {
+    ///
+    /// `honorOverwriteToken` is true for inline creation (a trailing
+    /// `overwrite` word confirms replacing an existing routine). The
+    /// Settings edit path passes false: the user is already editing a
+    /// specific routine, so a step that legitimately ends in the word
+    /// "overwrite" must be preserved, not treated as a confirm token.
+    static func parse(_ text: String, honorOverwriteToken: Bool = true) -> Result {
         guard let equals = text.firstIndex(of: "=") else {
             return .failure(message: "Missing '='. Try: routine NAME = step1; step2")
         }
@@ -41,7 +47,7 @@ enum RoutineParser {
 
         // A trailing `overwrite` token confirms replacing an existing routine.
         var overwrite = false
-        if stepsText.lowercased().hasSuffix(" overwrite") {
+        if honorOverwriteToken, stepsText.lowercased().hasSuffix(" overwrite") {
             overwrite = true
             stepsText = String(stepsText.dropLast(" overwrite".count)).trimmingCharacters(in: .whitespaces)
         }
