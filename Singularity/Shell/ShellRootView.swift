@@ -18,6 +18,8 @@ struct ShellRootView: View {
     /// the window controller; defaults to a no-op for previews/tests.
     var onOpenSettings: () -> Void = {}
 
+    @State private var showSettingsGear = false
+
     var body: some View {
         VStack(spacing: 0) {
             // Non-blocking strip when a permission is revoked mid-session.
@@ -47,20 +49,37 @@ struct ShellRootView: View {
             .ignoresSafeArea()
         }
         .animation(.easeOut(duration: 0.15), value: sessionLog.entries.isEmpty)
-        .overlay(alignment: .topLeading) { settingsButton }
+        .overlay(alignment: .topLeading) { settingsHotCorner }
         .overlay { ConfirmGateView(gate: confirmGate) }
         .preferredColorScheme(.dark)
     }
 
-    /// A subtle gear in the top-left corner — the discoverable way to open
-    /// Settings without knowing the `settings` command.
+    /// The gear stays hidden so it never sits on top of the log or a result.
+    /// Moving the pointer into the top-left corner reveals it; moving away
+    /// hides it again.
+    private var settingsHotCorner: some View {
+        ZStack(alignment: .topLeading) {
+            // Invisible corner that only tracks hover (clicks fall through).
+            Color.clear
+                .frame(width: 80, height: 80)
+                .contentShape(Rectangle())
+            settingsButton
+                .opacity(showSettingsGear ? 1 : 0)
+                .allowsHitTesting(showSettingsGear)
+        }
+        .onHover { hovering in
+            withAnimation(.easeOut(duration: 0.18)) { showSettingsGear = hovering }
+        }
+    }
+
+    /// The gear itself — revealed by `settingsHotCorner`.
     private var settingsButton: some View {
         Button(action: onOpenSettings) {
             Image(systemName: "gearshape.fill")
                 .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(.white.opacity(0.55))
+                .foregroundStyle(.white.opacity(0.7))
                 .padding(8)
-                .background(.white.opacity(0.06), in: Circle())
+                .background(.white.opacity(0.08), in: Circle())
         }
         .buttonStyle(.plain)
         .padding(.top, 14)
