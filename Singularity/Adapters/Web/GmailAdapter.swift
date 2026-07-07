@@ -10,14 +10,16 @@ import Foundation
 ///
 /// It has its own persistent `WKWebsiteDataStore` (separate from
 /// YouTube's) so a Gmail login persists across launches and stays
-/// isolated from other adapters. `allowedHosts` covers the inbox plus
-/// the Google sign-in hosts the login flow navigates through.
+/// isolated from other adapters. `allowedHosts` covers the inbox plus the
+/// Google sign-in host. It deliberately does NOT claim `www.google.com` /
+/// `google.com` — those belong to `GoogleAdapter` (search/maps); the login
+/// flow can still navigate to them because the allowlist is the union of
+/// all adapters. Sharing them here would route Google searches into
+/// Gmail's data store and reuse the open inbox pane.
 struct GmailAdapter: WebAdapter {
     let allowedHosts = [
         "mail.google.com",
         "accounts.google.com",
-        "www.google.com",
-        "google.com",
     ]
 
     /// Fixed identifier for Gmail's isolated, persistent data store.

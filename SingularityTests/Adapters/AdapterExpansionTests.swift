@@ -31,6 +31,16 @@ struct WebAdapterExpansionTests {
         #expect(registry.lookup(host: "x.com") is SocialAdapter)
     }
 
+    /// Google Search/Maps hosts resolve to GoogleAdapter, not GmailAdapter —
+    /// Gmail must not shadow them (else searches ride Gmail's data store and
+    /// reuse the inbox pane).
+    @Test func googleOwnsSearchAndMapsHosts() {
+        let registry = AdapterRegistry()
+        #expect(registry.lookup(host: "www.google.com") is GoogleAdapter)
+        #expect(registry.lookup(host: "google.com") is GoogleAdapter)
+        #expect(registry.lookup(host: "mail.google.com") is GmailAdapter)
+    }
+
     /// Every web adapter's persistent data-store identifier is unique —
     /// a collision would let two sites share cookies/logins.
     @Test func dataStoreIdentifiersAreUnique() {
