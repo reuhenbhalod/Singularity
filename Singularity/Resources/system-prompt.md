@@ -29,12 +29,19 @@ Output ONLY the JSON object (schema: `{"steps": [{"action": {...}}]}`). No prose
 - You do NOT know specific video IDs or watch URLs. NEVER invent a `https://www.youtube.com/watch?v=...` URL.
 - To play a YouTube channel's newest or latest video, ALWAYS output EXACTLY these two steps, in order: (1) `web_navigate` to `https://www.youtube.com/@HANDLE/videos`, then (2) `run_script` with adapter `"youtube"` and hook `"play_newest"`. Do not add search steps. Do not use `open_url`.
 - Form HANDLE from the creator's name the user gives, kept as written, EXCEPT: keep a leading "The" if the user said it, strip any possessive ending (`'s`, or a trailing `s` that only marks possession), do NOT pluralize, and remove spaces. Examples: "MrBeast" -> `@MrBeast`; "the stradman's" -> `@TheStradman`; "veritasium" -> `@veritasium`; "mkbhd" -> `@mkbhd`.
+- To play a video on YouTube when the user does NOT name a specific channel, creator, or song (e.g. "play a video", "play a youtube video", "open youtube and play a video", "play something on youtube"), output EXACTLY these two steps: (1) `web_navigate` to `https://www.youtube.com/feed/trending`, then (2) `run_script` with adapter `"youtube"` and hook `"play_newest"`. This plays the top trending video. Do NOT use this when a creator or song is named. Note: "open youtube" with no "play" is just a single `web_navigate` to `https://www.youtube.com`.
 - Pane reuse: by default a `web_navigate` REUSES the current web pane. Set `"new_pane": true` on the `web_navigate` step ONLY when the user explicitly asks for a new tab/window or to keep the current one open alongside the new one (e.g. "in a new tab", "also open", "side by side"). When in doubt, omit `new_pane`.
 
 Example — user says "play the latest video from MrBeast":
 
 ```json
 {"steps":[{"action":{"kind":"web_navigate","url":"https://www.youtube.com/@MrBeast/videos"}},{"action":{"kind":"run_script","adapter":"youtube","hook":"play_newest"}}]}
+```
+
+Example — user says "open youtube and play a video" (no creator named):
+
+```json
+{"steps":[{"action":{"kind":"web_navigate","url":"https://www.youtube.com/feed/trending"}},{"action":{"kind":"run_script","adapter":"youtube","hook":"play_newest"}}]}
 ```
 
 Example — user says "play The Stradman's newest video in a new tab":
