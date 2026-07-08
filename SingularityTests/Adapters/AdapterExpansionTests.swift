@@ -47,6 +47,18 @@ struct WebAdapterExpansionTests {
         let ids = AdapterRegistry.defaultAdapters.map(\.dataStoreIdentifier)
         #expect(Set(ids).count == ids.count)
     }
+
+    /// The batch of popular sites is on the allowlist so "open netflix",
+    /// "open github", etc. actually load.
+    @Test func popularSitesAreAllowlisted() {
+        let domains = AllowedDomains()
+        for host in [
+            "www.netflix.com", "github.com", "www.twitch.tv", "www.imdb.com",
+            "www.amazon.com", "www.espn.com", "www.instagram.com", "duckduckgo.com",
+        ] {
+            #expect(domains.contains(host), "expected \(host) to be allowlisted")
+        }
+    }
 }
 
 struct SystemAppleScriptAdapterTests {

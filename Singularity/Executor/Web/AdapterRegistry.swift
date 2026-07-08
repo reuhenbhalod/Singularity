@@ -17,6 +17,7 @@ struct AdapterRegistry {
     static let defaultAdapters: [any WebAdapter] = [
         YouTubeAdapter(), GmailAdapter(), SpotifyWebAdapter(),
         GoogleAdapter(), WikipediaAdapter(), RedditAdapter(), SocialAdapter(),
+        CommonSitesAdapter(),
     ]
 
     init(adapters: [any WebAdapter] = AdapterRegistry.defaultAdapters) {

@@ -282,10 +282,11 @@ struct WebLaneTests {
     /// what we *can* drive), instead of a generic failure.
     @Test func diagnoseExplainsUnknownSite() throws {
         let lane = WebLane(compositor: CompositorStore(), driver: FakeWebPaneDriver())
-        let amazon = try #require(URL(string: "https://www.amazon.com/"))
+        // A host that no adapter claims (example.com is reserved, never allowlisted).
+        let unknown = try #require(URL(string: "https://example.com/"))
 
-        let reason = lane.diagnose(PlanStep(action: .webNavigate(amazon)))
-        #expect(reason?.contains("amazon.com") == true)
+        let reason = lane.diagnose(PlanStep(action: .webNavigate(unknown)))
+        #expect(reason?.contains("example.com") == true)
         #expect(reason?.contains("adapter") == true)
         // A site we DO support gets no complaint.
         let youtube = try #require(URL(string: "https://www.youtube.com/feed"))
