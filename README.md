@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/macOS-14%2B%20Sonoma-000000?logo=apple&logoColor=white" alt="macOS 14+">
   <img src="https://img.shields.io/badge/UI-SwiftUI%20%2B%20AppKit-0071E3?logo=swift&logoColor=white" alt="SwiftUI + AppKit">
   <img src="https://img.shields.io/badge/LLM-Local%20via%20Ollama-000000?logo=ollama&logoColor=white" alt="Local LLM via Ollama">
-  <img src="https://img.shields.io/badge/Tests-326%20passing-2EA043" alt="326 tests passing">
+  <img src="https://img.shields.io/badge/Tests-330%20passing-2EA043" alt="330 tests passing">
   <img src="https://img.shields.io/badge/Dependencies-zero%20third--party-4C6EF5" alt="Zero third-party dependencies">
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License">
 </p>
@@ -46,14 +46,14 @@
 -->
 <p align="center">
   <img src="docs/screenshots/shell.png" width="48%" alt="The fullscreen shell with its command line and ephemeral session log">
-  <img src="https://placehold.co/1200x750/0b0b0f/e6e6e6?text=Results+Tiled+as+Panes" width="48%" alt="Several results tiled as panes inside the compositor">
+  <img src="docs/screenshots/panes.png" width="48%" alt="Several results tiled as panes inside the compositor">
 </p>
 <p align="center">
   <img src="docs/screenshots/web.png" width="48%" alt="A web command running inside an embedded pane">
   <img src="https://placehold.co/1200x750/0b0b0f/e6e6e6?text=Settings+(sidebar+navigation)" width="48%" alt="The Settings window with left-sidebar navigation">
 </p>
 
-<p align="center"><em>The fullscreen shell and command line · results tiled as panes · a web command running in place · the Settings window. The shell and the web command are real captures; panes and Settings are placeholders (see <a href="docs/screenshots/">docs/screenshots/</a>).</em></p>
+<p align="center"><em>The fullscreen shell and command line · results tiled as panes · a web command running in place · the Settings window. The shell, the tiled panes, and the web command are real captures; Settings is a placeholder (see <a href="docs/screenshots/">docs/screenshots/</a>).</em></p>
 
 ## The Problem
 
