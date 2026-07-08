@@ -50,10 +50,10 @@
 </p>
 <p align="center">
   <img src="docs/screenshots/web.png" width="48%" alt="A web command running inside an embedded pane">
-  <img src="https://placehold.co/1200x750/0b0b0f/e6e6e6?text=Settings+(sidebar+navigation)" width="48%" alt="The Settings window with left-sidebar navigation">
+  <img src="docs/screenshots/settings.png" width="48%" alt="The Settings window with left-sidebar navigation">
 </p>
 
-<p align="center"><em>The fullscreen shell and command line · results tiled as panes · a web command running in place · the Settings window. The shell, the tiled panes, and the web command are real captures; Settings is a placeholder (see <a href="docs/screenshots/">docs/screenshots/</a>).</em></p>
+<p align="center"><em>The fullscreen shell and command line · results tiled as panes · a web command running in place · the Settings window. The fullscreen shell and command line, results tiled as panes, a web command running in place, and the Settings window — all real captures.</em></p>
 
 ## The Problem
 
