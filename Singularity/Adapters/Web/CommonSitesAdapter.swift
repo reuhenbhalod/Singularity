@@ -28,8 +28,11 @@ struct CommonSitesAdapter: WebAdapter {
         "music.youtube.com",
         "soundcloud.com", "www.soundcloud.com",
         "music.apple.com",
-        // Shopping
-        "amazon.com", "www.amazon.com", "smile.amazon.com",
+        // Shopping — Amazon is deliberately EXCLUDED: its purchase flow is
+        // meant to be gated (confirm + Touch ID on `.spend`) via the not-yet-
+        // registered AmazonAdapter. Allowlisting it browse-only would let a
+        // 1-Click buy happen in-pane with no gate. It stays blocked until
+        // the gated adapter ships.
         "ebay.com", "www.ebay.com",
         "etsy.com", "www.etsy.com",
         "bestbuy.com", "www.bestbuy.com",

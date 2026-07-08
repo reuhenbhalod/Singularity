@@ -134,22 +134,27 @@ final class WebLane: ExecutorLane {
     /// — so the user never has to know the exact handle. Each stage
     /// degrades into a status string rather than throwing.
     private func playNewest(channel: String?, in controller: WebPaneController) async -> String {
-        let name = channel ?? "the channel"
+        // Result-line label: "newest MrBeast" for a named channel, or "the
+        // top trending" when the request named no channel (trending feed).
+        let label = channel.map { "newest \($0)" } ?? "the top trending"
 
-        // Fast path: current page is the guessed channel grid.
+        // Fast path: the current page already has a video grid (a channel's
+        // /videos page, or the trending feed for an unspecified request).
         if let videoURL = await newestVideoURL(in: controller) {
-            return await openAndPlay(videoURL, name: name, in: controller)
+            return await openAndPlay(videoURL, label: label, in: controller)
         }
 
-        // Fallback: resolve the creator via search, then retry on the
-        // real channel's /videos page.
-        if await resolveChannelViaSearch(name: name, in: controller),
+        // Fallback — named channel only: resolve the creator via search,
+        // then retry on the real channel's /videos page. (A trending
+        // request has no name to search, and the fast path serves it.)
+        if let channel, await resolveChannelViaSearch(name: channel, in: controller),
             let videoURL = await newestVideoURL(in: controller)
         {
-            return await openAndPlay(videoURL, name: name, in: controller)
+            return await openAndPlay(videoURL, label: label, in: controller)
         }
 
-        return "couldn't find a video for \(name)"
+        if let channel { return "couldn't find a video for \(channel)" }
+        return "couldn't find a video to play"
     }
 
     /// Runs the find-newest hook on whatever channel `/videos` page is
@@ -183,14 +188,14 @@ final class WebLane: ExecutorLane {
     }
 
     /// Navigates the pane to a video URL and nudges playback.
-    private func openAndPlay(_ videoURL: URL, name: String, in controller: WebPaneController) async
+    private func openAndPlay(_ videoURL: URL, label: String, in controller: WebPaneController) async
         -> String
     {
         do {
             try await driver.navigate(controller, to: videoURL)
         } catch {
             logger.error("opening video failed: \(String(describing: error), privacy: .public)")
-            return "found the newest video but couldn't open it"
+            return "found the video but couldn't open it"
         }
         var played =
             (try? await driver.runHook(
@@ -203,8 +208,8 @@ final class WebLane: ExecutorLane {
                     controller, javaScript: youTube.playCurrentVideo())) as? String
         }
         return played == "playing"
-            ? "playing newest \(name) video"
-            : "opened newest \(name) video"
+            ? "playing \(label) video"
+            : "opened \(label) video"
     }
 
     /// Turns a handle-ish token into a search-friendly name by splitting

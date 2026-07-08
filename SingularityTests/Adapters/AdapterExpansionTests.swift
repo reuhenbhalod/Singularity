@@ -48,16 +48,37 @@ struct WebAdapterExpansionTests {
         #expect(Set(ids).count == ids.count)
     }
 
+    /// No host is claimed by two adapters — a duplicate would route that
+    /// site into whichever adapter happens to sort first, using the wrong
+    /// data store (and, for reuse, the wrong pane).
+    @Test func noHostIsClaimedByTwoAdapters() {
+        var seen: [String: Int] = [:]
+        for adapter in AdapterRegistry.defaultAdapters {
+            for host in adapter.allowedHosts {
+                seen[host.lowercased(), default: 0] += 1
+            }
+        }
+        let duplicates = seen.filter { $0.value > 1 }.keys.sorted()
+        #expect(duplicates.isEmpty, "hosts claimed by multiple adapters: \(duplicates)")
+    }
+
     /// The batch of popular sites is on the allowlist so "open netflix",
     /// "open github", etc. actually load.
     @Test func popularSitesAreAllowlisted() {
         let domains = AllowedDomains()
         for host in [
             "www.netflix.com", "github.com", "www.twitch.tv", "www.imdb.com",
-            "www.amazon.com", "www.espn.com", "www.instagram.com", "duckduckgo.com",
+            "www.ebay.com", "www.espn.com", "www.instagram.com", "duckduckgo.com",
         ] {
             #expect(domains.contains(host), "expected \(host) to be allowlisted")
         }
+    }
+
+    /// Amazon stays OFF the allowlist — its purchase flow must go through
+    /// the gated (unregistered) AmazonAdapter, not browse-only.
+    @Test func amazonIsNotAllowlisted() {
+        #expect(!AllowedDomains().contains("www.amazon.com"))
+        #expect(!AllowedDomains().contains("amazon.com"))
     }
 }
 
