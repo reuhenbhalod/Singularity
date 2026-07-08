@@ -45,7 +45,7 @@
   Capture guidance lives in docs/screenshots/README.md.
 -->
 <p align="center">
-  <img src="https://placehold.co/1200x750/0b0b0f/e6e6e6?text=Fullscreen+Shell+%2B+Command+Line" width="48%" alt="The fullscreen shell with its command line and ephemeral session log">
+  <img src="docs/screenshots/shell.png" width="48%" alt="The fullscreen shell with its command line and ephemeral session log">
   <img src="https://placehold.co/1200x750/0b0b0f/e6e6e6?text=Results+Tiled+as+Panes" width="48%" alt="Several results tiled as panes inside the compositor">
 </p>
 <p align="center">
@@ -53,7 +53,7 @@
   <img src="https://placehold.co/1200x750/0b0b0f/e6e6e6?text=Settings+(sidebar+navigation)" width="48%" alt="The Settings window with left-sidebar navigation">
 </p>
 
-<p align="center"><em>The fullscreen shell and command line · results tiled as panes · a web command running in place · the Settings window. These are placeholders; replace them with real captures (see <a href="docs/screenshots/">docs/screenshots/</a>).</em></p>
+<p align="center"><em>The fullscreen shell and command line · results tiled as panes · a web command running in place · the Settings window. The first is a real capture; the remaining three are placeholders (see <a href="docs/screenshots/">docs/screenshots/</a>).</em></p>
 
 ## The Problem
 
