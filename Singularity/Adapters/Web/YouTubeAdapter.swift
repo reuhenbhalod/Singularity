@@ -82,11 +82,29 @@ struct YouTubeAdapter: WebAdapter {
     func playCurrentVideo() -> String {
         """
         \(WebHookJS.library)
-        const __sgl_video = await __sgl_waitForSelector("video.html5-main-video, video", 10000);
-        try { await __sgl_video.play(); } catch (e) {}
-        if (__sgl_video.paused) {
-            const __sgl_btn = document.querySelector(".ytp-large-play-button, .ytp-play-button");
-            if (__sgl_btn) { __sgl_btn.click(); }
+        __sgl_dismissConsent();
+        const __sgl_video = await __sgl_waitForSelector("video.html5-main-video, video", 15000)
+            .catch(() => null);
+        if (!__sgl_video) { return "no-video"; }
+        const __sgl_clickPlay = () => {
+            const b = document.querySelector(".ytp-play-button, .ytp-large-play-button");
+            const label = b ? (b.getAttribute("aria-label") || "") : "";
+            // Only click when the button means "Play" (not "Pause") so we
+            // never toggle an already-running video back to paused.
+            if (b && /play/i.test(label) && !/pause/i.test(label)) {
+                try { b.click(); } catch (e) {}
+            }
+        };
+        // Poll for ~12s: try programmatic play(), then the player's own
+        // button, until playback is actually advancing. Survives a
+        // not-yet-ready player, autoplay blocks, and pre-roll ad handoff —
+        // the old single attempt only worked when the player happened to be
+        // ready the instant the hook ran.
+        for (let __sgl_i = 0; __sgl_i < 30; __sgl_i++) {
+            try { await __sgl_video.play(); } catch (e) {}
+            if (__sgl_video.paused) { __sgl_clickPlay(); }
+            await __sgl_sleep(400);
+            if (!__sgl_video.paused && __sgl_video.currentTime > 0) { return "playing"; }
         }
         return __sgl_video.paused ? "paused" : "playing";
         """

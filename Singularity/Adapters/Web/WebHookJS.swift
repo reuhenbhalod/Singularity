@@ -109,6 +109,7 @@ enum WebHookJS {
             }
             return false;
         }
+        function __sgl_sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
         """
 
     /// Encodes a Swift string as a JavaScript string literal (quoted and

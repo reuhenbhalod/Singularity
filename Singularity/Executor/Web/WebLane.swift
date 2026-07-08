@@ -192,9 +192,16 @@ final class WebLane: ExecutorLane {
             logger.error("opening video failed: \(String(describing: error), privacy: .public)")
             return "found the newest video but couldn't open it"
         }
-        let played =
+        var played =
             (try? await driver.runHook(
                 controller, javaScript: youTube.playCurrentVideo())) as? String
+        if played != "playing" {
+            // The player may have only just become ready, or a pre-roll ad
+            // just handed off — one more pass before we report only "opened".
+            played =
+                (try? await driver.runHook(
+                    controller, javaScript: youTube.playCurrentVideo())) as? String
+        }
         return played == "playing"
             ? "playing newest \(name) video"
             : "opened newest \(name) video"
