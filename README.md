@@ -352,10 +352,6 @@ Singularity is local-first by construction, not by policy:
 - **"I need permission to control X."** Grant Accessibility or Automation in System Settings, Privacy and Security. The Permissions tab deep-links to the right pane. Automation permission appears after macOS prompts at runtime.
 - **The app will not launch (error -10825).** Build with `MACOSX_DEPLOYMENT_TARGET=26.3` (see Getting Started, step 3).
 
-## Disclaimer
-
-Singularity is an independent research project and an experimental interface. It drives real applications and can perform real, sometimes irreversible actions on your Mac, which is exactly why every destructive step is gated and why you should keep backups.
-
 ## License
 
 Released under the [MIT License](LICENSE).
