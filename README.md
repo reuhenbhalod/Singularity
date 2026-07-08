@@ -213,7 +213,7 @@ The app has **no Dock icon and no window** when it launches. It lives in the bac
 > ```bash
 > xcodebuild -scheme Singularity -configuration Debug build \
 >   CODE_SIGNING_ALLOWED=NO MACOSX_DEPLOYMENT_TARGET=26.3
-> > open ~/Library/Developer/Xcode/DerivedData/Singularity-*/Build/Products/Debug/Singularity.app
+> open ~/Library/Developer/Xcode/DerivedData/Singularity-*/Build/Products/Debug/Singularity.app
 > ```
 
 ## Using It
