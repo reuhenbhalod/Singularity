@@ -49,11 +49,11 @@
   <img src="https://placehold.co/1200x750/0b0b0f/e6e6e6?text=Results+Tiled+as+Panes" width="48%" alt="Several results tiled as panes inside the compositor">
 </p>
 <p align="center">
-  <img src="https://placehold.co/1200x750/0b0b0f/e6e6e6?text=Web+Command+Running+In+Place" width="48%" alt="A web command running inside an embedded pane">
+  <img src="docs/screenshots/web.png" width="48%" alt="A web command running inside an embedded pane">
   <img src="https://placehold.co/1200x750/0b0b0f/e6e6e6?text=Settings+(sidebar+navigation)" width="48%" alt="The Settings window with left-sidebar navigation">
 </p>
 
-<p align="center"><em>The fullscreen shell and command line · results tiled as panes · a web command running in place · the Settings window. The first is a real capture; the remaining three are placeholders (see <a href="docs/screenshots/">docs/screenshots/</a>).</em></p>
+<p align="center"><em>The fullscreen shell and command line · results tiled as panes · a web command running in place · the Settings window. The shell and the web command are real captures; panes and Settings are placeholders (see <a href="docs/screenshots/">docs/screenshots/</a>).</em></p>
 
 ## The Problem
 
